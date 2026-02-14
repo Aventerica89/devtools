@@ -14,6 +14,7 @@ import {
   panelSlideOut,
 } from './styles'
 import { ConsoleViewer } from '../tools/ConsoleViewer'
+import { NetworkViewer } from '../tools/NetworkViewer'
 
 interface ToolDef {
   readonly id: string
@@ -123,8 +124,8 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
             style: {
               ...toolContentStyle,
               borderTop: `1px solid ${COLORS.panelBorder}`,
-              // Reset centering for console viewer (needs full layout)
-              ...(activeTool === 'console'
+              // Reset centering for viewers that need full layout
+              ...(activeTool === 'console' || activeTool === 'network'
                 ? {
                     alignItems: 'stretch',
                     justifyContent: 'stretch',
@@ -135,11 +136,13 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
           },
           activeTool === 'console'
             ? h(ConsoleViewer, null)
-            : h(
-                'span',
-                null,
-                `${activeToolDef.label} — coming soon`
-              )
+            : activeTool === 'network'
+              ? h(NetworkViewer, null)
+              : h(
+                  'span',
+                  null,
+                  `${activeToolDef.label} — coming soon`
+                )
         )
       : null
   )
