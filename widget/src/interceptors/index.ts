@@ -1,14 +1,18 @@
+import { installConsoleInterceptor } from './console'
+
 /**
- * Network and error interceptors (placeholder).
- * Full implementation in Task 9.
+ * Network and error interceptors.
+ * Console interceptor installed here; network and error interceptors
+ * will be added in future tasks.
  */
 export function initInterceptors(
   _projectId: string,
   _pinHash: string,
   _apiBase: string
 ): void {
-  // Will be implemented in Task 9:
-  // - Console intercept (log, warn, error)
+  installConsoleInterceptor()
+
+  // Future:
   // - Network intercept (fetch, XHR)
   // - Global error handler (window.onerror, unhandledrejection)
 }

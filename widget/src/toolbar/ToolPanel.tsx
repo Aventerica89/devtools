@@ -13,6 +13,7 @@ import {
   panelSlideIn,
   panelSlideOut,
 } from './styles'
+import { ConsoleViewer } from '../tools/ConsoleViewer'
 
 interface ToolDef {
   readonly id: string
@@ -114,7 +115,7 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
         )
       })
     ),
-    // Active tool content area (placeholder)
+    // Active tool content area
     activeToolDef
       ? h(
           'div',
@@ -122,13 +123,23 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
             style: {
               ...toolContentStyle,
               borderTop: `1px solid ${COLORS.panelBorder}`,
+              // Reset centering for console viewer (needs full layout)
+              ...(activeTool === 'console'
+                ? {
+                    alignItems: 'stretch',
+                    justifyContent: 'stretch',
+                    padding: '0',
+                  }
+                : {}),
             },
           },
-          h(
-            'span',
-            null,
-            `${activeToolDef.label} — coming soon`
-          )
+          activeTool === 'console'
+            ? h(ConsoleViewer, null)
+            : h(
+                'span',
+                null,
+                `${activeToolDef.label} — coming soon`
+              )
         )
       : null
   )
