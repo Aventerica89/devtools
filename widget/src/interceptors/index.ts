@@ -1,10 +1,10 @@
 import { installConsoleInterceptor } from './console'
 import { installNetworkInterceptor } from './network'
+import { installErrorInterceptor } from './errors'
 
 /**
  * Interceptors for console, network, and errors.
- * Console and network interceptors installed here; error interceptor
- * will be added in a future task.
+ * All three interceptors are installed here at startup.
  */
 export function initInterceptors(
   _projectId: string,
@@ -13,7 +13,5 @@ export function initInterceptors(
 ): void {
   installConsoleInterceptor()
   installNetworkInterceptor()
-
-  // Future:
-  // - Global error handler (window.onerror, unhandledrejection)
+  installErrorInterceptor()
 }

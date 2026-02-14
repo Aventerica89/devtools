@@ -2,11 +2,13 @@ import { h } from 'preact'
 import { useState, useRef, useCallback } from 'preact/hooks'
 import { COLORS, FAB_SIZE, DRAG_THRESHOLD, fabStyle } from './styles'
 import { ToolPanel } from './ToolPanel'
+import type { ApiClient } from '../api/client'
 
 interface ToolbarProps {
   readonly projectId: string
   readonly pinHash: string
   readonly apiBase: string
+  readonly apiClient: ApiClient
 }
 
 interface DragState {
@@ -45,7 +47,7 @@ const WRENCH_ICON = h(
   })
 )
 
-export function Toolbar({ projectId, pinHash, apiBase }: ToolbarProps) {
+export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps) {
   const [panelOpen, setPanelOpen] = useState(false)
   const [fabHover, setFabHover] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -138,6 +140,7 @@ export function Toolbar({ projectId, pinHash, apiBase }: ToolbarProps) {
       projectId,
       isOpen: panelOpen,
       onClose: handleClosePanel,
+      apiClient,
     })
   )
 }

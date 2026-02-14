@@ -15,6 +15,10 @@ import {
 } from './styles'
 import { ConsoleViewer } from '../tools/ConsoleViewer'
 import { NetworkViewer } from '../tools/NetworkViewer'
+import { ErrorListViewer } from '../tools/ErrorOverlay'
+import { BugReporter } from '../tools/BugReporter'
+import type { ApiClient } from '../api/client'
+import type { ErrorEntry } from '../interceptors/errors'
 
 interface ToolDef {
   readonly id: string
@@ -34,15 +38,31 @@ interface ToolPanelProps {
   readonly projectId: string
   readonly isOpen: boolean
   readonly onClose: () => void
+  readonly apiClient: ApiClient
 }
 
-export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
+export function ToolPanel({ projectId, isOpen, onClose, apiClient }: ToolPanelProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [hoverClose, setHoverClose] = useState(false)
   const [hoverTool, setHoverTool] = useState<string | null>(null)
+  const [bugPrefillTitle, setBugPrefillTitle] = useState('')
+  const [bugPrefillStack, setBugPrefillStack] = useState('')
 
   const handleToolClick = useCallback((toolId: string) => {
-    setActiveTool((prev) => (prev === toolId ? null : toolId))
+    // When switching away from bugs, clear prefill state
+    setActiveTool((prev) => {
+      if (prev === 'bugs' && toolId !== 'bugs') {
+        setBugPrefillTitle('')
+        setBugPrefillStack('')
+      }
+      return prev === toolId ? null : toolId
+    })
+  }, [])
+
+  const handleReportBug = useCallback((entry: ErrorEntry) => {
+    setBugPrefillTitle(entry.message)
+    setBugPrefillStack(entry.stack)
+    setActiveTool('bugs')
   }, [])
 
   const activeToolDef = activeTool
@@ -125,7 +145,10 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
               ...toolContentStyle,
               borderTop: `1px solid ${COLORS.panelBorder}`,
               // Reset centering for viewers that need full layout
-              ...(activeTool === 'console' || activeTool === 'network'
+              ...(activeTool === 'console'
+                || activeTool === 'network'
+                || activeTool === 'errors'
+                || activeTool === 'bugs'
                 ? {
                     alignItems: 'stretch',
                     justifyContent: 'stretch',
@@ -138,11 +161,20 @@ export function ToolPanel({ projectId, isOpen, onClose }: ToolPanelProps) {
             ? h(ConsoleViewer, null)
             : activeTool === 'network'
               ? h(NetworkViewer, null)
-              : h(
-                  'span',
-                  null,
-                  `${activeToolDef.label} — coming soon`
-                )
+              : activeTool === 'errors'
+                ? h(ErrorListViewer, { onReportBug: handleReportBug })
+                : activeTool === 'bugs'
+                  ? h(BugReporter, {
+                      apiClient,
+                      projectId,
+                      prefillTitle: bugPrefillTitle || undefined,
+                      prefillStack: bugPrefillStack || undefined,
+                    })
+                  : h(
+                      'span',
+                      null,
+                      `${activeToolDef.label} -- coming soon`
+                    )
         )
       : null
   )
