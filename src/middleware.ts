@@ -14,7 +14,8 @@ const CORS_HEADERS = {
 function isWidgetPath(pathname: string): boolean {
   return (
     pathname.startsWith('/api/widget') ||
-    pathname.startsWith('/api/bugs')
+    pathname.startsWith('/api/bugs') ||
+    pathname.startsWith('/api/ai')
   )
 }
 
