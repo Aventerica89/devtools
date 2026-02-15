@@ -44,7 +44,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   open: 'bg-emerald-900/50 text-emerald-300 border-emerald-700',
   'in-progress': 'bg-purple-900/50 text-purple-300 border-purple-700',
-  resolved: 'bg-slate-700/50 text-slate-400 border-slate-600',
+  resolved: 'bg-accent/50 text-muted-foreground border-border',
 }
 
 const STATUS_CYCLE: Record<string, string> = {
@@ -76,9 +76,9 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
   const status = bug.status || 'open'
 
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-sm text-white flex items-center gap-2">
+        <CardTitle className="text-sm text-foreground flex items-center gap-2">
           <Badge
             className={cn(
               'text-[10px] uppercase border',
@@ -108,7 +108,7 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
               variant="ghost"
               size="icon-xs"
               onClick={() => setExpanded((prev) => !prev)}
-              className="text-slate-400"
+              className="text-muted-foreground"
             >
               {expanded ? (
                 <ChevronUp className="h-3 w-3" />
@@ -121,14 +121,14 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
       </CardHeader>
 
       <CardContent className="pt-0 -mt-4">
-        <div className="flex items-center gap-3 text-xs text-slate-500">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span>{formatDate(bug.createdAt)}</span>
           {bug.pageUrl && (
             <a
               href={bug.pageUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-slate-300"
+              className="flex items-center gap-1 hover:text-foreground"
             >
               <ExternalLink className="h-3 w-3" />
               {bug.pageUrl}
@@ -139,18 +139,18 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
         {expanded && (
           <div className="mt-3 space-y-3">
             {bug.description && (
-              <p className="text-sm text-slate-300">{bug.description}</p>
+              <p className="text-sm text-foreground">{bug.description}</p>
             )}
 
             {bug.stackTrace && (
-              <pre className="text-xs bg-slate-950 p-3 rounded-md overflow-x-auto text-red-400 border border-slate-800">
+              <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto text-red-400 border border-border">
                 {bug.stackTrace}
               </pre>
             )}
 
             {bug.userAgent && (
-              <p className="text-xs text-slate-500">
-                <span className="text-slate-400">UA:</span> {bug.userAgent}
+              <p className="text-xs text-muted-foreground">
+                <span className="text-muted-foreground">UA:</span> {bug.userAgent}
               </p>
             )}
 
@@ -166,7 +166,7 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
             )}
 
             {bug.resolvedAt && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Resolved: {formatDate(bug.resolvedAt)}
               </p>
             )}

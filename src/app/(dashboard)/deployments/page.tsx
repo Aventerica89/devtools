@@ -80,7 +80,7 @@ export default function DeploymentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <GitBranch className="h-5 w-5 text-slate-400" />
+          <GitBranch className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Deployments</h1>
           <Badge variant="secondary" className="text-xs">
             {deployments.length}
@@ -91,17 +91,17 @@ export default function DeploymentsPage() {
               <span
                 className={cn(
                   'absolute inline-flex h-full w-full rounded-full opacity-75',
-                  configured ? 'bg-green-400 animate-ping' : 'bg-slate-500'
+                  configured ? 'bg-green-400 animate-ping' : 'bg-muted-foreground'
                 )}
               />
               <span
                 className={cn(
                   'relative inline-flex h-2 w-2 rounded-full',
-                  configured ? 'bg-green-500' : 'bg-slate-600'
+                  configured ? 'bg-green-500' : 'bg-muted-foreground'
                 )}
               />
             </span>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-muted-foreground">
               {configured ? 'Live' : 'Offline'}
             </span>
           </div>
@@ -114,8 +114,8 @@ export default function DeploymentsPage() {
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
               className={cn(
-                'h-8 rounded-md border border-slate-700',
-                'bg-slate-950 text-white text-sm px-2',
+                'h-8 rounded-md border border-border',
+                'bg-background text-foreground text-sm px-2',
                 'focus:outline-none focus:ring-2 focus:ring-ring'
               )}
             >
@@ -134,7 +134,7 @@ export default function DeploymentsPage() {
             variant="outline"
             onClick={() => fetchDeployments()}
             disabled={refreshing}
-            className="border-slate-700 text-slate-300"
+            className="border-border text-foreground"
           >
             <RefreshCw
               className={cn('h-4 w-4', refreshing && 'animate-spin')}
@@ -150,14 +150,14 @@ export default function DeploymentsPage() {
       )}
 
       {/* Deployment table */}
-      <Card className="bg-slate-900/50 border-slate-800">
+      <Card className="bg-card/50 border-border">
         <CardHeader className="pb-0">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm text-slate-400 font-normal">
+            <CardTitle className="text-sm text-muted-foreground font-normal">
               Recent Deployments
             </CardTitle>
             {lastRefresh && (
-              <span className="text-xs text-slate-600">
+              <span className="text-xs text-muted-foreground">
                 Updated {formatTime(lastRefresh)}
               </span>
             )}
@@ -177,20 +177,20 @@ export default function DeploymentsPage() {
 
 function NotConfiguredCard() {
   return (
-    <Card className="bg-slate-900/50 border-slate-800">
+    <Card className="bg-card/50 border-border">
       <CardContent className="flex items-start gap-4 pt-6">
         <AlertCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
         <div className="space-y-2">
-          <p className="text-sm text-slate-300">
+          <p className="text-sm text-foreground">
             App Tracker is not configured. Connect it to see live
             deployment data.
           </p>
-          <div className="text-xs text-slate-500 space-y-1">
+          <div className="text-xs text-muted-foreground space-y-1">
             <p>Add these environment variables:</p>
-            <code className="block bg-slate-950 p-2 rounded text-slate-400">
+            <code className="block bg-background p-2 rounded text-muted-foreground">
               APP_TRACKER_SUPABASE_URL=https://your-project.supabase.co
             </code>
-            <code className="block bg-slate-950 p-2 rounded text-slate-400">
+            <code className="block bg-background p-2 rounded text-muted-foreground">
               APP_TRACKER_SERVICE_KEY=your-service-role-key
             </code>
           </div>

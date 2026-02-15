@@ -34,21 +34,21 @@ function SwatchGrid({
 }) {
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-slate-300">{label}</h3>
+      <h3 className="text-sm font-medium text-foreground">{label}</h3>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {swatches.map((swatch) => (
           <div
             key={swatch.name}
-            className="flex items-center gap-3 rounded-md border border-slate-700 p-3"
+            className="flex items-center gap-3 rounded-md border border-border p-3"
           >
             <div
-              className={`h-10 w-10 shrink-0 rounded-md ${swatch.className} border border-slate-600`}
+              className={`h-10 w-10 shrink-0 rounded-md ${swatch.className} border border-border`}
             />
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-slate-200">
+              <p className="truncate text-sm font-medium text-foreground">
                 {swatch.name}
               </p>
-              <p className="font-mono text-xs text-slate-500">{swatch.hex}</p>
+              <p className="font-mono text-xs text-muted-foreground">{swatch.hex}</p>
             </div>
           </div>
         ))}

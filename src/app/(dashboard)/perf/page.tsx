@@ -76,7 +76,7 @@ export default function PerfPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading performance data...
       </div>
     )
@@ -100,8 +100,8 @@ export default function PerfPage() {
             value={filterProject}
             onChange={(e) => setFilterProject(e.target.value)}
             className={cn(
-              'h-8 rounded-md border border-slate-700',
-              'bg-slate-950 text-white text-sm px-2',
+              'h-8 rounded-md border border-border',
+              'bg-background text-foreground text-sm px-2',
               'focus:outline-none focus:ring-2 focus:ring-ring'
             )}
           >
@@ -118,8 +118,8 @@ export default function PerfPage() {
             value={filterDays}
             onChange={(e) => setFilterDays(Number(e.target.value))}
             className={cn(
-              'h-8 rounded-md border border-slate-700',
-              'bg-slate-950 text-white text-sm px-2',
+              'h-8 rounded-md border border-border',
+              'bg-background text-foreground text-sm px-2',
               'focus:outline-none focus:ring-2 focus:ring-ring'
             )}
           >
@@ -136,7 +136,7 @@ export default function PerfPage() {
             variant="outline"
             onClick={() => fetchEntries()}
             disabled={refreshing}
-            className="border-slate-700 text-slate-300"
+            className="border-border text-foreground"
           >
             <RefreshCw
               className={cn('h-4 w-4', refreshing && 'animate-spin')}
@@ -152,7 +152,7 @@ export default function PerfPage() {
         <>
           {/* Current Scores */}
           <section>
-            <h2 className="text-sm font-medium text-slate-400 mb-3">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">
               Current Scores
             </h2>
             <ScoreCards entries={entries} thresholds={THRESHOLDS} />
@@ -160,7 +160,7 @@ export default function PerfPage() {
 
           {/* Trend Charts */}
           <section>
-            <h2 className="text-sm font-medium text-slate-400 mb-3">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">
               Trends ({filterDays}d)
             </h2>
             <TrendChartsGrid
@@ -172,10 +172,10 @@ export default function PerfPage() {
 
           {/* Per-Page Breakdown */}
           <section>
-            <h2 className="text-sm font-medium text-slate-400 mb-3">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3">
               Per-Page Breakdown
             </h2>
-            <Card className="bg-slate-900/50 border-slate-800">
+            <Card className="bg-card/50 border-border">
               <CardContent className="pt-4">
                 <PageBreakdown
                   entries={entries}
@@ -192,24 +192,24 @@ export default function PerfPage() {
 
 function EmptyState() {
   return (
-    <Card className="bg-slate-900/50 border-slate-800">
+    <Card className="bg-card/50 border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-300">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           <Zap className="h-5 w-5 text-purple-400" />
           No Performance Data Yet
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted-foreground">
           Performance metrics are automatically collected by the DevTools
           widget using the Web Vitals library. Once configured, you will
           see LCP, CLS, INP, FCP, and TTFB scores here.
         </p>
         <div className="space-y-2">
-          <p className="text-xs text-slate-500 font-medium uppercase">
+          <p className="text-xs text-muted-foreground font-medium uppercase">
             Setup Steps
           </p>
-          <ol className="text-sm text-slate-400 space-y-1 list-decimal pl-4">
+          <ol className="text-sm text-muted-foreground space-y-1 list-decimal pl-4">
             <li>
               Add the DevTools widget script to your site
             </li>
@@ -223,8 +223,8 @@ function EmptyState() {
             </li>
           </ol>
         </div>
-        <div className="bg-slate-950 rounded-lg p-3">
-          <p className="text-xs text-slate-500 mb-1">Widget script tag:</p>
+        <div className="bg-background rounded-lg p-3">
+          <p className="text-xs text-muted-foreground mb-1">Widget script tag:</p>
           <code className="text-xs text-purple-400 block">
             {'<script src="https://your-domain/widget.js"'}
             {' data-project="your-project-id"></script>'}

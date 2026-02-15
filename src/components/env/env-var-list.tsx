@@ -96,8 +96,8 @@ export function EnvVarList({
           value={filterProjectId}
           onChange={(e) => onFilterChange(e.target.value)}
           className={cn(
-            'h-8 rounded-md border border-slate-700',
-            'bg-slate-900 text-white text-sm px-3',
+            'h-8 rounded-md border border-border',
+            'bg-card text-foreground text-sm px-3',
             'focus:outline-none focus:ring-2 focus:ring-ring'
           )}
         >
@@ -108,14 +108,14 @@ export function EnvVarList({
             </option>
           ))}
         </select>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-muted-foreground">
           {envVars.length} variable{envVars.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {/* Grouped cards */}
       {projectIds.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <Lock className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No environment variables</p>
           <p className="text-xs mt-1">
@@ -126,23 +126,23 @@ export function EnvVarList({
         projectIds.map((projectId) => (
           <Card
             key={projectId}
-            className="bg-slate-900 border-slate-800"
+            className="bg-card border-border"
           >
             <CardHeader className="pb-0">
-              <CardTitle className="text-sm text-slate-300">
+              <CardTitle className="text-sm text-foreground">
                 {projectMap.get(projectId) || projectId}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800">
-                    <TableHead className="text-slate-500">Key</TableHead>
-                    <TableHead className="text-slate-500">Value</TableHead>
-                    <TableHead className="text-slate-500 w-[200px]">
+                  <TableRow className="border-border">
+                    <TableHead className="text-muted-foreground">Key</TableHead>
+                    <TableHead className="text-muted-foreground">Value</TableHead>
+                    <TableHead className="text-muted-foreground w-[200px]">
                       Description
                     </TableHead>
-                    <TableHead className="text-slate-500 w-[100px]">
+                    <TableHead className="text-muted-foreground w-[100px]">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -151,7 +151,7 @@ export function EnvVarList({
                   {grouped[projectId].map((envVar) => (
                     <TableRow
                       key={envVar.id}
-                      className="border-slate-800"
+                      className="border-border"
                     >
                       <TableCell className="font-mono text-sm">
                         <div className="flex items-center gap-1.5">
@@ -167,13 +167,13 @@ export function EnvVarList({
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
-                        <span className="text-slate-400">
+                        <span className="text-muted-foreground">
                           {envVar.sensitive && !revealedIds.has(envVar.id)
                             ? maskValue(envVar.value)
                             : envVar.value}
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs text-slate-500">
+                      <TableCell className="text-xs text-muted-foreground">
                         {envVar.description || '-'}
                       </TableCell>
                       <TableCell>

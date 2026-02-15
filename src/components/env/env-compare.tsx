@@ -103,8 +103,8 @@ export function EnvCompare({ envVars, projects }: Props) {
   }, [compareRows])
 
   const selectClasses = cn(
-    'h-8 rounded-md border border-slate-700',
-    'bg-slate-900 text-white text-sm px-3',
+    'h-8 rounded-md border border-border',
+    'bg-card text-foreground text-sm px-3',
     'focus:outline-none focus:ring-2 focus:ring-ring'
   )
 
@@ -113,7 +113,7 @@ export function EnvCompare({ envVars, projects }: Props) {
       {/* Project selectors */}
       <div className="flex items-center gap-4">
         <div className="flex-1 space-y-1">
-          <label className="text-xs text-slate-500">Project A</label>
+          <label className="text-xs text-muted-foreground">Project A</label>
           <select
             value={leftProjectId}
             onChange={(e) => setLeftProjectId(e.target.value)}
@@ -127,9 +127,9 @@ export function EnvCompare({ envVars, projects }: Props) {
             ))}
           </select>
         </div>
-        <span className="text-slate-600 mt-5">vs</span>
+        <span className="text-muted-foreground mt-5">vs</span>
         <div className="flex-1 space-y-1">
-          <label className="text-xs text-slate-500">Project B</label>
+          <label className="text-xs text-muted-foreground">Project B</label>
           <select
             value={rightProjectId}
             onChange={(e) => setRightProjectId(e.target.value)}
@@ -147,9 +147,9 @@ export function EnvCompare({ envVars, projects }: Props) {
 
       {/* Results */}
       {leftProjectId && rightProjectId ? (
-        <Card className="bg-slate-900 border-slate-800">
+        <Card className="bg-card border-border">
           <CardHeader className="pb-0">
-            <CardTitle className="text-sm text-slate-300 flex items-center gap-3">
+            <CardTitle className="text-sm text-foreground flex items-center gap-3">
               Comparison Results
               <div className="flex gap-2 text-xs font-normal">
                 <span className="text-green-400">
@@ -166,23 +166,23 @@ export function EnvCompare({ envVars, projects }: Props) {
           </CardHeader>
           <CardContent>
             {compareRows.length === 0 ? (
-              <p className="text-sm text-slate-500 py-4 text-center">
+              <p className="text-sm text-muted-foreground py-4 text-center">
                 No variables found in either project
               </p>
             ) : (
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800">
-                    <TableHead className="text-slate-500">Key</TableHead>
-                    <TableHead className="text-slate-500">
+                  <TableRow className="border-border">
+                    <TableHead className="text-muted-foreground">Key</TableHead>
+                    <TableHead className="text-muted-foreground">
                       {projects.find((p) => p.id === leftProjectId)
                         ?.name || 'Project A'}
                     </TableHead>
-                    <TableHead className="text-slate-500">
+                    <TableHead className="text-muted-foreground">
                       {projects.find((p) => p.id === rightProjectId)
                         ?.name || 'Project B'}
                     </TableHead>
-                    <TableHead className="text-slate-500 w-[80px]">
+                    <TableHead className="text-muted-foreground w-[80px]">
                       Status
                     </TableHead>
                   </TableRow>
@@ -191,19 +191,19 @@ export function EnvCompare({ envVars, projects }: Props) {
                   {compareRows.map((row) => (
                     <TableRow
                       key={row.key}
-                      className="border-slate-800"
+                      className="border-border"
                     >
                       <TableCell className="font-mono text-sm">
                         {row.key}
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-slate-400">
+                      <TableCell className="font-mono text-sm text-muted-foreground">
                         {row.leftValue ?? (
                           <span className="text-red-400/50 italic">
                             not set
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="font-mono text-sm text-slate-400">
+                      <TableCell className="font-mono text-sm text-muted-foreground">
                         {row.rightValue ?? (
                           <span className="text-red-400/50 italic">
                             not set
@@ -219,7 +219,7 @@ export function EnvCompare({ envVars, projects }: Props) {
           </CardContent>
         </Card>
       ) : (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <p>Select two projects to compare their env vars</p>
         </div>
       )}

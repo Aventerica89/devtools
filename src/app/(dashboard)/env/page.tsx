@@ -116,7 +116,7 @@ export default function EnvVarsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading env vars...
       </div>
     )
@@ -127,7 +127,7 @@ export default function EnvVarsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <KeyRound className="h-5 w-5 text-slate-400" />
+          <KeyRound className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Env Vars</h1>
           <Badge variant="secondary" className="text-xs">
             {(envVars ?? []).length}
@@ -141,7 +141,7 @@ export default function EnvVarsPage() {
               Add Variable
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
               <DialogTitle>Add Environment Variable</DialogTitle>
             </DialogHeader>
@@ -154,8 +154,8 @@ export default function EnvVarsPage() {
                     setNewVar({ ...newVar, projectId: e.target.value })
                   }
                   className={cn(
-                    'w-full h-9 rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm px-3',
+                    'w-full h-9 rounded-md border border-border',
+                    'bg-background text-foreground text-sm px-3',
                     'focus:outline-none focus:ring-2 focus:ring-ring'
                   )}
                 >
@@ -179,7 +179,7 @@ export default function EnvVarsPage() {
                     })
                   }
                   placeholder="e.g. DATABASE_URL"
-                  className="bg-slate-950 border-slate-700 font-mono"
+                  className="bg-background border-border font-mono"
                 />
               </div>
 
@@ -192,7 +192,7 @@ export default function EnvVarsPage() {
                   }
                   placeholder="e.g. postgres://..."
                   type={newVar.sensitive ? 'password' : 'text'}
-                  className="bg-slate-950 border-slate-700 font-mono"
+                  className="bg-background border-border font-mono"
                 />
               </div>
 
@@ -203,7 +203,7 @@ export default function EnvVarsPage() {
                     setNewVar({ ...newVar, sensitive: checked })
                   }
                 />
-                <Label className="text-sm text-slate-400">
+                <Label className="text-sm text-muted-foreground">
                   Sensitive value (masked by default)
                 </Label>
               </div>
@@ -219,7 +219,7 @@ export default function EnvVarsPage() {
                     })
                   }
                   placeholder="What is this variable for?"
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
             </div>

@@ -72,13 +72,13 @@ export function AiProviderCard({
   }
 
   return (
-    <div className="border border-slate-800 rounded-lg p-5 space-y-4">
+    <div className="border border-border rounded-lg p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Zap className="h-5 w-5 text-slate-400" />
+          <Zap className="h-5 w-5 text-muted-foreground" />
           <div>
-            <h3 className="font-medium text-white">{name}</h3>
-            <p className="text-xs text-slate-500">{envVar}</p>
+            <h3 className="font-medium text-foreground">{name}</h3>
+            <p className="text-xs text-muted-foreground">{envVar}</p>
           </div>
         </div>
         <Badge
@@ -96,14 +96,14 @@ export function AiProviderCard({
 
       {/* Key display */}
       <div className="space-y-2">
-        <Label className="text-xs text-slate-400">API Key</Label>
+        <Label className="text-xs text-muted-foreground">API Key</Label>
         <div className="flex items-center gap-2">
           <Input
             readOnly
             type={showKey ? 'text' : 'password'}
             value={isConfigured ? 'sk-...configured-on-server' : ''}
             placeholder="Not configured"
-            className="bg-slate-950 border-slate-700 font-mono text-xs"
+            className="bg-background border-border font-mono text-xs"
           />
           <Button
             size="icon"
@@ -122,13 +122,13 @@ export function AiProviderCard({
 
       {/* Available models */}
       <div className="space-y-2">
-        <Label className="text-xs text-slate-400">Available Models</Label>
+        <Label className="text-xs text-muted-foreground">Available Models</Label>
         <div className="flex flex-wrap gap-1.5">
           {models.map((model) => (
             <Badge
               key={model}
               variant="secondary"
-              className="text-xs bg-slate-800 text-slate-300"
+              className="text-xs bg-muted text-foreground"
             >
               {model}
             </Badge>

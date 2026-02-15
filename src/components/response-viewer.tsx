@@ -28,7 +28,7 @@ type Props = {
 }
 
 function getStatusColor(status: number): string {
-  if (status === 0) return 'bg-slate-700 text-slate-300'
+  if (status === 0) return 'bg-accent text-foreground'
   if (status < 300) return 'bg-emerald-900/50 text-emerald-300 border-emerald-700'
   if (status < 400) return 'bg-blue-900/50 text-blue-300 border-blue-700'
   if (status < 500) return 'bg-yellow-900/50 text-yellow-300 border-yellow-700'
@@ -57,7 +57,7 @@ export function ResponseViewer({ response, isLoading }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
         <Loader2 className="h-8 w-8 animate-spin mb-3" />
         <p className="text-sm">Sending request...</p>
       </div>
@@ -66,9 +66,9 @@ export function ResponseViewer({ response, isLoading }: Props) {
 
   if (!response) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-slate-500">
+      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
         <p className="text-sm">Send a request to see the response</p>
-        <p className="text-xs mt-1 text-slate-600">
+        <p className="text-xs mt-1 text-muted-foreground">
           Build your request on the left and hit Send
         </p>
       </div>
@@ -85,7 +85,7 @@ export function ResponseViewer({ response, isLoading }: Props) {
         <Badge className={cn('text-sm font-mono', getStatusColor(response.status))}>
           {response.status} {response.statusText}
         </Badge>
-        <div className="flex items-center gap-1 text-xs text-slate-400">
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <Clock className="h-3 w-3" />
           {response.timing}ms
         </div>
@@ -97,8 +97,8 @@ export function ResponseViewer({ response, isLoading }: Props) {
           <button
             onClick={() => setShowHeaders(!showHeaders)}
             className={cn(
-              'flex items-center gap-1 text-xs text-slate-400',
-              'hover:text-slate-200 transition-colors'
+              'flex items-center gap-1 text-xs text-muted-foreground',
+              'hover:text-foreground transition-colors'
             )}
           >
             Response Headers
@@ -114,16 +114,16 @@ export function ResponseViewer({ response, isLoading }: Props) {
           {showHeaders && (
             <div
               className={cn(
-                'rounded-md border border-slate-800',
-                'bg-slate-950 p-3 space-y-1'
+                'rounded-md border border-border',
+                'bg-background p-3 space-y-1'
               )}
             >
               {headerEntries.map(([key, value]) => (
                 <div key={key} className="flex gap-2 text-xs">
-                  <span className="text-slate-400 shrink-0 font-mono">
+                  <span className="text-muted-foreground shrink-0 font-mono">
                     {key}:
                   </span>
-                  <span className="text-slate-300 font-mono break-all">
+                  <span className="text-foreground font-mono break-all">
                     {value}
                   </span>
                 </div>
@@ -136,14 +136,14 @@ export function ResponseViewer({ response, isLoading }: Props) {
       {/* Response Body */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label className="text-xs text-slate-400">
+          <Label className="text-xs text-muted-foreground">
             Response Body
           </Label>
           <Button
             variant="ghost"
             size="sm"
             onClick={copyBody}
-            className="h-6 text-xs text-slate-400"
+            className="h-6 text-xs text-muted-foreground"
           >
             {copied ? (
               <Check className="h-3 w-3 text-emerald-400" />
@@ -155,9 +155,9 @@ export function ResponseViewer({ response, isLoading }: Props) {
         </div>
         <pre
           className={cn(
-            'rounded-md border border-slate-800',
-            'bg-slate-950 p-3 text-xs font-mono',
-            'text-slate-300 overflow-auto max-h-[500px]',
+            'rounded-md border border-border',
+            'bg-background p-3 text-xs font-mono',
+            'text-foreground overflow-auto max-h-[500px]',
             'whitespace-pre-wrap break-all'
           )}
         >

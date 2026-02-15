@@ -71,11 +71,11 @@ export default function MobileAppPage() {
       {/* Header */}
       <div className="space-y-2 text-center">
         <div className="flex items-center justify-center gap-3">
-          <Smartphone className="h-6 w-6 text-slate-400" />
+          <Smartphone className="h-6 w-6 text-muted-foreground" />
           <h1 className="text-2xl font-bold">DevTools Mobile</h1>
           <Badge variant="secondary">Coming Soon</Badge>
         </div>
-        <p className="text-sm text-slate-400 max-w-md mx-auto">
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
           A native companion app for iOS and Android, putting your
           developer toolkit in your pocket.
         </p>
@@ -86,24 +86,24 @@ export default function MobileAppPage() {
 
       {/* Feature Cards */}
       <div>
-        <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4 text-center">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4 text-center">
           Planned Features
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {FEATURES.map((feature) => (
             <Card
               key={feature.title}
-              className="bg-slate-900 border-slate-800"
+              className="bg-card border-border"
             >
               <CardContent className="flex items-start gap-3 pt-5">
-                <div className="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-slate-800 border border-slate-700">
-                  <feature.icon className="h-4 w-4 text-slate-300" />
+                <div className="shrink-0 mt-0.5 flex h-8 w-8 items-center justify-center rounded-md bg-muted border border-border">
+                  <feature.icon className="h-4 w-4 text-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-200">
+                  <p className="text-sm font-medium text-foreground">
                     {feature.title}
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {feature.description}
                   </p>
                 </div>
@@ -114,7 +114,7 @@ export default function MobileAppPage() {
       </div>
 
       {/* Email Signup */}
-      <Card className="bg-slate-900 border-slate-800">
+      <Card className="bg-card border-border">
         <CardHeader>
           <CardTitle className="text-base">Get Notified</CardTitle>
           <CardDescription>
@@ -138,7 +138,7 @@ export default function MobileAppPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="flex-1 border-slate-700 bg-slate-950"
+                className="flex-1 border-border bg-background"
               />
               <Button type="submit" size="sm">
                 Notify Me
@@ -151,16 +151,16 @@ export default function MobileAppPage() {
 
       {/* Tech Stack */}
       <div className="space-y-3 pb-6">
-        <h2 className="text-sm font-medium text-slate-500 uppercase tracking-wider text-center">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider text-center">
           Planned Technology
         </h2>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           {TECH_STACK.map((item) => (
             <div
               key={item.label}
-              className="flex items-center gap-2 text-xs text-slate-400"
+              className="flex items-center gap-2 text-xs text-muted-foreground"
             >
-              <item.icon className="h-3.5 w-3.5 text-slate-500" />
+              <item.icon className="h-3.5 w-3.5 text-muted-foreground" />
               <span>{item.label}</span>
             </div>
           ))}

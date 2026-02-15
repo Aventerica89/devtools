@@ -75,7 +75,7 @@ export function CopyButton({
       onClick={handleClick}
       className={cn(
         'inline-flex items-center opacity-0 group-hover/node:opacity-100',
-        'transition-opacity ml-2 text-slate-500 hover:text-slate-300'
+        'transition-opacity ml-2 text-muted-foreground hover:text-foreground'
       )}
       title={`Copy path: ${path}`}
     >
@@ -97,16 +97,16 @@ function KeyLabel({
 }) {
   return (
     <span className={cn(
-      'text-slate-300 mr-1',
+      'text-foreground mr-1',
       matchesSearch(keyName, searchTerm) && 'bg-yellow-500/30 rounded px-0.5'
     )}>
       <HighlightText text={keyName} searchTerm={searchTerm} />
-      <span className="text-slate-500">: </span>
+      <span className="text-muted-foreground">: </span>
     </span>
   )
 }
 
-const ROW_CLASS = 'group/node flex items-center py-0.5 hover:bg-slate-800/50 rounded px-1'
+const ROW_CLASS = 'group/node flex items-center py-0.5 hover:bg-accent/50 rounded px-1'
 
 export function NullNode({ path, keyName, searchTerm, onPathCopy }: NodeProps) {
   return (
@@ -114,7 +114,7 @@ export function NullNode({ path, keyName, searchTerm, onPathCopy }: NodeProps) {
       {keyName !== undefined && (
         <KeyLabel keyName={keyName} searchTerm={searchTerm} />
       )}
-      <span className="text-slate-500 italic">null</span>
+      <span className="text-muted-foreground italic">null</span>
       <CopyButton path={path} onCopy={onPathCopy} />
     </div>
   )

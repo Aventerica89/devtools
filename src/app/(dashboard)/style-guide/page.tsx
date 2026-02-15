@@ -66,8 +66,8 @@ export default function StyleGuidePage() {
       <nav className="sticky top-0 hidden w-48 shrink-0 lg:block">
         <div className="space-y-1 py-2">
           <div className="flex items-center gap-2 px-3 py-2">
-            <BookOpen className="h-4 w-4 text-slate-400" />
-            <span className="text-xs font-medium uppercase text-slate-500">
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium uppercase text-muted-foreground">
               Contents
             </span>
           </div>
@@ -78,8 +78,8 @@ export default function StyleGuidePage() {
               className={cn(
                 'block w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors',
                 activeSection === item.id
-                  ? 'bg-slate-800 text-white'
-                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                  ? 'bg-muted text-foreground'
+                  : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
               )}
             >
               {item.label}
@@ -93,8 +93,8 @@ export default function StyleGuidePage() {
         <div className="space-y-4">
           {/* Page Header */}
           <div className="space-y-1">
-            <h1 className="text-xl font-bold text-slate-50">Style Guide</h1>
-            <p className="text-sm text-slate-400">
+            <h1 className="text-xl font-bold text-foreground">Style Guide</h1>
+            <p className="text-sm text-muted-foreground">
               Component reference for consistent design across the dashboard
             </p>
           </div>

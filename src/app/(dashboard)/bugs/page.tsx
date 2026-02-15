@@ -53,7 +53,7 @@ const SEVERITY_FILTER_STYLES: Record<string, string> = {
 const STATUS_FILTER_STYLES: Record<string, string> = {
   open: 'border-emerald-700 text-emerald-300',
   'in-progress': 'border-purple-700 text-purple-300',
-  resolved: 'border-slate-600 text-slate-400',
+  resolved: 'border-border text-muted-foreground',
 }
 
 export default function BugsPage() {
@@ -145,7 +145,7 @@ export default function BugsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading bugs...
       </div>
     )
@@ -156,7 +156,7 @@ export default function BugsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Bug className="h-5 w-5 text-slate-400" />
+          <Bug className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Bug Tracker</h1>
           <Badge variant="secondary" className="text-xs">
             {filtered.length}
@@ -170,7 +170,7 @@ export default function BugsPage() {
               New Bug
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
               <DialogTitle>Report a Bug</DialogTitle>
             </DialogHeader>
@@ -183,8 +183,8 @@ export default function BugsPage() {
                     setNewBug({ ...newBug, projectId: e.target.value })
                   }
                   className={cn(
-                    'w-full h-9 rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm px-3',
+                    'w-full h-9 rounded-md border border-border',
+                    'bg-background text-foreground text-sm px-3',
                     'focus:outline-none focus:ring-2 focus:ring-ring'
                   )}
                 >
@@ -205,7 +205,7 @@ export default function BugsPage() {
                     setNewBug({ ...newBug, title: e.target.value })
                   }
                   placeholder="Brief description of the bug"
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
 
@@ -219,8 +219,8 @@ export default function BugsPage() {
                   placeholder="Steps to reproduce, expected vs actual behavior"
                   rows={3}
                   className={cn(
-                    'w-full rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm p-3',
+                    'w-full rounded-md border border-border',
+                    'bg-background text-foreground text-sm p-3',
                     'focus:outline-none focus:ring-2 focus:ring-ring',
                     'resize-none'
                   )}
@@ -252,7 +252,7 @@ export default function BugsPage() {
                     setNewBug({ ...newBug, pageUrl: e.target.value })
                   }
                   placeholder="https://..."
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
 
@@ -266,8 +266,8 @@ export default function BugsPage() {
                   placeholder="Paste stack trace here"
                   rows={3}
                   className={cn(
-                    'w-full rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm p-3 font-mono',
+                    'w-full rounded-md border border-border',
+                    'bg-background text-foreground text-sm p-3 font-mono',
                     'focus:outline-none focus:ring-2 focus:ring-ring',
                     'resize-none'
                   )}
@@ -298,8 +298,8 @@ export default function BugsPage() {
           value={filterProject}
           onChange={(e) => setFilterProject(e.target.value)}
           className={cn(
-            'h-8 rounded-md border border-slate-700',
-            'bg-slate-900 text-white text-sm px-3',
+            'h-8 rounded-md border border-border',
+            'bg-card text-foreground text-sm px-3',
             'focus:outline-none focus:ring-2 focus:ring-ring'
           )}
         >
@@ -311,7 +311,7 @@ export default function BugsPage() {
           ))}
         </select>
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         {SEVERITIES.map((s) => (
           <button
@@ -324,14 +324,14 @@ export default function BugsPage() {
               'transition-colors cursor-pointer',
               filterSeverity === s
                 ? SEVERITY_FILTER_STYLES[s]
-                : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             {s}
           </button>
         ))}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         {STATUSES.map((s) => (
           <button
@@ -344,7 +344,7 @@ export default function BugsPage() {
               'transition-colors cursor-pointer',
               filterStatus === s
                 ? STATUS_FILTER_STYLES[s]
-                : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             {s}
@@ -354,7 +354,7 @@ export default function BugsPage() {
 
       {/* Bug List */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <Bug className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No bugs found</p>
           <p className="text-xs mt-1">

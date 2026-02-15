@@ -43,7 +43,7 @@ const STATUS_COLORS: Record<string, string> = {
 }
 
 function getStatusColor(status: number | null): string {
-  if (!status) return 'text-slate-500'
+  if (!status) return 'text-muted-foreground'
   if (status < 300) return STATUS_COLORS['2xx']
   if (status < 400) return STATUS_COLORS['3xx']
   if (status < 500) return STATUS_COLORS['4xx']
@@ -101,7 +101,7 @@ export default function NetworkPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Globe className="h-5 w-5 text-slate-400" />
+          <Globe className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Network Log</h1>
           <Badge variant="secondary" className="text-xs">
             {filtered.length}
@@ -132,25 +132,25 @@ export default function NetworkPage() {
               'px-2 py-0.5 rounded-full text-xs border font-mono',
               'transition-colors cursor-pointer',
               filterMethod === method
-                ? 'border-slate-500 text-white'
-                : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                ? 'border-ring text-foreground'
+                : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             {method}
           </button>
         ))}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter URLs..."
             className={cn(
               'h-8 w-56 pl-7 text-xs font-mono',
-              'bg-slate-900 border-slate-700'
+              'bg-card border-border'
             )}
           />
         </div>
@@ -158,7 +158,7 @@ export default function NetworkPage() {
 
       {/* Network table */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <Globe className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No network requests</p>
           <p className="text-xs mt-1">
@@ -167,13 +167,13 @@ export default function NetworkPage() {
           </p>
         </div>
       ) : (
-        <div className="rounded-lg border border-slate-800 overflow-hidden">
+        <div className="rounded-lg border border-border overflow-hidden">
           {/* Table header */}
           <div
             className={cn(
               'grid grid-cols-[80px_1fr_70px_80px_80px_90px] gap-2',
-              'px-3 py-2 bg-slate-900 text-xs text-slate-500',
-              'border-b border-slate-800 font-medium'
+              'px-3 py-2 bg-card text-xs text-muted-foreground',
+              'border-b border-border font-medium'
             )}
           >
             <span>Method</span>
@@ -196,20 +196,20 @@ export default function NetworkPage() {
                 className={cn(
                   'grid grid-cols-[80px_1fr_70px_80px_80px_90px] gap-2',
                   'w-full px-3 py-1.5 text-xs font-mono text-left',
-                  'border-b border-slate-800/50 last:border-0',
-                  'hover:bg-slate-900/50 transition-colors',
+                  'border-b border-border/50 last:border-0',
+                  'hover:bg-card/50 transition-colors',
                   'items-center'
                 )}
               >
                 <span
                   className={cn(
                     'font-semibold',
-                    METHOD_COLORS[entry.method] || 'text-slate-400'
+                    METHOD_COLORS[entry.method] || 'text-muted-foreground'
                   )}
                 >
                   {entry.method}
                 </span>
-                <span className="text-slate-300 truncate flex items-center gap-1">
+                <span className="text-foreground truncate flex items-center gap-1">
                   {expandedId === entry.id ? (
                     <ChevronDown className="h-3 w-3 shrink-0" />
                   ) : (
@@ -220,20 +220,20 @@ export default function NetworkPage() {
                 <span className={getStatusColor(entry.status)}>
                   {entry.status || '-'}
                 </span>
-                <span className="text-slate-400">
+                <span className="text-muted-foreground">
                   {formatDuration(entry.duration)}
                 </span>
-                <span className="text-slate-400">
+                <span className="text-muted-foreground">
                   {formatSize(entry.size)}
                 </span>
-                <span className="text-slate-600">
+                <span className="text-muted-foreground">
                   {formatTime(entry.timestamp)}
                 </span>
               </button>
 
               {expandedId === entry.id && (
-                <div className="px-6 py-3 bg-slate-900/30 border-b border-slate-800/50">
-                  <p className="text-xs text-slate-500">
+                <div className="px-6 py-3 bg-card/30 border-b border-border/50">
+                  <p className="text-xs text-muted-foreground">
                     Request details will appear here when
                     intercepted by the widget.
                   </p>

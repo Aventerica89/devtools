@@ -76,9 +76,9 @@ export function EnvImport({ projects, onImport }: Props) {
 
   return (
     <div className="space-y-4">
-      <Card className="bg-slate-900 border-slate-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-sm text-slate-300">
+          <CardTitle className="text-sm text-foreground">
             Bulk Import
           </CardTitle>
         </CardHeader>
@@ -89,8 +89,8 @@ export function EnvImport({ projects, onImport }: Props) {
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
               className={cn(
-                'w-full h-9 rounded-md border border-slate-700',
-                'bg-slate-950 text-white text-sm px-3',
+                'w-full h-9 rounded-md border border-border',
+                'bg-background text-foreground text-sm px-3',
                 'focus:outline-none focus:ring-2 focus:ring-ring'
               )}
             >
@@ -118,8 +118,8 @@ export function EnvImport({ projects, onImport }: Props) {
               }
               rows={8}
               className={cn(
-                'w-full rounded-md border border-slate-700',
-                'bg-slate-950 text-white text-sm p-3 font-mono',
+                'w-full rounded-md border border-border',
+                'bg-background text-foreground text-sm p-3 font-mono',
                 'focus:outline-none focus:ring-2 focus:ring-ring',
                 'resize-none'
               )}
@@ -131,7 +131,7 @@ export function EnvImport({ projects, onImport }: Props) {
               checked={sensitive}
               onCheckedChange={setSensitive}
             />
-            <Label className="text-sm text-slate-400">
+            <Label className="text-sm text-muted-foreground">
               Mark all as sensitive
             </Label>
           </div>
@@ -139,7 +139,7 @@ export function EnvImport({ projects, onImport }: Props) {
           {/* Preview */}
           {parsed.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Preview: {parsed.length} variable
                 {parsed.length !== 1 ? 's' : ''} detected
               </p>

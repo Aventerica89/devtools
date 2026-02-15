@@ -59,7 +59,7 @@ function DevButtonInner() {
       <div
         className={cn(
           'absolute bottom-14 right-0 w-64',
-          'bg-slate-900 border border-slate-700 rounded-lg shadow-xl',
+          'bg-popover border border-border rounded-lg shadow-xl',
           'transition-all duration-200 origin-bottom-right',
           open
             ? 'opacity-100 translate-y-0 scale-100'
@@ -75,13 +75,13 @@ function DevButtonInner() {
               className={cn(
                 'flex items-start gap-3 px-3 py-2.5 rounded-md',
                 'transition-colors',
-                'hover:bg-slate-800/70'
+                'hover:bg-accent/70'
               )}
             >
               <link.icon className={cn('h-4 w-4 mt-0.5 shrink-0', link.color)} />
               <div>
-                <p className="text-sm font-medium text-white">{link.label}</p>
-                <p className="text-xs text-slate-400">{link.description}</p>
+                <p className="text-sm font-medium text-popover-foreground">{link.label}</p>
+                <p className="text-xs text-muted-foreground">{link.description}</p>
               </div>
             </Link>
           ))}
@@ -93,11 +93,11 @@ function DevButtonInner() {
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
           'h-10 w-10 rounded-full flex items-center justify-center',
-          'bg-slate-800 border border-slate-700',
-          'text-slate-400 hover:text-white hover:border-slate-500',
+          'bg-muted border border-border',
+          'text-muted-foreground hover:text-foreground hover:border-ring',
           'transition-all duration-200 shadow-lg',
           'focus:outline-none focus:ring-2 focus:ring-purple-500/50',
-          open && 'bg-slate-700 text-white border-slate-500'
+          open && 'bg-accent text-foreground border-ring'
         )}
         aria-label="Dev tools menu"
       >

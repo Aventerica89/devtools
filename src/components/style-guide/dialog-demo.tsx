@@ -27,19 +27,19 @@ export function DialogDemo() {
           <DialogTrigger asChild>
             <Button variant="outline">Preview Dialog</Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
-              <DialogTitle className="text-slate-50">
+              <DialogTitle className="text-foreground">
                 Sample Dialog
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-muted-foreground">
                 This is a preview of the dialog component with a header,
                 body content, and footer actions.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-4">
               <div className="space-y-1.5">
-                <Label htmlFor="dialog-name" className="text-slate-300">
+                <Label htmlFor="dialog-name" className="text-foreground">
                   Name
                 </Label>
                 <Input
@@ -59,12 +59,12 @@ export function DialogDemo() {
           <DialogTrigger asChild>
             <Button variant="destructive">Delete Dialog</Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
-              <DialogTitle className="text-slate-50">
+              <DialogTitle className="text-foreground">
                 Confirm Deletion
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-muted-foreground">
                 This action cannot be undone. Are you sure you want to
                 proceed?
               </DialogDescription>

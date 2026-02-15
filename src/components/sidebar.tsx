@@ -61,15 +61,15 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="w-56 border-r border-slate-800 bg-slate-950 flex flex-col">
+    <div className="w-56 border-r border-border bg-background flex flex-col">
       <div className="p-4">
-        <h1 className="text-lg font-bold text-white">DevTools</h1>
+        <h1 className="text-lg font-bold text-foreground">DevTools</h1>
       </div>
       <ScrollArea className="flex-1 px-2">
         {sections.map((section, i) => (
           <div key={section.label}>
-            {i > 0 && <Separator className="my-2 bg-slate-800" />}
-            <p className="px-3 py-1 text-xs font-medium text-slate-500 uppercase">
+            {i > 0 && <Separator className="my-2 bg-border" />}
+            <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase">
               {section.label}
             </p>
             {section.items.map((item) => (
@@ -80,8 +80,8 @@ export function Sidebar() {
                   'flex items-center gap-2 px-3 py-2 rounded-md text-sm',
                   'transition-colors',
                   pathname === item.href
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                 )}
               >
                 <item.icon className="h-4 w-4" />

@@ -20,20 +20,20 @@ export function SpacingDemo() {
       <div className="space-y-6">
         {/* Padding Scale */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Padding Scale</h3>
+          <h3 className="text-sm font-medium text-foreground">Padding Scale</h3>
           <div className="space-y-3">
             {SPACING_SCALE.map((item) => (
               <div key={item.name} className="flex items-center gap-4">
-                <span className="w-10 shrink-0 font-mono text-xs text-slate-500">
+                <span className="w-10 shrink-0 font-mono text-xs text-muted-foreground">
                   {item.px}
                 </span>
-                <span className="w-12 shrink-0 font-mono text-xs text-slate-300">
+                <span className="w-12 shrink-0 font-mono text-xs text-foreground">
                   {item.name}
                 </span>
                 <div className="flex-1">
-                  <div className="inline-block rounded border border-slate-600 bg-slate-800/50">
+                  <div className="inline-block rounded border border-border bg-muted/50">
                     <div className={`${item.name} bg-blue-500/20 border border-blue-500/40 rounded`}>
-                      <div className="h-4 rounded bg-slate-700" />
+                      <div className="h-4 rounded bg-accent" />
                     </div>
                   </div>
                 </div>
@@ -44,12 +44,12 @@ export function SpacingDemo() {
 
         {/* Gap Scale */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Gap Scale</h3>
+          <h3 className="text-sm font-medium text-foreground">Gap Scale</h3>
           <div className="space-y-3">
             {(['gap-1', 'gap-2', 'gap-4', 'gap-6', 'gap-8'] as const).map(
               (gap) => (
                 <div key={gap} className="flex items-center gap-4">
-                  <span className="w-24 shrink-0 font-mono text-xs text-slate-300">
+                  <span className="w-24 shrink-0 font-mono text-xs text-foreground">
                     {gap}
                   </span>
                   <div className={`flex ${gap}`}>

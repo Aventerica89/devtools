@@ -28,7 +28,7 @@ const SEVERITY_STYLES: Record<string, string> = {
   low: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
 }
 
-const DEFAULT_BADGE = 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+const DEFAULT_BADGE = 'bg-muted text-muted-foreground border-border'
 
 function relativeTime(dateStr: string | null): string {
   if (!dateStr) return ''
@@ -55,13 +55,13 @@ function BugListSkeleton() {
       {Array.from({ length: 3 }, (_, i) => (
         <div
           key={i}
-          className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0"
+          className="flex items-center justify-between py-2 border-b border-border last:border-0"
         >
           <div className="space-y-1.5">
-            <div className="h-4 w-48 bg-slate-800 rounded animate-pulse" />
-            <div className="h-3 w-20 bg-slate-800 rounded animate-pulse" />
+            <div className="h-4 w-48 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-20 bg-muted rounded animate-pulse" />
           </div>
-          <div className="h-5 w-16 bg-slate-800 rounded-full animate-pulse" />
+          <div className="h-5 w-16 bg-muted rounded-full animate-pulse" />
         </div>
       ))}
     </div>
@@ -70,15 +70,15 @@ function BugListSkeleton() {
 
 export function RecentBugs({ bugs, loading }: RecentBugsProps) {
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2">
           <Bug className="h-4 w-4 text-red-400" />
           Recent Bugs
         </CardTitle>
         <CardAction>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/bugs" className="text-slate-400 hover:text-white">
+            <Link href="/bugs" className="text-muted-foreground hover:text-foreground">
               View all
               <ArrowRight className="h-3 w-3" />
             </Link>
@@ -89,7 +89,7 @@ export function RecentBugs({ bugs, loading }: RecentBugsProps) {
         {loading ? (
           <BugListSkeleton />
         ) : bugs.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Bug className="h-8 w-8 mx-auto mb-2 opacity-40" />
             <p className="text-sm">No bugs reported</p>
           </div>
@@ -100,14 +100,14 @@ export function RecentBugs({ bugs, loading }: RecentBugsProps) {
                 key={bug.id}
                 className={cn(
                   'flex items-center justify-between py-2.5',
-                  'border-b border-slate-800/50 last:border-0'
+                  'border-b border-border/50 last:border-0'
                 )}
               >
                 <div className="min-w-0 flex-1 mr-3">
-                  <p className="text-sm text-white truncate">{bug.title}</p>
+                  <p className="text-sm text-foreground truncate">{bug.title}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <Clock className="h-3 w-3 text-slate-500" />
-                    <span className="text-xs text-slate-500">
+                    <Clock className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">
                       {relativeTime(bug.createdAt)}
                     </span>
                   </div>

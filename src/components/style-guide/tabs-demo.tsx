@@ -16,9 +16,9 @@ export function TabsDemo() {
       <div className="space-y-8">
         {/* Default Style */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Default</h3>
+          <h3 className="text-sm font-medium text-foreground">Default</h3>
           <Tabs defaultValue="overview">
-            <TabsList className="bg-slate-800/50 border border-slate-700">
+            <TabsList className="bg-muted/50 border border-border">
               <TabsTrigger value="overview" className="text-xs">
                 Overview
               </TabsTrigger>
@@ -30,22 +30,22 @@ export function TabsDemo() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="overview">
-              <div className="rounded-md border border-slate-700 p-4">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4">
+                <p className="text-sm text-foreground">
                   Overview tab content. This is the default selected tab.
                 </p>
               </div>
             </TabsContent>
             <TabsContent value="analytics">
-              <div className="rounded-md border border-slate-700 p-4">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4">
+                <p className="text-sm text-foreground">
                   Analytics tab content with charts and data.
                 </p>
               </div>
             </TabsContent>
             <TabsContent value="settings">
-              <div className="rounded-md border border-slate-700 p-4">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4">
+                <p className="text-sm text-foreground">
                   Settings tab content with configuration options.
                 </p>
               </div>
@@ -55,7 +55,7 @@ export function TabsDemo() {
 
         {/* Line Style */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Line Variant</h3>
+          <h3 className="text-sm font-medium text-foreground">Line Variant</h3>
           <Tabs defaultValue="tab1">
             <TabsList variant="line">
               <TabsTrigger value="tab1" className="text-xs">
@@ -69,23 +69,23 @@ export function TabsDemo() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="tab1">
-              <div className="rounded-md border border-slate-700 p-4 mt-2">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4 mt-2">
+                <p className="text-sm text-foreground">
                   Line-style tabs use an underline indicator instead of a
                   background highlight.
                 </p>
               </div>
             </TabsContent>
             <TabsContent value="tab2">
-              <div className="rounded-md border border-slate-700 p-4 mt-2">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4 mt-2">
+                <p className="text-sm text-foreground">
                   Second tab content.
                 </p>
               </div>
             </TabsContent>
             <TabsContent value="tab3">
-              <div className="rounded-md border border-slate-700 p-4 mt-2">
-                <p className="text-sm text-slate-300">
+              <div className="rounded-md border border-border p-4 mt-2">
+                <p className="text-sm text-foreground">
                   Third tab content.
                 </p>
               </div>

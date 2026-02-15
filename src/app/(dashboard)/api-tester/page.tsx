@@ -92,7 +92,7 @@ export default function ApiTesterPage() {
 
   if (initialLoad) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading API Tester...
       </div>
     )
@@ -102,7 +102,7 @@ export default function ApiTesterPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Zap className="h-5 w-5 text-slate-400" />
+        <Zap className="h-5 w-5 text-muted-foreground" />
         <h1 className="text-xl font-bold">API Tester</h1>
         <Badge variant="secondary" className="text-xs">
           {savedRequests.length} saved
@@ -112,7 +112,7 @@ export default function ApiTesterPage() {
       {/* Split Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Request Builder */}
-        <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <RequestBuilder
             onSend={handleSend}
             isLoading={isLoading}
@@ -124,7 +124,7 @@ export default function ApiTesterPage() {
         </div>
 
         {/* Right: Response Viewer */}
-        <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">
+        <div className="rounded-lg border border-border bg-card p-4">
           <ResponseViewer
             response={response}
             isLoading={isLoading}

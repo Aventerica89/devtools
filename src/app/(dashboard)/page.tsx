@@ -16,18 +16,18 @@ const INITIAL_STATS: DashboardStats = {
   openBugs: 0,
   recentErrors: 0,
   perfScore: null,
-  perfScoreColor: 'text-slate-400',
+  perfScoreColor: 'text-muted-foreground',
 }
 
 function perfScoreColor(score: string | null): string {
-  if (!score) return 'text-slate-400'
+  if (!score) return 'text-muted-foreground'
   const lower = score.toLowerCase()
   if (lower === 'good') return 'text-emerald-400'
   if (lower === 'needs-improvement' || lower === 'needs improvement') {
     return 'text-yellow-400'
   }
   if (lower === 'poor') return 'text-red-400'
-  return 'text-slate-400'
+  return 'text-muted-foreground'
 }
 
 function parsePerfScore(
@@ -110,8 +110,8 @@ export default function DashboardHome() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <LayoutDashboard className="h-5 w-5 text-slate-400" />
-        <h1 className="text-xl font-bold text-white">Dashboard</h1>
+        <LayoutDashboard className="h-5 w-5 text-muted-foreground" />
+        <h1 className="text-xl font-bold">Dashboard</h1>
       </div>
 
       {/* Stats Row */}
@@ -131,7 +131,7 @@ export default function DashboardHome() {
             variant="outline"
             size="sm"
             asChild
-            className="border-slate-700 text-slate-300 hover:text-white"
+            className="border-border text-muted-foreground hover:text-foreground"
           >
             <Link href={action.href}>
               <action.icon className="h-4 w-4" />

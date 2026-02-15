@@ -73,7 +73,7 @@ interface DeploymentTableProps {
 export function DeploymentTable({ deployments }: DeploymentTableProps) {
   if (deployments.length === 0) {
     return (
-      <div className="flex items-center justify-center h-32 text-slate-500">
+      <div className="flex items-center justify-center h-32 text-muted-foreground">
         No deployments found.
       </div>
     )
@@ -82,23 +82,23 @@ export function DeploymentTable({ deployments }: DeploymentTableProps) {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-slate-800 hover:bg-transparent">
-          <TableHead className="text-slate-400">App</TableHead>
-          <TableHead className="text-slate-400">Provider</TableHead>
-          <TableHead className="text-slate-400">Environment</TableHead>
-          <TableHead className="text-slate-400">Branch</TableHead>
-          <TableHead className="text-slate-400">Status</TableHead>
-          <TableHead className="text-slate-400">Commit</TableHead>
-          <TableHead className="text-slate-400">Time</TableHead>
+        <TableRow className="border-border hover:bg-transparent">
+          <TableHead className="text-muted-foreground">App</TableHead>
+          <TableHead className="text-muted-foreground">Provider</TableHead>
+          <TableHead className="text-muted-foreground">Environment</TableHead>
+          <TableHead className="text-muted-foreground">Branch</TableHead>
+          <TableHead className="text-muted-foreground">Status</TableHead>
+          <TableHead className="text-muted-foreground">Commit</TableHead>
+          <TableHead className="text-muted-foreground">Time</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {deployments.map((d) => (
           <TableRow
             key={d.id}
-            className="border-slate-800 hover:bg-slate-800/50"
+            className="border-border hover:bg-accent/50"
           >
-            <TableCell className="text-white font-medium">
+            <TableCell className="text-foreground font-medium">
               {d.app_name}
             </TableCell>
             <TableCell>
@@ -123,7 +123,7 @@ export function DeploymentTable({ deployments }: DeploymentTableProps) {
                 {d.environment}
               </Badge>
             </TableCell>
-            <TableCell className="text-slate-300 font-mono text-xs">
+            <TableCell className="text-foreground font-mono text-xs">
               {d.branch}
             </TableCell>
             <TableCell>
@@ -140,16 +140,16 @@ export function DeploymentTable({ deployments }: DeploymentTableProps) {
             <TableCell>
               <div className="flex items-center gap-2">
                 {d.commit_sha && (
-                  <code className="text-xs text-slate-500 font-mono">
+                  <code className="text-xs text-muted-foreground font-mono">
                     {shortSha(d.commit_sha)}
                   </code>
                 )}
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-muted-foreground">
                   {truncateMessage(d.commit_message)}
                 </span>
               </div>
             </TableCell>
-            <TableCell className="text-xs text-slate-500">
+            <TableCell className="text-xs text-muted-foreground">
               {relativeTime(d.created_at)}
             </TableCell>
           </TableRow>
@@ -165,39 +165,39 @@ export function DeploymentTableSkeleton() {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-slate-800 hover:bg-transparent">
-          <TableHead className="text-slate-400">App</TableHead>
-          <TableHead className="text-slate-400">Provider</TableHead>
-          <TableHead className="text-slate-400">Environment</TableHead>
-          <TableHead className="text-slate-400">Branch</TableHead>
-          <TableHead className="text-slate-400">Status</TableHead>
-          <TableHead className="text-slate-400">Commit</TableHead>
-          <TableHead className="text-slate-400">Time</TableHead>
+        <TableRow className="border-border hover:bg-transparent">
+          <TableHead className="text-muted-foreground">App</TableHead>
+          <TableHead className="text-muted-foreground">Provider</TableHead>
+          <TableHead className="text-muted-foreground">Environment</TableHead>
+          <TableHead className="text-muted-foreground">Branch</TableHead>
+          <TableHead className="text-muted-foreground">Status</TableHead>
+          <TableHead className="text-muted-foreground">Commit</TableHead>
+          <TableHead className="text-muted-foreground">Time</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {rows.map((i) => (
-          <TableRow key={i} className="border-slate-800">
+          <TableRow key={i} className="border-border">
             <TableCell>
-              <div className="h-4 w-24 bg-slate-800 rounded animate-pulse" />
+              <div className="h-4 w-24 bg-muted rounded animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-5 w-16 bg-slate-800 rounded-full animate-pulse" />
+              <div className="h-5 w-16 bg-muted rounded-full animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-5 w-20 bg-slate-800 rounded-full animate-pulse" />
+              <div className="h-5 w-20 bg-muted rounded-full animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-4 w-16 bg-slate-800 rounded animate-pulse" />
+              <div className="h-4 w-16 bg-muted rounded animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-5 w-14 bg-slate-800 rounded-full animate-pulse" />
+              <div className="h-5 w-14 bg-muted rounded-full animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-4 w-40 bg-slate-800 rounded animate-pulse" />
+              <div className="h-4 w-40 bg-muted rounded animate-pulse" />
             </TableCell>
             <TableCell>
-              <div className="h-4 w-14 bg-slate-800 rounded animate-pulse" />
+              <div className="h-4 w-14 bg-muted rounded animate-pulse" />
             </TableCell>
           </TableRow>
         ))}

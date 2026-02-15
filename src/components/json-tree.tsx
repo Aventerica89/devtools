@@ -56,32 +56,32 @@ function ArrayNode({
       <div
         className={cn(
           'group/node flex items-center py-0.5 cursor-pointer',
-          'hover:bg-slate-800/50 rounded px-1'
+          'hover:bg-accent/50 rounded px-1'
         )}
         onClick={() => setExpanded(!expanded)}
       >
         {isExpanded ? (
-          <ChevronDown className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         ) : (
-          <ChevronRight className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         )}
         {keyName !== undefined && (
           <span className={cn(
-            'text-slate-300 ml-1 mr-1',
+            'text-foreground ml-1 mr-1',
             matchesSearch(keyName, searchTerm)
               && 'bg-yellow-500/30 rounded px-0.5'
           )}>
             <HighlightText text={keyName} searchTerm={searchTerm} />
-            <span className="text-slate-500">: </span>
+            <span className="text-muted-foreground">: </span>
           </span>
         )}
-        <span className="text-slate-500 text-xs">
+        <span className="text-muted-foreground text-xs">
           [{data.length} {data.length === 1 ? 'item' : 'items'}]
         </span>
         <CopyButton path={path} onCopy={onPathCopy} />
       </div>
       {isExpanded && (
-        <div className="ml-4 border-l border-slate-800 pl-2">
+        <div className="ml-4 border-l border-border pl-2">
           {data.map((item, index) => (
             <JsonNode
               key={index}
@@ -126,26 +126,26 @@ function ObjectNode({
       <div
         className={cn(
           'group/node flex items-center py-0.5 cursor-pointer',
-          'hover:bg-slate-800/50 rounded px-1'
+          'hover:bg-accent/50 rounded px-1'
         )}
         onClick={() => setExpanded(!expanded)}
       >
         {isExpanded ? (
-          <ChevronDown className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         ) : (
-          <ChevronRight className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         )}
         {keyName !== undefined && (
           <span className={cn(
-            'text-slate-300 ml-1 mr-1',
+            'text-foreground ml-1 mr-1',
             matchesSearch(keyName, searchTerm)
               && 'bg-yellow-500/30 rounded px-0.5'
           )}>
             <HighlightText text={keyName} searchTerm={searchTerm} />
-            <span className="text-slate-500">: </span>
+            <span className="text-muted-foreground">: </span>
           </span>
         )}
-        <span className="text-slate-500 text-xs">
+        <span className="text-muted-foreground text-xs">
           {'{'}
           {keys.length} {keys.length === 1 ? 'key' : 'keys'}
           {'}'}
@@ -153,7 +153,7 @@ function ObjectNode({
         <CopyButton path={path} onCopy={onPathCopy} />
       </div>
       {isExpanded && (
-        <div className="ml-4 border-l border-slate-800 pl-2">
+        <div className="ml-4 border-l border-border pl-2">
           {keys.map((key) => {
             const childPath = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)
               ? (path ? `${path}.${key}` : key)

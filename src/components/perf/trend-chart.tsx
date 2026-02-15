@@ -80,7 +80,7 @@ export function TrendChart({
 
   if (!hasData) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-600 text-xs">
+      <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
         No {metric} data in this period
       </div>
     )
@@ -162,7 +162,7 @@ export function TrendChart({
               x={x + barWidth / 2}
               y={CHART_HEIGHT - 2}
               textAnchor="middle"
-              className="fill-slate-500"
+              className="fill-muted-foreground"
               fontSize={8}
             >
               {day.label}
@@ -193,15 +193,15 @@ export function TrendChartsGrid({
         <div
           key={metric}
           className={cn(
-            'rounded-lg border border-slate-800 bg-slate-900/50',
+            'rounded-lg border border-border bg-card/50',
             'p-3 space-y-2'
           )}
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-400">
+            <span className="text-xs font-medium text-muted-foreground">
               {metric}
             </span>
-            <span className="text-[10px] text-slate-600">
+            <span className="text-[10px] text-muted-foreground">
               {days}d trend
             </span>
           </div>

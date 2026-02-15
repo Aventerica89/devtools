@@ -108,7 +108,7 @@ export function ColorPicker({
   return (
     <div className="space-y-3">
       {label && (
-        <Label className="text-xs font-medium text-slate-400 uppercase">
+        <Label className="text-xs font-medium text-muted-foreground uppercase">
           {label}
         </Label>
       )}
@@ -117,7 +117,7 @@ export function ColorPicker({
         {/* Native picker + swatch */}
         <div className="space-y-2">
           <div
-            className="w-20 h-20 rounded-lg border border-slate-700"
+            className="w-20 h-20 rounded-lg border border-border"
             style={{ backgroundColor: value }}
           />
           <input
@@ -133,13 +133,13 @@ export function ColorPicker({
           <div className="flex-1 space-y-2">
             {/* Hex */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 w-8">HEX</span>
+              <span className="text-xs text-muted-foreground w-8">HEX</span>
               <Input
                 value={hexInput}
                 onChange={(e) => setHexInput(e.target.value)}
                 onBlur={handleHexBlur}
                 onKeyDown={handleHexKeyDown}
-                className="flex-1 font-mono text-sm bg-slate-950 border-slate-700 h-8"
+                className="flex-1 font-mono text-sm bg-background border-border h-8"
               />
               <CopyButton
                 active={copied === 'hex'}
@@ -149,7 +149,7 @@ export function ColorPicker({
 
             {/* RGB */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 w-8">RGB</span>
+              <span className="text-xs text-muted-foreground w-8">RGB</span>
               <div className="flex-1 flex gap-1">
                 {(['r', 'g', 'b'] as const).map((ch) => (
                   <Input
@@ -159,7 +159,7 @@ export function ColorPicker({
                     max={255}
                     value={rgb[ch]}
                     onChange={(e) => handleRgbChange(ch, e.target.value)}
-                    className="font-mono text-sm bg-slate-950 border-slate-700 h-8 w-20"
+                    className="font-mono text-sm bg-background border-border h-8 w-20"
                   />
                 ))}
               </div>
@@ -171,7 +171,7 @@ export function ColorPicker({
 
             {/* HSL */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-500 w-8">HSL</span>
+              <span className="text-xs text-muted-foreground w-8">HSL</span>
               <div className="flex-1 flex gap-1">
                 <Input
                   type="number"
@@ -179,7 +179,7 @@ export function ColorPicker({
                   max={360}
                   value={hsl.h}
                   onChange={(e) => handleHslChange('h', e.target.value)}
-                  className="font-mono text-sm bg-slate-950 border-slate-700 h-8 w-20"
+                  className="font-mono text-sm bg-background border-border h-8 w-20"
                 />
                 <Input
                   type="number"
@@ -187,7 +187,7 @@ export function ColorPicker({
                   max={100}
                   value={hsl.s}
                   onChange={(e) => handleHslChange('s', e.target.value)}
-                  className="font-mono text-sm bg-slate-950 border-slate-700 h-8 w-20"
+                  className="font-mono text-sm bg-background border-border h-8 w-20"
                 />
                 <Input
                   type="number"
@@ -195,7 +195,7 @@ export function ColorPicker({
                   max={100}
                   value={hsl.l}
                   onChange={(e) => handleHslChange('l', e.target.value)}
-                  className="font-mono text-sm bg-slate-950 border-slate-700 h-8 w-20"
+                  className="font-mono text-sm bg-background border-border h-8 w-20"
                 />
               </div>
               <CopyButton
@@ -222,7 +222,7 @@ function CopyButton({
       variant="ghost"
       size="sm"
       onClick={onClick}
-      className="h-8 w-8 p-0 text-slate-400 hover:text-white"
+      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
     >
       {active ? (
         <Check className="h-3.5 w-3.5 text-green-400" />

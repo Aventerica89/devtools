@@ -21,10 +21,10 @@ export function SectionWrapper({
 }: SectionWrapperProps) {
   return (
     <section id={id} className="scroll-mt-6">
-      <Card className="bg-slate-900 border-slate-800">
-        <CardHeader className="border-b border-slate-800">
-          <CardTitle className="text-slate-50 text-lg">{title}</CardTitle>
-          <CardDescription className="text-slate-400">
+      <Card className="bg-card border-border">
+        <CardHeader className="border-b border-border">
+          <CardTitle className="text-foreground text-lg">{title}</CardTitle>
+          <CardDescription className="text-muted-foreground">
             {description}
           </CardDescription>
         </CardHeader>

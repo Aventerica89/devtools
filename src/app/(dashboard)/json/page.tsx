@@ -137,7 +137,7 @@ export default function JsonViewerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Braces className="h-5 w-5 text-slate-400" />
+          <Braces className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">JSON Viewer</h1>
           {parsed !== null && parsed !== undefined && (
             <Badge variant="secondary" className="text-xs">
@@ -155,9 +155,9 @@ export default function JsonViewerPage() {
       </div>
 
       {/* Input area */}
-      <div className="rounded-lg border border-slate-800 bg-slate-900 p-4 space-y-3">
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400 uppercase">
+          <span className="text-xs font-medium text-muted-foreground uppercase">
             Input
           </span>
           <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function JsonViewerPage() {
               variant="ghost"
               size="sm"
               onClick={handlePaste}
-              className="text-xs text-slate-400 hover:text-white h-7"
+              className="text-xs text-muted-foreground hover:text-foreground h-7"
             >
               <Clipboard className="h-3.5 w-3.5 mr-1" />
               Paste
@@ -175,7 +175,7 @@ export default function JsonViewerPage() {
               size="sm"
               onClick={handleClear}
               disabled={!rawInput}
-              className="text-xs text-slate-400 hover:text-white h-7"
+              className="text-xs text-muted-foreground hover:text-foreground h-7"
             >
               <Trash2 className="h-3.5 w-3.5 mr-1" />
               Clear
@@ -189,8 +189,8 @@ export default function JsonViewerPage() {
           placeholder='Paste JSON here, e.g. {"name": "value"}'
           rows={8}
           className={cn(
-            'w-full rounded-md border border-slate-700',
-            'bg-slate-950 text-white text-sm p-3 font-mono',
+            'w-full rounded-md border border-border',
+            'bg-background text-foreground text-sm p-3 font-mono',
             'focus:outline-none focus:ring-2 focus:ring-ring',
             'resize-y',
             parseError && 'border-red-700'
@@ -220,7 +220,7 @@ export default function JsonViewerPage() {
             Parse
           </Button>
 
-          <div className="h-4 w-px bg-slate-700" />
+          <div className="h-4 w-px bg-accent" />
 
           <Button
             variant="outline"
@@ -249,7 +249,7 @@ export default function JsonViewerPage() {
             Minify
           </Button>
 
-          <div className="h-4 w-px bg-slate-700" />
+          <div className="h-4 w-px bg-accent" />
 
           <Button
             variant="outline"
@@ -279,12 +279,12 @@ export default function JsonViewerPage() {
           {/* Search + controls */}
           <div className="flex items-center gap-3">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search keys and values..."
-                className="pl-8 h-8 bg-slate-900 border-slate-700 text-sm"
+                className="pl-8 h-8 bg-card border-border text-sm"
               />
             </div>
 
@@ -307,14 +307,14 @@ export default function JsonViewerPage() {
               )}
             </Button>
 
-            <div className="flex items-center gap-1 border border-slate-700 rounded-md p-0.5">
+            <div className="flex items-center gap-1 border border-border rounded-md p-0.5">
               <button
                 onClick={() => setMode('tree')}
                 className={cn(
                   'px-2 py-1 rounded text-xs transition-colors',
                   mode === 'tree'
-                    ? 'bg-slate-700 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 Tree
@@ -324,8 +324,8 @@ export default function JsonViewerPage() {
                 className={cn(
                   'px-2 py-1 rounded text-xs transition-colors',
                   mode === 'formatted'
-                    ? 'bg-slate-700 text-white'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-accent text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 Raw
@@ -334,7 +334,7 @@ export default function JsonViewerPage() {
           </div>
 
           {/* Tree view or raw output */}
-          <div className="rounded-lg border border-slate-800 bg-slate-900">
+          <div className="rounded-lg border border-border bg-card">
             <ScrollArea className="h-[400px]">
               <div className="p-4">
                 {mode === 'tree' ? (
@@ -345,7 +345,7 @@ export default function JsonViewerPage() {
                     onPathCopy={handlePathCopy}
                   />
                 ) : (
-                  <pre className="font-mono text-sm text-slate-300 whitespace-pre-wrap break-all">
+                  <pre className="font-mono text-sm text-foreground whitespace-pre-wrap break-all">
                     {formattedOutput}
                   </pre>
                 )}
@@ -357,7 +357,7 @@ export default function JsonViewerPage() {
 
       {/* Empty state */}
       {parsed === null && !parseError && !rawInput.trim() && (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <Braces className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>Paste JSON above and click Parse</p>
           <p className="text-xs mt-1">

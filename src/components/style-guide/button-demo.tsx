@@ -23,7 +23,7 @@ export function ButtonDemo() {
       <div className="space-y-8">
         {/* Variants */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Variants</h3>
+          <h3 className="text-sm font-medium text-foreground">Variants</h3>
           <div className="flex flex-wrap items-center gap-3">
             {VARIANTS.map((variant) => (
               <Button key={variant} variant={variant}>
@@ -35,7 +35,7 @@ export function ButtonDemo() {
 
         {/* Sizes */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Sizes</h3>
+          <h3 className="text-sm font-medium text-foreground">Sizes</h3>
           <div className="flex flex-wrap items-center gap-3">
             {SIZES.map((size) => (
               <Button key={size} size={size} variant="outline">
@@ -47,7 +47,7 @@ export function ButtonDemo() {
 
         {/* States */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">States</h3>
+          <h3 className="text-sm font-medium text-foreground">States</h3>
           <div className="flex flex-wrap items-center gap-3">
             <Button>Enabled</Button>
             <Button disabled>Disabled</Button>

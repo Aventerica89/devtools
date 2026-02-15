@@ -38,15 +38,15 @@ export function TailwindLookup() {
           className="w-16 h-10 rounded cursor-pointer bg-transparent"
         />
         <div className="flex-1">
-          <p className="text-xs text-slate-500">Your color</p>
-          <p className="font-mono text-sm text-slate-300">{selectedColor}</p>
+          <p className="text-xs text-muted-foreground">Your color</p>
+          <p className="font-mono text-sm text-foreground">{selectedColor}</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-slate-500">Closest Tailwind</p>
+          <p className="text-xs text-muted-foreground">Closest Tailwind</p>
           <div className="flex items-center gap-2">
             <Badge
               variant="secondary"
-              className="font-mono text-xs cursor-pointer hover:bg-slate-700"
+              className="font-mono text-xs cursor-pointer hover:bg-accent"
               onClick={() => handleCopy(closest)}
             >
               {closest}
@@ -63,7 +63,7 @@ export function TailwindLookup() {
         <div className="space-y-3 pr-3">
           {palette.map((group) => (
             <div key={group.name}>
-              <p className="text-xs font-medium text-slate-500 mb-1 capitalize">
+              <p className="text-xs font-medium text-muted-foreground mb-1 capitalize">
                 {group.name}
               </p>
               <div className="flex gap-0.5">
@@ -78,7 +78,7 @@ export function TailwindLookup() {
                       className={cn(
                         'flex-1 h-8 rounded-sm transition-all',
                         'hover:scale-110 hover:z-10 relative',
-                        isClosest && 'ring-2 ring-white ring-offset-1 ring-offset-slate-950'
+                        isClosest && 'ring-2 ring-foreground ring-offset-1 ring-offset-background'
                       )}
                       style={{ backgroundColor: shade.hex }}
                     />

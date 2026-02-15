@@ -26,7 +26,7 @@ export function BadgeDemo() {
       <div className="space-y-8">
         {/* Variants */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">Variants</h3>
+          <h3 className="text-sm font-medium text-foreground">Variants</h3>
           <div className="flex flex-wrap items-center gap-3">
             {VARIANTS.map((variant) => (
               <Badge key={variant} variant={variant}>
@@ -38,7 +38,7 @@ export function BadgeDemo() {
 
         {/* With Icons */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium text-slate-300">With Icons</h3>
+          <h3 className="text-sm font-medium text-foreground">With Icons</h3>
           <div className="flex flex-wrap items-center gap-3">
             {ICON_BADGES.map((badge) => (
               <Badge key={badge.label} className={badge.className}>

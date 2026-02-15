@@ -91,18 +91,18 @@ export function ScoreCards({ entries, thresholds }: ScoreCardsProps) {
             <Card
               key={metric}
               className={cn(
-                'bg-slate-900/50 border-slate-800 border-l-4',
-                'border-l-slate-700'
+                'bg-card/50 border-border border-l-4',
+                'border-l-border'
               )}
             >
               <CardContent className="pt-4 pb-4 px-4 space-y-1">
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-xs text-muted-foreground font-medium">
                   {metric}
                 </p>
-                <p className="text-lg font-mono text-slate-600">
+                <p className="text-lg font-mono text-muted-foreground">
                   No data
                 </p>
-                <p className="text-[10px] text-slate-600">
+                <p className="text-[10px] text-muted-foreground">
                   {METRIC_LABELS[metric]}
                 </p>
               </CardContent>
@@ -116,13 +116,13 @@ export function ScoreCards({ entries, thresholds }: ScoreCardsProps) {
           <Card
             key={metric}
             className={cn(
-              'bg-slate-900/50 border-slate-800 border-l-4',
+              'bg-card/50 border-border border-l-4',
               styles.border
             )}
           >
             <CardContent className="pt-4 pb-4 px-4 space-y-1">
               <div className="flex items-center justify-between">
-                <p className="text-xs text-slate-400 font-medium">
+                <p className="text-xs text-muted-foreground font-medium">
                   {metric}
                 </p>
                 <Badge
@@ -136,11 +136,11 @@ export function ScoreCards({ entries, thresholds }: ScoreCardsProps) {
               </div>
               <p className={cn('text-2xl font-mono font-bold', styles.text)}>
                 {formatValue(metric, data.value)}
-                <span className="text-sm font-normal text-slate-500 ml-1">
+                <span className="text-sm font-normal text-muted-foreground ml-1">
                   {threshold.unit}
                 </span>
               </p>
-              <p className="text-[10px] text-slate-500 truncate">
+              <p className="text-[10px] text-muted-foreground truncate">
                 {METRIC_LABELS[metric]}
               </p>
             </CardContent>

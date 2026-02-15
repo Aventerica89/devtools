@@ -77,7 +77,7 @@ export default function ErrorsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-slate-400" />
+          <AlertTriangle className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Error Log</h1>
           <Badge variant="secondary" className="text-xs">
             {filtered.length}
@@ -109,7 +109,7 @@ export default function ErrorsPage() {
               'transition-colors cursor-pointer',
               filterType === type
                 ? TYPE_STYLES[type]
-                : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             {type === 'unhandledrejection'
@@ -118,17 +118,17 @@ export default function ErrorsPage() {
           </button>
         ))}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search errors..."
             className={cn(
               'h-8 w-56 pl-7 text-xs',
-              'bg-slate-900 border-slate-700'
+              'bg-card border-border'
             )}
           />
         </div>
@@ -136,7 +136,7 @@ export default function ErrorsPage() {
 
       {/* Error list */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <AlertTriangle className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No errors captured</p>
           <p className="text-xs mt-1">
@@ -150,8 +150,8 @@ export default function ErrorsPage() {
             <div
               key={entry.id}
               className={cn(
-                'rounded-lg border border-slate-800',
-                'bg-slate-900 overflow-hidden'
+                'rounded-lg border border-border',
+                'bg-card overflow-hidden'
               )}
             >
               <button
@@ -160,7 +160,7 @@ export default function ErrorsPage() {
                     expandedId === entry.id ? null : entry.id
                   )
                 }
-                className="w-full text-left p-3 hover:bg-slate-800/30 transition-colors"
+                className="w-full text-left p-3 hover:bg-muted/30 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1 min-w-0">
@@ -170,7 +170,7 @@ export default function ErrorsPage() {
                         {entry.message}
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <Badge
                         className={cn(
                           'text-[10px] border',
@@ -197,7 +197,7 @@ export default function ErrorsPage() {
                     </div>
                   </div>
                   <Trash2
-                    className="h-3.5 w-3.5 text-slate-600 hover:text-red-400 shrink-0 mt-1"
+                    className="h-3.5 w-3.5 text-muted-foreground hover:text-red-400 shrink-0 mt-1"
                     onClick={(e) => {
                       e.stopPropagation()
                       setEntries((prev) =>
@@ -209,10 +209,10 @@ export default function ErrorsPage() {
               </button>
 
               {expandedId === entry.id && (
-                <div className="border-t border-slate-800 p-3 space-y-3">
+                <div className="border-t border-border p-3 space-y-3">
                   {entry.pageUrl && (
                     <div>
-                      <p className="text-xs text-slate-500 mb-1">
+                      <p className="text-xs text-muted-foreground mb-1">
                         Page
                       </p>
                       <a
@@ -229,13 +229,13 @@ export default function ErrorsPage() {
 
                   {entry.stackTrace && (
                     <div>
-                      <p className="text-xs text-slate-500 mb-1">
+                      <p className="text-xs text-muted-foreground mb-1">
                         Stack Trace
                       </p>
                       <pre
                         className={cn(
-                          'text-xs font-mono text-slate-400',
-                          'bg-slate-950 rounded p-2',
+                          'text-xs font-mono text-muted-foreground',
+                          'bg-background rounded p-2',
                           'overflow-x-auto whitespace-pre-wrap'
                         )}
                       >
@@ -246,10 +246,10 @@ export default function ErrorsPage() {
 
                   {entry.userAgent && (
                     <div>
-                      <p className="text-xs text-slate-500 mb-1">
+                      <p className="text-xs text-muted-foreground mb-1">
                         User Agent
                       </p>
-                      <p className="text-xs text-slate-400 font-mono">
+                      <p className="text-xs text-muted-foreground font-mono">
                         {entry.userAgent}
                       </p>
                     </div>

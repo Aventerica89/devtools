@@ -35,11 +35,11 @@ export default function UnlockPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-      <Card className="w-80 bg-slate-900 border-slate-800">
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Card className="w-80 bg-card border-border">
         <CardHeader className="text-center">
           <Lock className="mx-auto h-8 w-8 text-blue-500 mb-2" />
-          <CardTitle className="text-white">DevTools</CardTitle>
+          <CardTitle>DevTools</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -49,7 +49,7 @@ export default function UnlockPage() {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               maxLength={6}
-              className="text-center text-2xl tracking-[0.5em] bg-slate-800 border-slate-700 text-white"
+              className="text-center text-2xl tracking-[0.5em] bg-muted border-input"
               autoFocus
             />
             {error && (

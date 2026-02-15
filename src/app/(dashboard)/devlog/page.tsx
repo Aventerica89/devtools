@@ -175,7 +175,7 @@ export default function DevLogPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading dev log...
       </div>
     )
@@ -186,7 +186,7 @@ export default function DevLogPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ScrollText className="h-5 w-5 text-slate-400" />
+          <ScrollText className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Dev Log</h1>
           <Badge variant="secondary" className="text-xs">
             {filtered.length}
@@ -200,7 +200,7 @@ export default function DevLogPage() {
               Add Note
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
               <DialogTitle>Add Dev Log Entry</DialogTitle>
             </DialogHeader>
@@ -213,8 +213,8 @@ export default function DevLogPage() {
                     setNewEntry({ ...newEntry, projectId: e.target.value })
                   }
                   className={cn(
-                    'w-full h-9 rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm px-3',
+                    'w-full h-9 rounded-md border border-border',
+                    'bg-background text-foreground text-sm px-3',
                     'focus:outline-none focus:ring-2 focus:ring-ring'
                   )}
                 >
@@ -259,7 +259,7 @@ export default function DevLogPage() {
                     setNewEntry({ ...newEntry, title: e.target.value })
                   }
                   placeholder="What happened?"
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
 
@@ -273,8 +273,8 @@ export default function DevLogPage() {
                   placeholder="Details, context, or notes"
                   rows={4}
                   className={cn(
-                    'w-full rounded-md border border-slate-700',
-                    'bg-slate-950 text-white text-sm p-3',
+                    'w-full rounded-md border border-border',
+                    'bg-background text-foreground text-sm p-3',
                     'focus:outline-none focus:ring-2 focus:ring-ring',
                     'resize-none'
                   )}
@@ -305,8 +305,8 @@ export default function DevLogPage() {
           value={filterProject}
           onChange={(e) => setFilterProject(e.target.value)}
           className={cn(
-            'h-8 rounded-md border border-slate-700',
-            'bg-slate-900 text-white text-sm px-3',
+            'h-8 rounded-md border border-border',
+            'bg-card text-foreground text-sm px-3',
             'focus:outline-none focus:ring-2 focus:ring-ring'
           )}
         >
@@ -318,7 +318,7 @@ export default function DevLogPage() {
           ))}
         </select>
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         {LOG_TYPES.map((t) => {
           const config = TYPE_CONFIG[t]
@@ -335,7 +335,7 @@ export default function DevLogPage() {
                 'flex items-center gap-1',
                 filterType === t
                   ? config.filterStyle
-                  : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                  : 'border-border text-muted-foreground hover:text-foreground'
               )}
             >
               <Icon className="h-3 w-3" />
@@ -344,7 +344,7 @@ export default function DevLogPage() {
           )
         })}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         {(['manual', 'auto'] as const).map((s) => (
           <button
@@ -357,24 +357,24 @@ export default function DevLogPage() {
               'transition-colors cursor-pointer',
               filterSource === s
                 ? SOURCE_FILTER_STYLES[s]
-                : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                : 'border-border text-muted-foreground hover:text-foreground'
             )}
           >
             {s}
           </button>
         ))}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search..."
             className={cn(
               'h-8 w-48 pl-7 text-xs',
-              'bg-slate-900 border-slate-700'
+              'bg-card border-border'
             )}
           />
         </div>
@@ -382,7 +382,7 @@ export default function DevLogPage() {
 
       {/* Timeline */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <ScrollText className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No log entries found</p>
           <p className="text-xs mt-1">
@@ -394,7 +394,7 @@ export default function DevLogPage() {
       ) : (
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-4 top-0 bottom-0 w-px bg-slate-800" />
+          <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
           <div className="space-y-1">
             {filtered.map((entry) => {
@@ -406,7 +406,7 @@ export default function DevLogPage() {
                   <div
                     className={cn(
                       'relative z-10 flex items-center justify-center',
-                      'h-8 w-8 rounded-full bg-slate-900 border border-slate-700',
+                      'h-8 w-8 rounded-full bg-card border border-border',
                       'shrink-0'
                     )}
                   >
@@ -416,14 +416,14 @@ export default function DevLogPage() {
                   {/* Entry card */}
                   <div
                     className={cn(
-                      'flex-1 rounded-lg border border-slate-800',
-                      'bg-slate-900 p-3 mb-1'
+                      'flex-1 rounded-lg border border-border',
+                      'bg-card p-3 mb-1'
                     )}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-white truncate">
+                          <span className="text-sm font-medium text-foreground truncate">
                             {entry.title}
                           </span>
                           <Badge
@@ -445,7 +445,7 @@ export default function DevLogPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {formatDate(entry.createdAt)}
                           {' | '}
                           {entry.projectId}
@@ -454,7 +454,7 @@ export default function DevLogPage() {
                       <Button
                         variant="ghost"
                         size="icon-xs"
-                        className="text-slate-500 hover:text-red-400 shrink-0"
+                        className="text-muted-foreground hover:text-red-400 shrink-0"
                         onClick={() => handleDelete(entry.id)}
                       >
                         <Trash2 className="h-3 w-3" />
@@ -462,7 +462,7 @@ export default function DevLogPage() {
                     </div>
 
                     {entry.content && (
-                      <p className="mt-2 text-xs text-slate-400 whitespace-pre-wrap">
+                      <p className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
                         {entry.content}
                       </p>
                     )}

@@ -64,15 +64,15 @@ export function TableDemo() {
       title="Tables"
       description="Data table with headers, rows, and status badges"
     >
-      <div className="rounded-md border border-slate-700">
+      <div className="rounded-md border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="border-slate-700 hover:bg-slate-800/50">
-              <TableHead className="text-slate-300">ID</TableHead>
-              <TableHead className="text-slate-300">Name</TableHead>
-              <TableHead className="text-slate-300">Status</TableHead>
-              <TableHead className="text-slate-300">Role</TableHead>
-              <TableHead className="text-slate-300 text-right">
+            <TableRow className="border-border hover:bg-accent/50">
+              <TableHead className="text-foreground">ID</TableHead>
+              <TableHead className="text-foreground">Name</TableHead>
+              <TableHead className="text-foreground">Status</TableHead>
+              <TableHead className="text-foreground">Role</TableHead>
+              <TableHead className="text-foreground text-right">
                 Last Seen
               </TableHead>
             </TableRow>
@@ -83,21 +83,21 @@ export function TableDemo() {
               return (
                 <TableRow
                   key={row.id}
-                  className="border-slate-700 hover:bg-slate-800/50"
+                  className="border-border hover:bg-accent/50"
                 >
-                  <TableCell className="font-mono text-xs text-slate-400">
+                  <TableCell className="font-mono text-xs text-muted-foreground">
                     {row.id}
                   </TableCell>
-                  <TableCell className="text-slate-200">
+                  <TableCell className="text-foreground">
                     {row.name}
                   </TableCell>
                   <TableCell>
                     <Badge variant={status.variant}>{status.label}</Badge>
                   </TableCell>
-                  <TableCell className="text-slate-300">
+                  <TableCell className="text-foreground">
                     {row.role}
                   </TableCell>
-                  <TableCell className="text-right text-slate-400">
+                  <TableCell className="text-right text-muted-foreground">
                     {row.lastSeen}
                   </TableCell>
                 </TableRow>

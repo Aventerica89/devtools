@@ -66,13 +66,13 @@ interface StatCardsProps {
 
 function StatCardSkeleton() {
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-card border-border">
       <CardContent className="pt-0">
         <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-800 animate-pulse" />
+          <div className="h-10 w-10 rounded-lg bg-muted animate-pulse" />
           <div className="space-y-2">
-            <div className="h-3 w-20 bg-slate-800 rounded animate-pulse" />
-            <div className="h-6 w-12 bg-slate-800 rounded animate-pulse" />
+            <div className="h-3 w-20 bg-muted rounded animate-pulse" />
+            <div className="h-6 w-12 bg-muted rounded animate-pulse" />
           </div>
         </div>
       </CardContent>
@@ -96,7 +96,7 @@ export function StatCards({ stats, loading }: StatCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {items.map((item) => (
-        <Card key={item.label} className="bg-slate-900 border-slate-800">
+        <Card key={item.label} className="bg-card border-border">
           <CardContent className="pt-0">
             <div className="flex items-center gap-4">
               <div
@@ -108,7 +108,7 @@ export function StatCards({ stats, loading }: StatCardsProps) {
                 <item.icon className={cn('h-5 w-5', item.color)} />
               </div>
               <div>
-                <p className="text-xs text-slate-400">{item.label}</p>
+                <p className="text-xs text-muted-foreground">{item.label}</p>
                 <p className={cn('text-2xl font-bold', item.color)}>
                   {item.value}
                 </p>

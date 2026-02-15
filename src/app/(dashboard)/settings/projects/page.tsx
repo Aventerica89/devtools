@@ -96,7 +96,7 @@ export default function ProjectSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading projects...
       </div>
     )
@@ -105,7 +105,7 @@ export default function ProjectSettingsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-muted-foreground">
           Manage your registered projects and widget installation snippets.
         </p>
 
@@ -116,7 +116,7 @@ export default function ProjectSettingsPage() {
               Add Project
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogContent className="bg-card border-border">
             <DialogHeader>
               <DialogTitle>New Project</DialogTitle>
             </DialogHeader>
@@ -129,7 +129,7 @@ export default function ProjectSettingsPage() {
                     setNewProject({ ...newProject, name: e.target.value })
                   }
                   placeholder="My App"
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="space-y-2">
@@ -140,7 +140,7 @@ export default function ProjectSettingsPage() {
                     setNewProject({ ...newProject, url: e.target.value })
                   }
                   placeholder="https://myapp.com"
-                  className="bg-slate-950 border-slate-700"
+                  className="bg-background border-border"
                 />
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function ProjectSettingsPage() {
       </div>
 
       {(projects ?? []).length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <FolderKanban className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No projects yet</p>
           <p className="text-xs mt-1">

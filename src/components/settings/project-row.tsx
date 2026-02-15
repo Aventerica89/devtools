@@ -56,7 +56,7 @@ export function ProjectRow({ project, onUpdate, onDelete }: ProjectRowProps) {
   }
 
   return (
-    <div className="border border-slate-800 rounded-lg p-4 space-y-3">
+    <div className="border border-border rounded-lg p-4 space-y-3">
       <div className="flex items-start justify-between gap-4">
         {editing ? (
           <div className="flex-1 space-y-2">
@@ -64,13 +64,13 @@ export function ProjectRow({ project, onUpdate, onDelete }: ProjectRowProps) {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               placeholder="Project name"
-              className="bg-slate-950 border-slate-700"
+              className="bg-background border-border"
             />
             <Input
               value={editUrl}
               onChange={(e) => setEditUrl(e.target.value)}
               placeholder="https://example.com (optional)"
-              className="bg-slate-950 border-slate-700"
+              className="bg-background border-border"
             />
             <div className="flex gap-2">
               <Button size="sm" onClick={handleSaveEdit} disabled={!editName}>
@@ -90,15 +90,15 @@ export function ProjectRow({ project, onUpdate, onDelete }: ProjectRowProps) {
         ) : (
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-medium text-white truncate">
+              <h3 className="font-medium text-foreground truncate">
                 {project.name}
               </h3>
-              <span className="text-xs text-slate-500 font-mono">
+              <span className="text-xs text-muted-foreground font-mono">
                 {project.id}
               </span>
             </div>
             {project.url && (
-              <p className="text-sm text-slate-400 mt-0.5 truncate">
+              <p className="text-sm text-muted-foreground mt-0.5 truncate">
                 {project.url}
               </p>
             )}
@@ -130,7 +130,7 @@ export function ProjectRow({ project, onUpdate, onDelete }: ProjectRowProps) {
 
       {/* Widget snippet */}
       <div className="relative">
-        <pre className="text-xs bg-slate-950 border border-slate-800 rounded-md p-3 font-mono text-slate-300 overflow-x-auto">
+        <pre className="text-xs bg-background border border-border rounded-md p-3 font-mono text-foreground overflow-x-auto">
           {snippet}
         </pre>
         <Button
@@ -150,13 +150,13 @@ export function ProjectRow({ project, onUpdate, onDelete }: ProjectRowProps) {
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700">
+        <DialogContent className="bg-card border-border">
           <DialogHeader>
             <DialogTitle>Delete Project</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Are you sure you want to delete{' '}
-            <span className="text-white font-medium">{project.name}</span>?
+            <span className="text-foreground font-medium">{project.name}</span>?
             This will also remove its widget config, bugs, and env vars.
           </p>
           <DialogFooter>

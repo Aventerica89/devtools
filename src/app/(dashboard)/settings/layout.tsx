@@ -34,12 +34,12 @@ export default function SettingsLayout({
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           Manage projects, AI providers, and widget configuration.
         </p>
       </div>
 
-      <nav className="flex gap-1 border-b border-slate-800 pb-px">
+      <nav className="flex gap-1 border-b border-border pb-px">
         {SETTINGS_TABS.map((tab) => (
           <Link
             key={tab.href}
@@ -48,8 +48,8 @@ export default function SettingsLayout({
               'flex items-center gap-2 px-4 py-2 text-sm rounded-t-md',
               'transition-colors border-b-2',
               pathname === tab.href
-                ? 'border-white text-white bg-slate-800/50'
-                : 'border-transparent text-slate-400 hover:text-white'
+                ? 'border-foreground text-foreground bg-muted/50'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             )}
           >
             <tab.icon className="h-4 w-4" />

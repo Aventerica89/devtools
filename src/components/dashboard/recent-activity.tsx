@@ -39,16 +39,16 @@ const TYPE_META: Record<string, { icon: LucideIcon; color: string }> = {
   fix: { icon: Wrench, color: 'text-green-400' },
 }
 
-const DEFAULT_TYPE_META = { icon: Activity, color: 'text-slate-400' }
+const DEFAULT_TYPE_META = { icon: Activity, color: 'text-muted-foreground' }
 
 const SOURCE_STYLES: Record<string, string> = {
-  manual: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+  manual: 'bg-muted text-muted-foreground border-border',
   widget: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
   api: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
   ci: 'bg-green-500/20 text-green-400 border-green-500/30',
 }
 
-const DEFAULT_SOURCE = 'bg-slate-500/20 text-slate-400 border-slate-500/30'
+const DEFAULT_SOURCE = 'bg-muted text-muted-foreground border-border'
 
 function relativeTime(dateStr: string | null): string {
   if (!dateStr) return ''
@@ -75,12 +75,12 @@ function ActivityListSkeleton() {
       {Array.from({ length: 5 }, (_, i) => (
         <div
           key={i}
-          className="flex items-center gap-3 py-2 border-b border-slate-800 last:border-0"
+          className="flex items-center gap-3 py-2 border-b border-border last:border-0"
         >
-          <div className="h-7 w-7 rounded bg-slate-800 animate-pulse shrink-0" />
+          <div className="h-7 w-7 rounded bg-muted animate-pulse shrink-0" />
           <div className="flex-1 space-y-1.5">
-            <div className="h-4 w-40 bg-slate-800 rounded animate-pulse" />
-            <div className="h-3 w-24 bg-slate-800 rounded animate-pulse" />
+            <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+            <div className="h-3 w-24 bg-muted rounded animate-pulse" />
           </div>
         </div>
       ))}
@@ -90,15 +90,15 @@ function ActivityListSkeleton() {
 
 export function RecentActivity({ entries, loading }: RecentActivityProps) {
   return (
-    <Card className="bg-slate-900 border-slate-800">
+    <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-emerald-400" />
           Recent Activity
         </CardTitle>
         <CardAction>
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/devlog" className="text-slate-400 hover:text-white">
+            <Link href="/devlog" className="text-muted-foreground hover:text-foreground">
               View all
               <ArrowRight className="h-3 w-3" />
             </Link>
@@ -109,7 +109,7 @@ export function RecentActivity({ entries, loading }: RecentActivityProps) {
         {loading ? (
           <ActivityListSkeleton />
         ) : entries.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Activity className="h-8 w-8 mx-auto mb-2 opacity-40" />
             <p className="text-sm">No activity yet</p>
           </div>
@@ -124,22 +124,22 @@ export function RecentActivity({ entries, loading }: RecentActivityProps) {
                   key={entry.id}
                   className={cn(
                     'flex items-center gap-3 py-2.5',
-                    'border-b border-slate-800/50 last:border-0'
+                    'border-b border-border/50 last:border-0'
                   )}
                 >
                   <div
                     className={cn(
                       'h-7 w-7 rounded flex items-center justify-center shrink-0',
-                      'bg-slate-800/50'
+                      'bg-muted/50'
                     )}
                   >
                     <TypeIcon className={cn('h-3.5 w-3.5', meta.color)} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm text-white truncate">{entry.title}</p>
+                    <p className="text-sm text-foreground truncate">{entry.title}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <Clock className="h-3 w-3 text-slate-500" />
-                      <span className="text-xs text-slate-500">
+                      <Clock className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
                         {relativeTime(entry.createdAt)}
                       </span>
                     </div>

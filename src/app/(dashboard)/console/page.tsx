@@ -33,8 +33,8 @@ const LEVEL_CONFIG: Record<
 > = {
   log: {
     icon: MessageSquare,
-    color: 'text-slate-300',
-    filterStyle: 'border-slate-600 text-slate-300',
+    color: 'text-foreground',
+    filterStyle: 'border-border text-foreground',
   },
   warn: {
     icon: AlertTriangle,
@@ -91,7 +91,7 @@ export default function ConsolePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Terminal className="h-5 w-5 text-slate-400" />
+          <Terminal className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">Console Log</h1>
           <Badge variant="secondary" className="text-xs">
             {filtered.length}
@@ -127,7 +127,7 @@ export default function ConsolePage() {
                 'flex items-center gap-1',
                 filterLevel === level
                   ? config.filterStyle
-                  : 'border-slate-700 text-slate-500 hover:text-slate-300'
+                  : 'border-border text-muted-foreground hover:text-foreground'
               )}
             >
               <Icon className="h-3 w-3" />
@@ -136,17 +136,17 @@ export default function ConsolePage() {
           )
         })}
 
-        <div className="h-4 w-px bg-slate-700" />
+        <div className="h-4 w-px bg-accent" />
 
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-slate-500" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter output..."
             className={cn(
               'h-8 w-56 pl-7 text-xs font-mono',
-              'bg-slate-900 border-slate-700'
+              'bg-card border-border'
             )}
           />
         </div>
@@ -154,7 +154,7 @@ export default function ConsolePage() {
 
       {/* Console output */}
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-slate-500">
+        <div className="text-center py-16 text-muted-foreground">
           <Terminal className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No console output</p>
           <p className="text-xs mt-1">
@@ -165,7 +165,7 @@ export default function ConsolePage() {
       ) : (
         <div
           className={cn(
-            'rounded-lg border border-slate-800 bg-slate-950',
+            'rounded-lg border border-border bg-background',
             'font-mono text-xs overflow-hidden'
           )}
         >
@@ -178,17 +178,17 @@ export default function ConsolePage() {
                 key={entry.id}
                 className={cn(
                   'flex items-start gap-2 px-3 py-1.5',
-                  'border-b border-slate-800/50 last:border-0',
-                  'hover:bg-slate-900/50'
+                  'border-b border-border/50 last:border-0',
+                  'hover:bg-card/50'
                 )}
               >
                 <Icon
                   className={cn('h-3.5 w-3.5 mt-0.5 shrink-0', config.color)}
                 />
-                <span className="flex-1 text-slate-300 break-all">
+                <span className="flex-1 text-foreground break-all">
                   {entry.message}
                 </span>
-                <span className="text-slate-600 shrink-0">
+                <span className="text-muted-foreground shrink-0">
                   {formatTime(entry.timestamp)}
                 </span>
               </div>

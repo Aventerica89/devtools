@@ -59,9 +59,9 @@ export function BoxShadowGenerator() {
   return (
     <div className="space-y-4">
       {/* Preview */}
-      <div className="flex items-center justify-center h-48 rounded-lg border border-slate-800 bg-slate-900">
+      <div className="flex items-center justify-center h-48 rounded-lg border border-border bg-card">
         <div
-          className="w-32 h-32 rounded-lg bg-slate-700"
+          className="w-32 h-32 rounded-lg bg-accent"
           style={{ boxShadow: cssValue }}
         />
       </div>
@@ -105,7 +105,7 @@ export function BoxShadowGenerator() {
           onChange={(v) => updateField('opacity', v)}
         />
         <div className="space-y-1.5">
-          <Label className="text-xs text-slate-400">Color</Label>
+          <Label className="text-xs text-muted-foreground">Color</Label>
           <div className="flex items-center gap-2">
             <input
               type="color"
@@ -113,7 +113,7 @@ export function BoxShadowGenerator() {
               onChange={(e) => updateField('color', e.target.value)}
               className="w-10 h-8 rounded cursor-pointer bg-transparent"
             />
-            <span className="font-mono text-sm text-slate-300">
+            <span className="font-mono text-sm text-foreground">
               {shadow.color}
             </span>
           </div>
@@ -127,7 +127,7 @@ export function BoxShadowGenerator() {
           className={
             shadow.inset
               ? 'px-3 py-1.5 rounded-md text-xs border border-blue-600 bg-blue-600/20 text-blue-300'
-              : 'px-3 py-1.5 rounded-md text-xs border border-slate-700 bg-slate-950 text-slate-400 hover:text-white'
+              : 'px-3 py-1.5 rounded-md text-xs border border-border bg-background text-muted-foreground hover:text-foreground'
           }
         >
           Inset
@@ -136,22 +136,22 @@ export function BoxShadowGenerator() {
           variant="ghost"
           size="sm"
           onClick={() => setShadow(INITIAL_STATE)}
-          className="text-xs text-slate-400 hover:text-white h-7"
+          className="text-xs text-muted-foreground hover:text-foreground h-7"
         >
           Reset
         </Button>
       </div>
 
       {/* CSS output */}
-      <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex items-center gap-2">
-        <code className="flex-1 text-sm font-mono text-slate-300 break-all">
+      <div className="rounded-lg border border-border bg-background p-3 flex items-center gap-2">
+        <code className="flex-1 text-sm font-mono text-foreground break-all">
           {cssOutput}
         </code>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleCopy}
-          className="shrink-0 h-8 w-8 p-0 text-slate-400 hover:text-white"
+          className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
         >
           {copied ? (
             <Check className="h-3.5 w-3.5 text-green-400" />
@@ -182,8 +182,8 @@ function SliderField({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <Label className="text-xs text-slate-400">{label}</Label>
-        <span className="text-xs font-mono text-slate-300">
+        <Label className="text-xs text-muted-foreground">{label}</Label>
+        <span className="text-xs font-mono text-foreground">
           {value}
           {suffix ?? 'px'}
         </span>
@@ -194,7 +194,7 @@ function SliderField({
         max={max}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value, 10))}
-        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-slate-700 accent-blue-500"
+        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-accent accent-blue-500"
       />
     </div>
   )

@@ -161,7 +161,7 @@ export function RequestBuilder({
     <div className="space-y-4">
       {/* Method + URL */}
       <div className="flex gap-2">
-        <div className="flex rounded-md border border-slate-700 overflow-hidden shrink-0">
+        <div className="flex rounded-md border border-border overflow-hidden shrink-0">
           {METHODS.map((m) => (
             <button
               key={m}
@@ -170,7 +170,7 @@ export function RequestBuilder({
                 'px-2.5 py-1.5 text-xs font-medium transition-colors',
                 method === m
                   ? METHOD_COLORS[m]
-                  : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+                  : 'bg-card text-muted-foreground hover:text-foreground'
               )}
             >
               {m}
@@ -181,7 +181,7 @@ export function RequestBuilder({
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://api.example.com/endpoint"
-          className="bg-slate-950 border-slate-700 font-mono text-sm"
+          className="bg-background border-border font-mono text-sm"
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleSend()
           }}
@@ -203,12 +203,12 @@ export function RequestBuilder({
       {/* Headers */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label className="text-xs text-slate-400">Headers</Label>
+          <Label className="text-xs text-muted-foreground">Headers</Label>
           <Button
             variant="ghost"
             size="sm"
             onClick={addHeader}
-            className="h-6 text-xs text-slate-400"
+            className="h-6 text-xs text-muted-foreground"
           >
             <Plus className="h-3 w-3" />
             Add
@@ -220,19 +220,19 @@ export function RequestBuilder({
               value={h.key}
               onChange={(e) => updateHeader(i, 'key', e.target.value)}
               placeholder="Header name"
-              className="bg-slate-950 border-slate-700 text-xs flex-1"
+              className="bg-background border-border text-xs flex-1"
             />
             <Input
               value={h.value}
               onChange={(e) => updateHeader(i, 'value', e.target.value)}
               placeholder="Value"
-              className="bg-slate-950 border-slate-700 text-xs flex-1"
+              className="bg-background border-border text-xs flex-1"
             />
             <Button
               variant="ghost"
               size="icon-xs"
               onClick={() => removeHeader(i)}
-              className="text-slate-500 hover:text-red-400 shrink-0"
+              className="text-muted-foreground hover:text-red-400 shrink-0"
             >
               <Trash2 className="h-3 w-3" />
             </Button>
@@ -243,7 +243,7 @@ export function RequestBuilder({
       {/* Body (only for POST/PUT/PATCH) */}
       {METHODS_WITH_BODY.includes(method) && (
         <div className="space-y-2">
-          <Label className="text-xs text-slate-400">
+          <Label className="text-xs text-muted-foreground">
             Request Body (JSON)
           </Label>
           <textarea
@@ -252,8 +252,8 @@ export function RequestBuilder({
             placeholder='{ "key": "value" }'
             rows={6}
             className={cn(
-              'w-full rounded-md border border-slate-700',
-              'bg-slate-950 text-white text-sm p-3 font-mono',
+              'w-full rounded-md border border-border',
+              'bg-background text-foreground text-sm p-3 font-mono',
               'focus:outline-none focus:ring-2 focus:ring-ring',
               'resize-none'
             )}
@@ -266,8 +266,8 @@ export function RequestBuilder({
         <button
           onClick={() => setShowEnvVars(!showEnvVars)}
           className={cn(
-            'flex items-center gap-1 text-xs text-slate-400',
-            'hover:text-slate-200 transition-colors'
+            'flex items-center gap-1 text-xs text-muted-foreground',
+            'hover:text-foreground transition-colors'
           )}
         >
           <Variable className="h-3 w-3" />
@@ -287,8 +287,8 @@ export function RequestBuilder({
           )}
         </button>
         {showEnvVars && (
-          <div className="space-y-2 pl-4 border-l border-slate-800">
-            <p className="text-[10px] text-slate-500">
+          <div className="space-y-2 pl-4 border-l border-border">
+            <p className="text-[10px] text-muted-foreground">
               {'Use {{KEY}} in URL, headers, or body'}
             </p>
             {envVars.map((v, i) => (
@@ -299,7 +299,7 @@ export function RequestBuilder({
                     updateEnvVar(i, 'key', e.target.value)
                   }
                   placeholder="VAR_NAME"
-                  className="bg-slate-950 border-slate-700 text-xs flex-1"
+                  className="bg-background border-border text-xs flex-1"
                 />
                 <Input
                   value={v.value}
@@ -307,13 +307,13 @@ export function RequestBuilder({
                     updateEnvVar(i, 'value', e.target.value)
                   }
                   placeholder="value"
-                  className="bg-slate-950 border-slate-700 text-xs flex-1"
+                  className="bg-background border-border text-xs flex-1"
                 />
                 <Button
                   variant="ghost"
                   size="icon-xs"
                   onClick={() => removeEnvVar(i)}
-                  className="text-slate-500 hover:text-red-400 shrink-0"
+                  className="text-muted-foreground hover:text-red-400 shrink-0"
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>
@@ -323,7 +323,7 @@ export function RequestBuilder({
               variant="ghost"
               size="sm"
               onClick={addEnvVar}
-              className="h-6 text-xs text-slate-400"
+              className="h-6 text-xs text-muted-foreground"
             >
               <Plus className="h-3 w-3" />
               Add Variable
@@ -333,7 +333,7 @@ export function RequestBuilder({
       </div>
 
       {/* Save / Load */}
-      <div className="space-y-2 border-t border-slate-800 pt-3">
+      <div className="space-y-2 border-t border-border pt-3">
         <div className="flex items-center gap-2">
           {showSaveInput ? (
             <>
@@ -341,7 +341,7 @@ export function RequestBuilder({
                 value={saveName}
                 onChange={(e) => setSaveName(e.target.value)}
                 placeholder="Request name"
-                className="bg-slate-950 border-slate-700 text-xs"
+                className="bg-background border-border text-xs"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSave()
                 }}
@@ -379,7 +379,7 @@ export function RequestBuilder({
 
         {savedRequests.length > 0 && (
           <div className="space-y-1">
-            <Label className="text-xs text-slate-500">
+            <Label className="text-xs text-muted-foreground">
               Saved Requests
             </Label>
             {savedRequests.map((req) => (
@@ -387,8 +387,8 @@ export function RequestBuilder({
                 key={req.id}
                 className={cn(
                   'flex items-center justify-between gap-2',
-                  'rounded-md border border-slate-800 px-3 py-1.5',
-                  'hover:border-slate-700 transition-colors cursor-pointer'
+                  'rounded-md border border-border px-3 py-1.5',
+                  'hover:border-ring transition-colors cursor-pointer'
                 )}
                 onClick={() => loadRequest(req)}
               >
@@ -401,10 +401,10 @@ export function RequestBuilder({
                   >
                     {req.method}
                   </Badge>
-                  <span className="text-xs text-white truncate">
+                  <span className="text-xs text-foreground truncate">
                     {req.name}
                   </span>
-                  <span className="text-[10px] text-slate-500 truncate">
+                  <span className="text-[10px] text-muted-foreground truncate">
                     {req.url}
                   </span>
                 </div>
@@ -415,7 +415,7 @@ export function RequestBuilder({
                     e.stopPropagation()
                     onDeleteRequest(req.id)
                   }}
-                  className="text-slate-500 hover:text-red-400 shrink-0"
+                  className="text-muted-foreground hover:text-red-400 shrink-0"
                 >
                   <Trash2 className="h-3 w-3" />
                 </Button>

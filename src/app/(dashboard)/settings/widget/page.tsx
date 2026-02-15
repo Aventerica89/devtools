@@ -110,7 +110,7 @@ export default function WidgetSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading widget config...
       </div>
     )
@@ -118,7 +118,7 @@ export default function WidgetSettingsPage() {
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-16 text-slate-500">
+      <div className="text-center py-16 text-muted-foreground">
         <Puzzle className="h-10 w-10 mx-auto mb-3 opacity-50" />
         <p>No projects available</p>
         <p className="text-xs mt-1">
@@ -130,7 +130,7 @@ export default function WidgetSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-muted-foreground">
         Configure the widget appearance and enabled tools per project.
       </p>
 
@@ -141,8 +141,8 @@ export default function WidgetSettingsPage() {
           value={selectedProjectId}
           onChange={(e) => setSelectedProjectId(e.target.value)}
           className={cn(
-            'w-full max-w-sm h-9 rounded-md border border-slate-700',
-            'bg-slate-950 text-white text-sm px-3',
+            'w-full max-w-sm h-9 rounded-md border border-border',
+            'bg-background text-foreground text-sm px-3',
             'focus:outline-none focus:ring-2 focus:ring-ring'
           )}
         >
@@ -156,8 +156,8 @@ export default function WidgetSettingsPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* Enabled tools */}
-        <div className="border border-slate-800 rounded-lg p-5 space-y-4">
-          <h3 className="font-medium text-white">Enabled Tools</h3>
+        <div className="border border-border rounded-lg p-5 space-y-4">
+          <h3 className="font-medium text-foreground">Enabled Tools</h3>
           <ToolChecklist
             enabledTools={config.enabledTools}
             onChange={(tools) =>
@@ -169,8 +169,8 @@ export default function WidgetSettingsPage() {
         {/* Theme + Position + PIN */}
         <div className="space-y-4">
           {/* Theme */}
-          <div className="border border-slate-800 rounded-lg p-5 space-y-3">
-            <h3 className="font-medium text-white">Theme</h3>
+          <div className="border border-border rounded-lg p-5 space-y-3">
+            <h3 className="font-medium text-foreground">Theme</h3>
             <div className="flex gap-2">
               {THEMES.map((t) => (
                 <Button
@@ -187,8 +187,8 @@ export default function WidgetSettingsPage() {
           </div>
 
           {/* Position */}
-          <div className="border border-slate-800 rounded-lg p-5 space-y-3">
-            <h3 className="font-medium text-white">Position</h3>
+          <div className="border border-border rounded-lg p-5 space-y-3">
+            <h3 className="font-medium text-foreground">Position</h3>
             <div className="grid grid-cols-2 gap-2">
               {POSITIONS.map((pos) => (
                 <Button
@@ -205,12 +205,12 @@ export default function WidgetSettingsPage() {
           </div>
 
           {/* PIN management */}
-          <div className="border border-slate-800 rounded-lg p-5 space-y-3">
-            <h3 className="font-medium text-white">PIN Hash</h3>
+          <div className="border border-border rounded-lg p-5 space-y-3">
+            <h3 className="font-medium text-foreground">PIN Hash</h3>
             <div className="flex items-center gap-2">
               <Badge
                 variant="secondary"
-                className="font-mono text-xs bg-slate-800 text-slate-300"
+                className="font-mono text-xs bg-muted text-foreground"
               >
                 ****...****
               </Badge>
@@ -219,7 +219,7 @@ export default function WidgetSettingsPage() {
                 Regenerate
               </Button>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               PIN regeneration will be available in a future update.
             </p>
           </div>

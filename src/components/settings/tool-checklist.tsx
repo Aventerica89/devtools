@@ -47,8 +47,8 @@ export function ToolChecklist({
             className="flex items-center justify-between py-2"
           >
             <div className="flex items-center gap-3">
-              <tool.icon className="h-4 w-4 text-slate-400" />
-              <Label className="text-sm text-white cursor-pointer">
+              <tool.icon className="h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm text-foreground cursor-pointer">
                 {tool.label}
               </Label>
             </div>

@@ -21,7 +21,7 @@ export function ContrastChecker() {
 
       {/* Preview */}
       <div
-        className="rounded-lg border border-slate-700 p-6 text-center space-y-2"
+        className="rounded-lg border border-border p-6 text-center space-y-2"
         style={{ backgroundColor: bg, color: fg }}
       >
         <p className="text-2xl font-bold">Sample Heading</p>
@@ -32,9 +32,9 @@ export function ContrastChecker() {
       </div>
 
       {/* Ratio + WCAG badges */}
-      <div className="rounded-lg border border-slate-800 bg-slate-900 p-4 space-y-3">
+      <div className="rounded-lg border border-border bg-card p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400 uppercase">
+          <span className="text-xs font-medium text-muted-foreground uppercase">
             Contrast Ratio
           </span>
           <span
@@ -89,8 +89,8 @@ function WcagBadge({
       )}
     >
       <div>
-        <p className="text-sm font-medium text-slate-200">{label}</p>
-        <p className="text-xs text-slate-500">Min {requirement}</p>
+        <p className="text-sm font-medium text-foreground">{label}</p>
+        <p className="text-xs text-muted-foreground">Min {requirement}</p>
       </div>
       <Badge
         variant="secondary"

@@ -134,7 +134,7 @@ export function PageBreakdown({ entries, thresholds }: PageBreakdownProps) {
 
   if (pages.length === 0) {
     return (
-      <div className="text-center py-8 text-slate-600 text-sm">
+      <div className="text-center py-8 text-muted-foreground text-sm">
         No per-page data available. Page URLs are extracted
         from metadata sent by the widget.
       </div>
@@ -144,14 +144,14 @@ export function PageBreakdown({ entries, thresholds }: PageBreakdownProps) {
   return (
     <Table>
       <TableHeader>
-        <TableRow className="border-slate-800 hover:bg-transparent">
-          <TableHead className="text-slate-400">Page URL</TableHead>
-          <TableHead className="text-slate-400 text-right">LCP</TableHead>
-          <TableHead className="text-slate-400 text-right">CLS</TableHead>
-          <TableHead className="text-slate-400 text-right">INP</TableHead>
-          <TableHead className="text-slate-400 text-right">FCP</TableHead>
-          <TableHead className="text-slate-400 text-right">TTFB</TableHead>
-          <TableHead className="text-slate-400 text-center">Rating</TableHead>
+        <TableRow className="border-border hover:bg-transparent">
+          <TableHead className="text-muted-foreground">Page URL</TableHead>
+          <TableHead className="text-muted-foreground text-right">LCP</TableHead>
+          <TableHead className="text-muted-foreground text-right">CLS</TableHead>
+          <TableHead className="text-muted-foreground text-right">INP</TableHead>
+          <TableHead className="text-muted-foreground text-right">FCP</TableHead>
+          <TableHead className="text-muted-foreground text-right">TTFB</TableHead>
+          <TableHead className="text-muted-foreground text-center">Rating</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -161,9 +161,9 @@ export function PageBreakdown({ entries, thresholds }: PageBreakdownProps) {
           return (
             <TableRow
               key={page.url}
-              className="border-slate-800 hover:bg-slate-800/30"
+              className="border-border hover:bg-accent/30"
             >
-              <TableCell className="text-sm text-slate-300 max-w-xs truncate">
+              <TableCell className="text-sm text-foreground max-w-xs truncate">
                 {page.url}
               </TableCell>
               {(['lcp', 'cls', 'inp', 'fcp', 'ttfb'] as const).map((key) => {
@@ -180,7 +180,7 @@ export function PageBreakdown({ entries, thresholds }: PageBreakdownProps) {
                       'text-right text-sm font-mono',
                       formatted
                         ? VALUE_COLORS[formatted.rating]
-                        : 'text-slate-700'
+                        : 'text-muted-foreground'
                     )}
                   >
                     {formatted?.display ?? '-'}

@@ -36,7 +36,7 @@ export default function AiSettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500">
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
         Loading AI configuration...
       </div>
     )
@@ -44,7 +44,7 @@ export default function AiSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-muted-foreground">
         Configure AI provider API keys and test connections.
       </p>
 
@@ -80,14 +80,14 @@ export default function AiSettingsPage() {
       </div>
 
       {/* Setup instructions */}
-      <div className="border border-slate-800 rounded-lg p-5 space-y-3">
-        <h3 className="font-medium text-white flex items-center gap-2">
-          <Bot className="h-4 w-4 text-slate-400" />
+      <div className="border border-border rounded-lg p-5 space-y-3">
+        <h3 className="font-medium text-foreground flex items-center gap-2">
+          <Bot className="h-4 w-4 text-muted-foreground" />
           Setup Instructions
         </h3>
-        <div className="text-sm text-slate-400 space-y-2">
-          <p>1. Create a <code className="px-1 py-0.5 rounded bg-slate-800 text-xs">.env.local</code> file in the project root:</p>
-          <pre className="text-xs bg-slate-950 border border-slate-800 rounded-md p-3 font-mono text-slate-300 overflow-x-auto">
+        <div className="text-sm text-muted-foreground space-y-2">
+          <p>1. Create a <code className="px-1 py-0.5 rounded bg-muted text-xs">.env.local</code> file in the project root:</p>
+          <pre className="text-xs bg-background border border-border rounded-md p-3 font-mono text-foreground overflow-x-auto">
 {`ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_GENERATIVE_AI_API_KEY=AIza...`}
           </pre>

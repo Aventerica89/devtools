@@ -76,13 +76,13 @@ export function GradientBuilder() {
     <div className="space-y-4">
       {/* Preview */}
       <div
-        className="h-32 rounded-lg border border-slate-700"
+        className="h-32 rounded-lg border border-border"
         style={{ background: cssValue }}
       />
 
       {/* Direction selector */}
       <div className="space-y-2">
-        <span className="text-xs font-medium text-slate-400 uppercase">
+        <span className="text-xs font-medium text-muted-foreground uppercase">
           Direction
         </span>
         <div className="flex flex-wrap gap-2">
@@ -94,7 +94,7 @@ export function GradientBuilder() {
                 'px-3 py-1.5 rounded-md text-xs border transition-colors',
                 direction === d.value
                   ? 'border-blue-600 bg-blue-600/20 text-blue-300'
-                  : 'border-slate-700 bg-slate-950 text-slate-400 hover:text-white'
+                  : 'border-border bg-background text-muted-foreground hover:text-foreground'
               )}
             >
               {d.label}
@@ -106,14 +106,14 @@ export function GradientBuilder() {
       {/* Color stops */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium text-slate-400 uppercase">
+          <span className="text-xs font-medium text-muted-foreground uppercase">
             Color Stops
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={addStop}
-            className="text-xs text-slate-400 hover:text-white h-7"
+            className="text-xs text-muted-foreground hover:text-foreground h-7"
           >
             <Plus className="h-3.5 w-3.5 mr-1" />
             Add
@@ -128,7 +128,7 @@ export function GradientBuilder() {
                 onChange={(e) => updateStopColor(stop.id, e.target.value)}
                 className="w-10 h-8 rounded cursor-pointer bg-transparent"
               />
-              <span className="font-mono text-sm text-slate-300 flex-1">
+              <span className="font-mono text-sm text-foreground flex-1">
                 {stop.color}
               </span>
               {stops.length > 2 && (
@@ -136,7 +136,7 @@ export function GradientBuilder() {
                   variant="ghost"
                   size="sm"
                   onClick={() => removeStop(stop.id)}
-                  className="h-7 w-7 p-0 text-slate-500 hover:text-red-400"
+                  className="h-7 w-7 p-0 text-muted-foreground hover:text-red-400"
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
@@ -147,15 +147,15 @@ export function GradientBuilder() {
       </div>
 
       {/* CSS output */}
-      <div className="rounded-lg border border-slate-800 bg-slate-950 p-3 flex items-center gap-2">
-        <code className="flex-1 text-sm font-mono text-slate-300 break-all">
+      <div className="rounded-lg border border-border bg-background p-3 flex items-center gap-2">
+        <code className="flex-1 text-sm font-mono text-foreground break-all">
           {cssOutput}
         </code>
         <Button
           variant="ghost"
           size="sm"
           onClick={handleCopy}
-          className="shrink-0 h-8 w-8 p-0 text-slate-400 hover:text-white"
+          className="shrink-0 h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
         >
           {copied ? (
             <Check className="h-3.5 w-3.5 text-green-400" />
