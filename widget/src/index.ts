@@ -9,6 +9,10 @@ import type { ErrorEntry } from './interceptors/errors'
 import type { ApiClient } from './api/client'
 import { useState, useCallback } from 'preact/hooks'
 
+// Capture at module top-level — document.currentScript is only valid
+// during synchronous script execution, NOT inside DOMContentLoaded callbacks
+const SCRIPT_EL = document.currentScript as HTMLScriptElement | null
+
 const WIDGET_CSS = [
   ':host { all: initial; }',
   '#devtools-root { font-family: system-ui, sans-serif; }',
@@ -74,10 +78,9 @@ function App({ projectId, pinHash, apiBase, apiClient }: AppProps) {
 }
 
 function init() {
-  const script = document.currentScript as HTMLScriptElement
-  const projectId = script?.getAttribute('data-project') || 'default'
-  const pinHash = script?.getAttribute('data-pin') || ''
-  const apiBase = script?.src.replace('/widget.js', '') || ''
+  const projectId = SCRIPT_EL?.getAttribute('data-project') || 'default'
+  const pinHash = SCRIPT_EL?.getAttribute('data-pin') || ''
+  const apiBase = SCRIPT_EL?.src.replace('/widget.js', '') || ''
 
   // Create API client
   const apiClient = createApiClient(apiBase, pinHash)
