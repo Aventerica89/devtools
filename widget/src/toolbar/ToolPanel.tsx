@@ -18,6 +18,7 @@ import { NetworkViewer } from '../tools/NetworkViewer'
 import { ErrorListViewer } from '../tools/ErrorOverlay'
 import { BugReporter } from '../tools/BugReporter'
 import { AIChat } from '../tools/AIChat'
+import { PerfViewer } from '../tools/PerfViewer'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
 
@@ -153,6 +154,7 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
                 || activeTool === 'network'
                 || activeTool === 'errors'
                 || activeTool === 'bugs'
+                || activeTool === 'perf'
                 || activeTool === 'ai'
                 ? {
                     alignItems: 'stretch',
@@ -175,13 +177,15 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
                       prefillTitle: bugPrefillTitle || undefined,
                       prefillStack: bugPrefillStack || undefined,
                     })
-                  : activeTool === 'ai'
-                    ? h(AIChat, { apiBase, pinHash })
-                    : h(
-                        'span',
-                        null,
-                        `${activeToolDef.label} -- coming soon`
-                      )
+                  : activeTool === 'perf'
+                    ? h(PerfViewer, null)
+                    : activeTool === 'ai'
+                      ? h(AIChat, { apiBase, pinHash })
+                      : h(
+                          'span',
+                          null,
+                          `${activeToolDef.label} -- coming soon`
+                        )
         )
       : null
   )
