@@ -95,9 +95,9 @@ function formatDate(iso: string | null): string {
 }
 
 export default function DevLogPage() {
-  const [entries, setEntries] = useState<DevLogEntry[]>([])
+  const [entries, setEntries] = useState<DevLogEntry[] | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const loading = entries === null
   const [dialogOpen, setDialogOpen] = useState(false)
 
   // Filters
@@ -130,11 +130,12 @@ export default function DevLogPage() {
     setProjects(data)
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
-    Promise.all([fetchEntries(), fetchProjects()]).then(() => {
-      setLoading(false)
-    })
+    fetchEntries()
+    fetchProjects()
   }, [fetchEntries, fetchProjects])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleCreate() {
     if (!newEntry.projectId || !newEntry.title) return
@@ -163,7 +164,7 @@ export default function DevLogPage() {
     fetchEntries()
   }
 
-  const filtered = entries.filter((entry) => {
+  const filtered = (entries ?? []).filter((entry) => {
     if (filterSource && entry.source !== filterSource) return false
     if (!searchQuery) return true
     const q = searchQuery.toLowerCase()
@@ -385,7 +386,7 @@ export default function DevLogPage() {
           <ScrollText className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No log entries found</p>
           <p className="text-xs mt-1">
-            {entries.length > 0
+            {(entries ?? []).length > 0
               ? 'Try adjusting your filters'
               : 'Click "Add Note" to create one'}
           </p>

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import type { PerfEntry, PageMetrics, Rating, PerfThreshold } from './types'
-import { ALL_METRICS, getRating } from './types'
+import { getRating } from './types'
 
 interface PageBreakdownProps {
   readonly entries: readonly PerfEntry[]

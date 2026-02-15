@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Copy, Check } from 'lucide-react'
+import { Check } from 'lucide-react'
 import {
   findClosestTailwindColor,
   getTailwindPalette,

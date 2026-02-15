@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import { useState, useRef, useCallback } from 'preact/hooks'
-import { COLORS, FAB_SIZE, DRAG_THRESHOLD, fabStyle } from './styles'
+import { COLORS, DRAG_THRESHOLD, fabStyle } from './styles'
 import { ToolPanel } from './ToolPanel'
 import type { ApiClient } from '../api/client'
 
@@ -51,6 +51,7 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
   const [panelOpen, setPanelOpen] = useState(false)
   const [fabHover, setFabHover] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
   const dragRef = useRef<DragState>(INITIAL_DRAG)
   const btnRef = useRef<HTMLButtonElement | null>(null)
 
@@ -67,6 +68,7 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
         offsetY: position.y,
         moved: false,
       }
+      setIsDragging(true)
     },
     [position.x, position.y]
   )
@@ -94,6 +96,7 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
     const wasDragged = drag.moved
 
     dragRef.current = { ...INITIAL_DRAG }
+    setIsDragging(false)
 
     if (!wasDragged) {
       setPanelOpen((prev) => !prev)
@@ -113,7 +116,7 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
     boxShadow: fabHover
       ? `0 6px 16px ${COLORS.shadow}`
       : `0 4px 12px ${COLORS.shadow}`,
-    cursor: dragRef.current.isDragging ? 'grabbing' : 'grab',
+    cursor: isDragging ? 'grabbing' : 'grab',
   }
 
   return h(

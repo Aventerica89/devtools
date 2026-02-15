@@ -28,9 +28,9 @@ import { EnvImport } from '@/components/env/env-import'
 import type { EnvVar, Project } from '@/components/env/types'
 
 export default function EnvVarsPage() {
-  const [envVars, setEnvVars] = useState<EnvVar[]>([])
+  const [envVars, setEnvVars] = useState<EnvVar[] | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const loading = envVars === null
   const [filterProjectId, setFilterProjectId] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -57,11 +57,12 @@ export default function EnvVarsPage() {
     setProjects(data)
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
-    Promise.all([fetchEnvVars(), fetchProjects()]).then(() => {
-      setLoading(false)
-    })
+    fetchEnvVars()
+    fetchProjects()
   }, [fetchEnvVars, fetchProjects])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleCreate() {
     if (!newVar.projectId || !newVar.key || !newVar.value) return
@@ -129,7 +130,7 @@ export default function EnvVarsPage() {
           <KeyRound className="h-5 w-5 text-slate-400" />
           <h1 className="text-xl font-bold">Env Vars</h1>
           <Badge variant="secondary" className="text-xs">
-            {envVars.length}
+            {(envVars ?? []).length}
           </Badge>
         </div>
 
@@ -252,7 +253,7 @@ export default function EnvVarsPage() {
 
         <TabsContent value="all">
           <EnvVarList
-            envVars={envVars}
+            envVars={envVars ?? []}
             projects={projects}
             filterProjectId={filterProjectId}
             onFilterChange={(id) => setFilterProjectId(id)}
@@ -261,7 +262,7 @@ export default function EnvVarsPage() {
         </TabsContent>
 
         <TabsContent value="compare">
-          <EnvCompare envVars={envVars} projects={projects} />
+          <EnvCompare envVars={envVars ?? []} projects={projects} />
         </TabsContent>
 
         <TabsContent value="import">

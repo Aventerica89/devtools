@@ -35,8 +35,8 @@ function generateId(): string {
 }
 
 export default function ProjectSettingsPage() {
-  const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const [projects, setProjects] = useState<Project[] | null>(null)
+  const loading = projects === null
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const [newProject, setNewProject] = useState({
@@ -50,9 +50,11 @@ export default function ProjectSettingsPage() {
     setProjects(data)
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
-    fetchProjects().then(() => setLoading(false))
+    fetchProjects()
   }, [fetchProjects])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleCreate() {
     if (!newProject.name) return
@@ -160,7 +162,7 @@ export default function ProjectSettingsPage() {
         </Dialog>
       </div>
 
-      {projects.length === 0 ? (
+      {(projects ?? []).length === 0 ? (
         <div className="text-center py-16 text-slate-500">
           <FolderKanban className="h-10 w-10 mx-auto mb-3 opacity-50" />
           <p>No projects yet</p>
@@ -170,7 +172,7 @@ export default function ProjectSettingsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {projects.map((project) => (
+          {(projects ?? []).map((project) => (
             <ProjectRow
               key={project.id}
               project={project}

@@ -154,7 +154,7 @@ function ObjectNode({
       </div>
       {isExpanded && (
         <div className="ml-4 border-l border-slate-800 pl-2">
-          {keys.map((key, index) => {
+          {keys.map((key) => {
             const childPath = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(key)
               ? (path ? `${path}.${key}` : key)
               : (path ? `${path}["${key}"]` : `["${key}"]`)

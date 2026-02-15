@@ -57,9 +57,9 @@ const STATUS_FILTER_STYLES: Record<string, string> = {
 }
 
 export default function BugsPage() {
-  const [bugs, setBugs] = useState<BugRecord[]>([])
+  const [bugs, setBugs] = useState<BugRecord[] | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const loading = bugs === null
   const [dialogOpen, setDialogOpen] = useState(false)
 
   // Filters
@@ -90,11 +90,12 @@ export default function BugsPage() {
     setProjects(data)
   }, [])
 
+  /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
-    Promise.all([fetchBugs(), fetchProjects()]).then(() => {
-      setLoading(false)
-    })
+    fetchBugs()
+    fetchProjects()
   }, [fetchBugs, fetchProjects])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   async function handleCreate() {
     if (!newBug.projectId || !newBug.title) return
@@ -136,7 +137,7 @@ export default function BugsPage() {
     fetchBugs()
   }
 
-  const filtered = bugs.filter((bug) => {
+  const filtered = (bugs ?? []).filter((bug) => {
     if (filterSeverity && bug.severity !== filterSeverity) return false
     if (filterStatus && bug.status !== filterStatus) return false
     return true
