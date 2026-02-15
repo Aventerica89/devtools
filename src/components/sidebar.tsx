@@ -7,7 +7,7 @@ import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
   Send, Braces, Regex, Palette, KeyRound,
   GitBranch, ScrollText, Settings, FolderKanban,
-  BookOpen
+  BookOpen, Smartphone
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -44,6 +44,7 @@ const sections = [
     label: 'Dev',
     items: [
       { href: '/style-guide', label: 'Style Guide', icon: BookOpen },
+      { href: '/mobile-app', label: 'Mobile App', icon: Smartphone },
     ],
   },
   {
