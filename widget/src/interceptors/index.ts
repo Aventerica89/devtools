@@ -25,10 +25,10 @@ const FLUSH_INTERVAL_MS = 10_000
 const FLUSH_THRESHOLD = 20
 
 /**
- * Console and network events are high-volume.
- * Only send errors/warnings for console, and skip widget's own requests.
+ * Console levels to forward to the DevTools backend.
+ * All levels included so the dashboard Console Log page shows everything.
  */
-const CONSOLE_LEVELS_TO_SEND = new Set(['warn', 'error'])
+const CONSOLE_LEVELS_TO_SEND = new Set(['log', 'info', 'warn', 'error', 'debug'])
 
 interface BatchEvent {
   readonly type: string
