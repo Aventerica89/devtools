@@ -80,8 +80,36 @@ export default function NetworkPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const fetchEntries = useCallback(async () => {
-    // Network entries will come from the widget interceptor
-    setEntries([])
+    try {
+      const res = await fetch('/api/devlog?type=network&limit=200')
+      const data = await res.json()
+      const mapped: NetworkEntry[] = data.map(
+        (row: {
+          id: number
+          projectId: string
+          title: string
+          content: string | null
+          metadata: string | null
+          createdAt: string | null
+        }) => {
+          const meta = row.metadata ? JSON.parse(row.metadata) : {}
+          return {
+            id: row.id,
+            projectId: row.projectId,
+            method: meta.method || 'GET',
+            url: meta.url || row.title,
+            status: meta.status ?? null,
+            duration: meta.duration ?? null,
+            size: meta.responseSize ?? null,
+            type: null,
+            timestamp: row.createdAt,
+          }
+        }
+      )
+      setEntries(mapped)
+    } catch {
+      setEntries([])
+    }
   }, [])
 
   /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */

@@ -1,5 +1,13 @@
-import { installConsoleInterceptor } from './console'
-import { installNetworkInterceptor } from './network'
+import {
+  installConsoleInterceptor,
+  subscribeConsole,
+  getConsoleEntries,
+} from './console'
+import {
+  installNetworkInterceptor,
+  subscribeNetwork,
+  getNetworkEntries,
+} from './network'
 import {
   installErrorInterceptor,
   subscribeErrors,
@@ -15,6 +23,12 @@ import type { PerfEntry } from './performance'
 
 const FLUSH_INTERVAL_MS = 10_000
 const FLUSH_THRESHOLD = 20
+
+/**
+ * Console and network events are high-volume.
+ * Only send errors/warnings for console, and skip widget's own requests.
+ */
+const CONSOLE_LEVELS_TO_SEND = new Set(['warn', 'error'])
 
 interface BatchEvent {
   readonly type: string
@@ -111,6 +125,62 @@ function startEventBatching(
       },
       projectId,
     })
+  })
+
+  // Subscribe to console entries -- only warn/error to avoid flooding
+  let lastConsoleId = 0
+
+  subscribeConsole(() => {
+    const entries = getConsoleEntries()
+    const newEntries = entries.filter((e) => e.id > lastConsoleId)
+    if (newEntries.length > 0) {
+      lastConsoleId = newEntries[newEntries.length - 1].id
+      for (const entry of newEntries) {
+        if (!CONSOLE_LEVELS_TO_SEND.has(entry.level)) continue
+        addEvent({
+          type: 'console',
+          title: entry.args.join(' ').slice(0, 500),
+          content: entry.args.join('\n').slice(0, 2000),
+          metadata: {
+            level: entry.level,
+            argCount: entry.args.length,
+          },
+          projectId,
+        })
+      }
+    }
+  })
+
+  // Subscribe to network entries -- skip widget's own API calls
+  let lastNetworkId = 0
+
+  subscribeNetwork(() => {
+    const entries = getNetworkEntries()
+    const newEntries = entries.filter((e) => e.id > lastNetworkId)
+    if (newEntries.length > 0) {
+      lastNetworkId = newEntries[newEntries.length - 1].id
+      for (const entry of newEntries) {
+        // Skip widget's own requests to avoid infinite loops
+        if (entry.url.includes('/api/widget/')) continue
+        if (entry.url.includes('/api/bugs')) continue
+
+        addEvent({
+          type: 'network',
+          title: `${entry.method} ${entry.url}`.slice(0, 500),
+          content: `${entry.status} ${entry.statusText} (${entry.duration}ms)`,
+          metadata: {
+            method: entry.method,
+            url: entry.url,
+            status: entry.status,
+            statusText: entry.statusText,
+            duration: entry.duration,
+            requestSize: entry.requestSize,
+            responseSize: entry.responseSize,
+          },
+          projectId,
+        })
+      }
+    }
   })
 
   // Periodic flush every 10 seconds

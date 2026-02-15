@@ -69,9 +69,34 @@ export default function ConsolePage() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const fetchEntries = useCallback(async () => {
-    // Console entries will come from the widget interceptor
-    // For now, return empty array
-    setEntries([])
+    try {
+      const res = await fetch('/api/devlog?type=console&limit=200')
+      const data = await res.json()
+      const mapped: ConsoleEntry[] = data.map(
+        (row: {
+          id: number
+          projectId: string
+          title: string
+          content: string | null
+          metadata: string | null
+          createdAt: string | null
+        }) => {
+          const meta = row.metadata ? JSON.parse(row.metadata) : {}
+          return {
+            id: row.id,
+            projectId: row.projectId,
+            level: meta.level || 'log',
+            message: row.title,
+            source: null,
+            lineNumber: null,
+            timestamp: row.createdAt,
+          }
+        }
+      )
+      setEntries(mapped)
+    } catch {
+      setEntries([])
+    }
   }, [])
 
   /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */

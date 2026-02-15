@@ -51,9 +51,38 @@ export default function ErrorsPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const fetchEntries = useCallback(async () => {
-    // Error entries will come from the widget interceptor
-    // (window.onerror + unhandledrejection)
-    setEntries([])
+    try {
+      const res = await fetch('/api/devlog?type=error&limit=200')
+      const data = await res.json()
+      const mapped: ErrorEntry[] = data.map(
+        (row: {
+          id: number
+          projectId: string
+          title: string
+          content: string | null
+          metadata: string | null
+          createdAt: string | null
+        }) => {
+          const meta = row.metadata ? JSON.parse(row.metadata) : {}
+          return {
+            id: row.id,
+            projectId: row.projectId,
+            message: row.title,
+            source: meta.source || null,
+            lineNumber: meta.line ?? null,
+            colNumber: meta.col ?? null,
+            stackTrace: row.content || null,
+            type: meta.errorType || 'error',
+            pageUrl: null,
+            userAgent: null,
+            timestamp: row.createdAt,
+          }
+        }
+      )
+      setEntries(mapped)
+    } catch {
+      setEntries([])
+    }
   }, [])
 
   /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
