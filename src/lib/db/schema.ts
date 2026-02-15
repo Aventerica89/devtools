@@ -53,3 +53,14 @@ export const widgetConfig = sqliteTable('widget_config', {
   position: text('position').default('bottom-right'),
   pinHash: text('pin_hash').notNull(),
 })
+
+export const envVars = sqliteTable('env_vars', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: text('project_id').notNull().references(() => projects.id),
+  key: text('key').notNull(),
+  value: text('value').notNull(),
+  sensitive: integer('sensitive', { mode: 'boolean' }).default(false),
+  description: text('description'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+})
