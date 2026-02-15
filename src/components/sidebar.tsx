@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils'
 import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
   Send, Braces, Regex, Palette, KeyRound,
-  GitBranch, ScrollText, Settings, FolderKanban
+  GitBranch, ScrollText, Settings, FolderKanban,
+  BookOpen
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -37,6 +38,12 @@ const sections = [
       { href: '/env', label: 'Env Vars', icon: KeyRound },
       { href: '/devlog', label: 'Dev Log', icon: ScrollText },
       { href: '/perf', label: 'Perf Audit', icon: Gauge },
+    ],
+  },
+  {
+    label: 'Dev',
+    items: [
+      { href: '/style-guide', label: 'Style Guide', icon: BookOpen },
     ],
   },
   {
