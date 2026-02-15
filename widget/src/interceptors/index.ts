@@ -22,7 +22,8 @@ import type { ApiClient } from '../api/client'
 import type { PerfEntry } from './performance'
 
 const FLUSH_INTERVAL_MS = 10_000
-const FLUSH_THRESHOLD = 20
+const FLUSH_THRESHOLD = 50
+const MAX_PENDING = 200
 
 /**
  * Console levels to forward to the DevTools backend.
@@ -51,6 +52,8 @@ function startEventBatching(
   let pending: BatchEvent[] = []
 
   function addEvent(event: BatchEvent): void {
+    // Drop events if buffer is full to prevent resource exhaustion
+    if (pending.length >= MAX_PENDING) return
     pending = [...pending, event]
     if (pending.length >= FLUSH_THRESHOLD) {
       flush()
@@ -137,9 +140,12 @@ function startEventBatching(
       lastConsoleId = newEntries[newEntries.length - 1].id
       for (const entry of newEntries) {
         if (!CONSOLE_LEVELS_TO_SEND.has(entry.level)) continue
+        // Skip messages about widget's own API to prevent feedback loops
+        const msg = entry.args.join(' ')
+        if (msg.includes('/api/widget/') || msg.includes('/api/ai/analyze')) continue
         addEvent({
           type: 'console',
-          title: entry.args.join(' ').slice(0, 500),
+          title: msg.slice(0, 500),
           content: entry.args.join('\n').slice(0, 2000),
           metadata: {
             level: entry.level,
@@ -163,6 +169,7 @@ function startEventBatching(
         // Skip widget's own requests to avoid infinite loops
         if (entry.url.includes('/api/widget/')) continue
         if (entry.url.includes('/api/bugs')) continue
+        if (entry.url.includes('/api/ai/analyze')) continue
 
         addEvent({
           type: 'network',
