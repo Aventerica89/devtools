@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:widget": "cd widget && npx vite build"
+    "build:widget": "cd widget && npx vite build",
+    "env:inject": "op inject -i .env.local.tpl -o .env.local",
+    "db:push": "npx drizzle-kit push"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.44",
