@@ -141,6 +141,8 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
       isOpen: panelOpen,
       onClose: handleClosePanel,
       apiClient,
+      apiBase,
+      pinHash,
     })
   )
 }

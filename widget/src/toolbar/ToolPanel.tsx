@@ -17,6 +17,7 @@ import { ConsoleViewer } from '../tools/ConsoleViewer'
 import { NetworkViewer } from '../tools/NetworkViewer'
 import { ErrorListViewer } from '../tools/ErrorOverlay'
 import { BugReporter } from '../tools/BugReporter'
+import { AIChat } from '../tools/AIChat'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
 
@@ -32,6 +33,7 @@ const TOOLS: readonly ToolDef[] = [
   { id: 'errors', label: 'Error Log', icon: '\u{26A0}' },
   { id: 'bugs', label: 'Bug Reporter', icon: '\u{1F41B}' },
   { id: 'perf', label: 'Performance', icon: '\u{26A1}' },
+  { id: 'ai', label: 'AI Assistant', icon: '\u{2728}' },
 ] as const
 
 interface ToolPanelProps {
@@ -39,9 +41,11 @@ interface ToolPanelProps {
   readonly isOpen: boolean
   readonly onClose: () => void
   readonly apiClient: ApiClient
+  readonly apiBase: string
+  readonly pinHash: string
 }
 
-export function ToolPanel({ projectId, isOpen, onClose, apiClient }: ToolPanelProps) {
+export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinHash }: ToolPanelProps) {
   const [activeTool, setActiveTool] = useState<string | null>(null)
   const [hoverClose, setHoverClose] = useState(false)
   const [hoverTool, setHoverTool] = useState<string | null>(null)
@@ -111,7 +115,7 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient }: ToolPanelPr
       TOOLS.map((tool) => {
         const isActive = activeTool === tool.id
         const isHovered = hoverTool === tool.id
-        let bg = COLORS.toolBtnBg
+        let bg: string = COLORS.toolBtnBg
         if (isActive) {
           bg = COLORS.toolBtnBgActive
         } else if (isHovered) {
@@ -149,6 +153,7 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient }: ToolPanelPr
                 || activeTool === 'network'
                 || activeTool === 'errors'
                 || activeTool === 'bugs'
+                || activeTool === 'ai'
                 ? {
                     alignItems: 'stretch',
                     justifyContent: 'stretch',
@@ -170,11 +175,13 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient }: ToolPanelPr
                       prefillTitle: bugPrefillTitle || undefined,
                       prefillStack: bugPrefillStack || undefined,
                     })
-                  : h(
-                      'span',
-                      null,
-                      `${activeToolDef.label} -- coming soon`
-                    )
+                  : activeTool === 'ai'
+                    ? h(AIChat, { apiBase, pinHash })
+                    : h(
+                        'span',
+                        null,
+                        `${activeToolDef.label} -- coming soon`
+                      )
         )
       : null
   )

@@ -4,6 +4,7 @@ import { initInterceptors } from './interceptors'
 import { createApiClient } from './api/client'
 import { ErrorToast } from './tools/ErrorToast'
 import { BugReporter } from './tools/BugReporter'
+import { QuickAI } from './tools/QuickAI'
 import type { ErrorEntry } from './interceptors/errors'
 import type { ApiClient } from './api/client'
 import { useState, useCallback } from 'preact/hooks'
@@ -40,6 +41,7 @@ function App({ projectId, pinHash, apiBase, apiClient }: AppProps) {
     null,
     h(Toolbar, { projectId, pinHash, apiBase, apiClient }),
     h(ErrorToast, { onReportBug: handleReportFromToast }),
+    h(QuickAI, { apiBase, pinHash }),
     // Inline bug reporter triggered from error toast
     bugFromError
       ? h(

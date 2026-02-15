@@ -12,7 +12,10 @@
     "build:widget": "cd widget && npx vite build"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.44",
+    "@ai-sdk/google": "^3.0.29",
     "@libsql/client": "^0.17.0",
+    "ai": "^6.0.86",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
