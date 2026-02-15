@@ -1,4 +1,5 @@
 import { Sidebar } from '@/components/sidebar'
+import { DevButton } from '@/components/dev-button'
 
 export default function DashboardLayout({
   children,
@@ -11,6 +12,7 @@ export default function DashboardLayout({
       <main className="flex-1 overflow-auto p-6">
         {children}
       </main>
+      <DevButton />
     </div>
   )
 }
