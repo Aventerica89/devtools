@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
+import { getAiKey } from '@/lib/ai-keys'
 
 export async function GET() {
+  const [anthropicKey, googleKey] = await Promise.all([
+    getAiKey('anthropic'),
+    getAiKey('google'),
+  ])
+
   return NextResponse.json({
-    anthropic: {
-      configured: Boolean(process.env.ANTHROPIC_API_KEY),
-    },
-    google: {
-      configured: Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY),
-    },
+    anthropic: { configured: Boolean(anthropicKey) },
+    google: { configured: Boolean(googleKey) },
   })
 }

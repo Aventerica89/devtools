@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Bot, Info } from 'lucide-react'
 import { AiProviderCard } from '@/components/settings/ai-provider-card'
 
@@ -24,15 +24,21 @@ export default function AiSettingsPage() {
   const [status, setStatus] = useState<AiStatus | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetch('/api/ai/status')
-      .then((res) => res.json())
-      .then((data) => {
-        setStatus(data)
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/ai/status')
+      const data = await res.json()
+      setStatus(data)
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    fetchStatus()
+  }, [fetchStatus])
 
   if (loading) {
     return (
@@ -52,11 +58,12 @@ export default function AiSettingsPage() {
       <div className="flex gap-3 p-4 rounded-lg border border-blue-900/50 bg-blue-950/30">
         <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
         <div className="text-sm text-blue-200 space-y-1">
-          <p className="font-medium">Server-side environment variables</p>
+          <p className="font-medium">API key storage</p>
           <p className="text-blue-300/80">
-            API keys are configured as server environment variables.
-            Set them in your <code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">.env.local</code> file
-            or via the Vercel dashboard for production.
+            Keys are saved to the database and used for AI features.
+            You can also set them as environment variables
+            (<code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">.env.local</code>)
+            which take lower priority.
           </p>
         </div>
       </div>
@@ -69,6 +76,7 @@ export default function AiSettingsPage() {
           envVar="ANTHROPIC_API_KEY"
           isConfigured={status?.anthropic.configured ?? false}
           models={[...ANTHROPIC_MODELS]}
+          onKeyChanged={fetchStatus}
         />
         <AiProviderCard
           name="Google AI"
@@ -76,6 +84,7 @@ export default function AiSettingsPage() {
           envVar="GOOGLE_GENERATIVE_AI_API_KEY"
           isConfigured={status?.google.configured ?? false}
           models={[...GOOGLE_MODELS]}
+          onKeyChanged={fetchStatus}
         />
       </div>
 
@@ -83,20 +92,16 @@ export default function AiSettingsPage() {
       <div className="border border-border rounded-lg p-5 space-y-3">
         <h3 className="font-medium text-foreground flex items-center gap-2">
           <Bot className="h-4 w-4 text-muted-foreground" />
-          Setup Instructions
+          Alternative: Environment Variables
         </h3>
         <div className="text-sm text-muted-foreground space-y-2">
-          <p>1. Create a <code className="px-1 py-0.5 rounded bg-muted text-xs">.env.local</code> file in the project root:</p>
+          <p>You can also set keys via <code className="px-1 py-0.5 rounded bg-muted text-xs">.env.local</code>:</p>
           <pre className="text-xs bg-background border border-border rounded-md p-3 font-mono text-foreground overflow-x-auto">
 {`ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_GENERATIVE_AI_API_KEY=AIza...`}
           </pre>
           <p>
-            2. Restart the dev server after adding keys.
-          </p>
-          <p>
-            3. For production, add these variables in the Vercel
-            dashboard under Project Settings &gt; Environment Variables.
+            Restart the dev server after adding keys. Database-stored keys take priority.
           </p>
         </div>
       </div>

@@ -1,46 +1,45 @@
 import { generateText } from 'ai'
-import { anthropic } from '@ai-sdk/anthropic'
-import { google } from '@ai-sdk/google'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { NextResponse } from 'next/server'
+import { getAiKey } from '@/lib/ai-keys'
 
 export async function POST(request: Request) {
   const { provider } = await request.json()
 
   try {
     if (provider === 'anthropic') {
-      if (!process.env.ANTHROPIC_API_KEY) {
+      const apiKey = await getAiKey('anthropic')
+      if (!apiKey) {
         return NextResponse.json({
           success: false,
           error: 'ANTHROPIC_API_KEY not configured',
         })
       }
+      const client = createAnthropic({ apiKey })
       await generateText({
-        model: anthropic('claude-haiku-4-5-20251001'),
+        model: client('claude-haiku-4-5-20251001'),
         prompt: 'Say "OK"',
         maxOutputTokens: 5,
       })
-      return NextResponse.json({
-        success: true,
-        provider: 'anthropic',
-      })
+      return NextResponse.json({ success: true, provider: 'anthropic' })
     }
 
     if (provider === 'google') {
-      if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      const apiKey = await getAiKey('google')
+      if (!apiKey) {
         return NextResponse.json({
           success: false,
           error: 'GOOGLE_GENERATIVE_AI_API_KEY not configured',
         })
       }
+      const client = createGoogleGenerativeAI({ apiKey })
       await generateText({
-        model: google('gemini-2.0-flash'),
+        model: client('gemini-2.0-flash'),
         prompt: 'Say "OK"',
         maxOutputTokens: 5,
       })
-      return NextResponse.json({
-        success: true,
-        provider: 'google',
-      })
+      return NextResponse.json({ success: true, provider: 'google' })
     }
 
     return NextResponse.json(

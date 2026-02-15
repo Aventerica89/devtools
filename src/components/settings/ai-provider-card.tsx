@@ -12,11 +12,18 @@ import {
   CheckCircle2,
   XCircle,
   Zap,
+  Save,
+  Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type TestResult = {
   status: 'idle' | 'testing' | 'success' | 'error'
+  message: string
+}
+
+type SaveResult = {
+  status: 'idle' | 'saving' | 'saved' | 'error'
   message: string
 }
 
@@ -26,6 +33,7 @@ type AiProviderCardProps = {
   readonly envVar: string
   readonly isConfigured: boolean
   readonly models: ReadonlyArray<string>
+  readonly onKeyChanged?: () => void
 }
 
 export function AiProviderCard({
@@ -34,12 +42,59 @@ export function AiProviderCard({
   envVar,
   isConfigured,
   models,
+  onKeyChanged,
 }: AiProviderCardProps) {
   const [showKey, setShowKey] = useState(false)
+  const [keyValue, setKeyValue] = useState('')
   const [testResult, setTestResult] = useState<TestResult>({
     status: 'idle',
     message: '',
   })
+  const [saveResult, setSaveResult] = useState<SaveResult>({
+    status: 'idle',
+    message: '',
+  })
+
+  async function handleSaveKey() {
+    if (!keyValue.trim()) return
+
+    setSaveResult({ status: 'saving', message: 'Saving...' })
+
+    try {
+      const res = await fetch('/api/ai/keys', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, apiKey: keyValue }),
+      })
+
+      if (res.ok) {
+        setSaveResult({ status: 'saved', message: 'Key saved' })
+        setKeyValue('')
+        onKeyChanged?.()
+      } else {
+        const data = await res.json()
+        setSaveResult({
+          status: 'error',
+          message: data.error || 'Save failed',
+        })
+      }
+    } catch {
+      setSaveResult({ status: 'error', message: 'Network error' })
+    }
+  }
+
+  async function handleDeleteKey() {
+    try {
+      await fetch('/api/ai/keys', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider }),
+      })
+      onKeyChanged?.()
+    } catch {
+      // ignore
+    }
+  }
 
   async function handleTestConnection() {
     setTestResult({ status: 'testing', message: 'Testing connection...' })
@@ -94,15 +149,18 @@ export function AiProviderCard({
         </Badge>
       </div>
 
-      {/* Key display */}
+      {/* Key input */}
       <div className="space-y-2">
         <Label className="text-xs text-muted-foreground">API Key</Label>
         <div className="flex items-center gap-2">
           <Input
-            readOnly
             type={showKey ? 'text' : 'password'}
-            value={isConfigured ? 'sk-...configured-on-server' : ''}
-            placeholder="Not configured"
+            value={keyValue}
+            onChange={(e) => {
+              setKeyValue(e.target.value)
+              setSaveResult({ status: 'idle', message: '' })
+            }}
+            placeholder={isConfigured ? 'Key configured — enter new key to replace' : 'Paste your API key'}
             className="bg-background border-border font-mono text-xs"
           />
           <Button
@@ -117,6 +175,46 @@ export function AiProviderCard({
               <Eye className="h-4 w-4" />
             )}
           </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={handleSaveKey}
+            disabled={!keyValue.trim() || saveResult.status === 'saving'}
+          >
+            {saveResult.status === 'saving' ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Save className="h-3 w-3" />
+            )}
+            Save Key
+          </Button>
+
+          {isConfigured && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-red-400 hover:text-red-300"
+              onClick={handleDeleteKey}
+            >
+              <Trash2 className="h-3 w-3" />
+              Remove
+            </Button>
+          )}
+
+          {saveResult.status === 'saved' && (
+            <span className="text-green-400 text-xs flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              {saveResult.message}
+            </span>
+          )}
+          {saveResult.status === 'error' && (
+            <span className="text-red-400 text-xs flex items-center gap-1">
+              <XCircle className="h-3 w-3" />
+              {saveResult.message}
+            </span>
+          )}
         </div>
       </div>
 

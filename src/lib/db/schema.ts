@@ -54,6 +54,12 @@ export const widgetConfig = sqliteTable('widget_config', {
   pinHash: text('pin_hash').notNull(),
 })
 
+export const settings = sqliteTable('settings', {
+  key: text('key').primaryKey(),
+  value: text('value').notNull(),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+})
+
 export const envVars = sqliteTable('env_vars', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   projectId: text('project_id').notNull().references(() => projects.id),
