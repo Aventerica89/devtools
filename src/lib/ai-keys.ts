@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { settings } from '@/lib/db/schema'
+import { decrypt, isEncrypted } from '@/lib/crypto'
 
 export async function getAiKey(
   provider: 'anthropic' | 'google'
@@ -19,7 +20,9 @@ export async function getAiKey(
       .where(eq(settings.key, envKey))
 
     if (rows.length > 0 && rows[0].value) {
-      return rows[0].value.trim()
+      const raw = rows[0].value.trim()
+      // Decrypt if stored in encrypted format; fall back to raw for legacy plaintext values
+      return isEncrypted(raw) ? decrypt(raw) : raw
     }
   } catch {
     // DB not available, fall through to env

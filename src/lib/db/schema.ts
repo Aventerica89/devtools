@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core'
+import { sqliteTable, text, integer, index, uniqueIndex } from 'drizzle-orm/sqlite-core'
 import { sql } from 'drizzle-orm'
 
 export const projects = sqliteTable('projects', {
@@ -22,7 +22,9 @@ export const bugs = sqliteTable('bugs', {
   metadata: text('metadata'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
   resolvedAt: text('resolved_at'),
-})
+}, (t) => [
+  index('bugs_project_id_idx').on(t.projectId),
+])
 
 export const devlog = sqliteTable('devlog', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -33,7 +35,9 @@ export const devlog = sqliteTable('devlog', {
   source: text('source').default('manual'),
   metadata: text('metadata'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
-})
+}, (t) => [
+  index('devlog_project_id_idx').on(t.projectId),
+])
 
 export const savedRequests = sqliteTable('saved_requests', {
   id: integer('id').primaryKey({ autoIncrement: true }),
@@ -44,7 +48,9 @@ export const savedRequests = sqliteTable('saved_requests', {
   headers: text('headers'),
   body: text('body'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
-})
+}, (t) => [
+  index('saved_requests_project_id_idx').on(t.projectId),
+])
 
 export const widgetConfig = sqliteTable('widget_config', {
   projectId: text('project_id').primaryKey().references(() => projects.id),
@@ -69,4 +75,7 @@ export const envVars = sqliteTable('env_vars', {
   description: text('description'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
   updatedAt: text('updated_at').default(sql`(datetime('now'))`),
-})
+}, (t) => [
+  index('env_vars_project_id_idx').on(t.projectId),
+  uniqueIndex('env_vars_project_key_idx').on(t.projectId, t.key),
+])

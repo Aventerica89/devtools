@@ -21,6 +21,9 @@ import { createApiClient } from '../api/client'
 import type { ApiClient } from '../api/client'
 import type { PerfEntry } from './performance'
 
+// Capture original console.warn before any interceptor patches it
+const _warn = console.warn.bind(console)
+
 const FLUSH_INTERVAL_MS = 10_000
 const FLUSH_THRESHOLD = 50
 const MAX_PENDING = 200
@@ -54,7 +57,7 @@ function startEventBatching(
   function addEvent(event: BatchEvent): void {
     // Drop events if buffer is full to prevent resource exhaustion
     if (pending.length >= MAX_PENDING) return
-    pending = [...pending, event]
+    pending.push(event)
     if (pending.length >= FLUSH_THRESHOLD) {
       flush()
     }
@@ -66,8 +69,8 @@ function startEventBatching(
     const batch = [...pending]
     pending = []
 
-    apiClient.sendEvents(batch).catch(() => {
-      // Silently drop on failure to avoid infinite loops
+    apiClient.sendEvents(batch).catch((err: unknown) => {
+      _warn('[DevTools] Failed to send events:', err)
     })
   }
 

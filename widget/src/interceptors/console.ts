@@ -18,6 +18,18 @@ let nextId = 1
 const buffer: ConsoleEntry[] = []
 const listeners: Array<() => void> = []
 
+/** JSON replacer that marks already-seen objects as [Circular] instead of throwing. */
+function circularReplacer() {
+  const seen = new WeakSet()
+  return (_key: string, value: unknown) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]'
+      seen.add(value)
+    }
+    return value
+  }
+}
+
 /** Serialize a single argument to a display string. */
 function serializeArg(arg: unknown): string {
   if (arg === null) return 'null'
@@ -30,7 +42,7 @@ function serializeArg(arg: unknown): string {
     return `${arg.name}: ${arg.message}`
   }
   try {
-    return JSON.stringify(arg, null, 2)
+    return JSON.stringify(arg, circularReplacer(), 2)
   } catch {
     return String(arg)
   }
