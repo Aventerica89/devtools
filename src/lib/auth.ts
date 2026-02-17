@@ -1,7 +1,10 @@
 import bcrypt from 'bcryptjs'
 import { randomBytes, createHash } from 'crypto'
 
-const SESSION_SECRET = process.env.SESSION_SECRET || 'devtools-session-secret'
+const SESSION_SECRET = process.env.SESSION_SECRET
+if (!SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required')
+}
 const SESSION_EXPIRY_DAYS = 7
 
 export async function hashPin(pin: string): Promise<string> {

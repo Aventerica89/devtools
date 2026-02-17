@@ -2,65 +2,75 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { envVars } from '@/lib/db/schema'
 import { eq, desc } from 'drizzle-orm'
+import { apiError, parseBody, EnvVarCreateSchema, EnvVarUpdateSchema } from '@/lib/api'
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const projectId = searchParams.get('projectId')
+  try {
+    const { searchParams } = new URL(request.url)
+    const projectId = searchParams.get('projectId')
 
-  let query = db.select().from(envVars).orderBy(desc(envVars.createdAt))
-  if (projectId) {
-    query = query.where(eq(envVars.projectId, projectId)) as typeof query
+    let query = db.select().from(envVars).orderBy(desc(envVars.createdAt))
+    if (projectId) {
+      query = query.where(eq(envVars.projectId, projectId)) as typeof query
+    }
+
+    const all = await query.all()
+    return NextResponse.json(all)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Failed to fetch env vars: ${message}`)
   }
-
-  const all = await query.all()
-  return NextResponse.json(all)
 }
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const result = await db
-    .insert(envVars)
-    .values({
-      projectId: body.projectId,
-      key: body.key,
-      value: body.value,
-      sensitive: body.sensitive ?? false,
-      description: body.description || null,
-    })
-    .returning()
-  return NextResponse.json(result[0], { status: 201 })
+  try {
+    const body = await request.json()
+    const parsed = parseBody(EnvVarCreateSchema, body)
+    if (!parsed.success) return parsed.response
+
+    const result = await db.insert(envVars).values(parsed.data).returning()
+    return NextResponse.json(result[0], { status: 201 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Failed to create env var: ${message}`)
+  }
 }
 
 export async function PUT(request: Request) {
-  const body = await request.json()
-  const updates: Record<string, unknown> = {
-    updatedAt: new Date().toISOString(),
+  try {
+    const body = await request.json()
+    const parsed = parseBody(EnvVarUpdateSchema, body)
+    if (!parsed.success) return parsed.response
+
+    const { id, ...fields } = parsed.data
+    const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() }
+    if (fields.key !== undefined) updates.key = fields.key
+    if (fields.value !== undefined) updates.value = fields.value
+    if (fields.sensitive !== undefined) updates.sensitive = fields.sensitive
+    if (fields.description !== undefined) updates.description = fields.description
+
+    const result = await db.update(envVars).set(updates).where(eq(envVars.id, id)).returning()
+    if (result.length === 0) return apiError(404, 'Env var not found')
+    return NextResponse.json(result[0])
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Failed to update env var: ${message}`)
   }
-
-  if (body.key !== undefined) updates.key = body.key
-  if (body.value !== undefined) updates.value = body.value
-  if (body.sensitive !== undefined) updates.sensitive = body.sensitive
-  if (body.description !== undefined) updates.description = body.description
-
-  const result = await db
-    .update(envVars)
-    .set(updates)
-    .where(eq(envVars.id, body.id))
-    .returning()
-  return NextResponse.json(result[0])
 }
 
 export async function DELETE(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const id = searchParams.get('id')
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
 
-  if (!id) {
-    return NextResponse.json(
-      { error: 'Missing id parameter' },
-      { status: 400 }
-    )
+    if (!id) return apiError(400, 'Missing id parameter')
+    const numId = parseInt(id, 10)
+    if (isNaN(numId) || numId <= 0) return apiError(400, 'Invalid id parameter')
+
+    await db.delete(envVars).where(eq(envVars.id, numId))
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Failed to delete env var: ${message}`)
   }
-
-  await db.delete(envVars).where(eq(envVars.id, parseInt(id)))
-  return NextResponse.json({ success: true })
 }

@@ -4,7 +4,10 @@
  * Import this in middleware instead of auth.ts.
  */
 
-const SESSION_SECRET = process.env.SESSION_SECRET || 'devtools-session-secret'
+const SESSION_SECRET = process.env.SESSION_SECRET
+if (!SESSION_SECRET) {
+  throw new Error('SESSION_SECRET environment variable is required')
+}
 
 async function sha256Hex(input: string): Promise<string> {
   const encoder = new TextEncoder()

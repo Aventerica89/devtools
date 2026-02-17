@@ -2,18 +2,15 @@ import { db } from '@/lib/db'
 import { widgetConfig } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { NextResponse } from 'next/server'
+import { apiError, parseBody, WidgetConfigUpdateSchema } from '@/lib/api'
 
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
-    const { projectId, enabledTools, theme, position } = body
+    const parsed = parseBody(WidgetConfigUpdateSchema, body)
+    if (!parsed.success) return parsed.response
 
-    if (!projectId) {
-      return NextResponse.json(
-        { error: 'projectId is required' },
-        { status: 400 }
-      )
-    }
+    const { projectId, enabledTools, theme, position } = parsed.data
 
     const existing = await db
       .select()
@@ -22,16 +19,13 @@ export async function PUT(request: Request) {
       .limit(1)
 
     if (existing.length === 0) {
-      return NextResponse.json(
-        { error: 'Widget config does not exist. Create project first.' },
-        { status: 400 }
-      )
+      return apiError(400, 'Widget config does not exist. Create project first.')
     }
 
     await db
       .update(widgetConfig)
       .set({
-        enabledTools: JSON.stringify(enabledTools),
+        enabledTools: enabledTools ? JSON.stringify(enabledTools) : undefined,
         theme,
         position,
       })
@@ -39,11 +33,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Unknown error'
-    return NextResponse.json(
-      { error: `Failed to update config: ${message}` },
-      { status: 500 }
-    )
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Failed to update config: ${message}`)
   }
 }
