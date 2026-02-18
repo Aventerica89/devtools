@@ -144,6 +144,12 @@ export default function DeploymentsPage() {
         </div>
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        Live deployment data from the JB Cloud App Tracker. Requires
+        APP_TRACKER_SUPABASE_URL and APP_TRACKER_SERVICE_KEY environment
+        variables to connect.
+      </p>
+
       {/* Not configured state */}
       {!configured && !loading && (
         <NotConfiguredCard />

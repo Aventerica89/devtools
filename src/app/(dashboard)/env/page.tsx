@@ -243,6 +243,12 @@ export default function EnvVarsPage() {
         </Dialog>
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        Store and compare environment variables across projects. Use the
+        Import tab to bulk-load from .env files. Variables marked sensitive
+        are masked by default.
+      </p>
+
       {/* Tabs */}
       <Tabs defaultValue="all">
         <TabsList>

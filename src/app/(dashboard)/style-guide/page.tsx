@@ -95,7 +95,9 @@ export default function StyleGuidePage() {
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-foreground">Style Guide</h1>
             <p className="text-sm text-muted-foreground">
-              Component reference for consistent design across the dashboard
+              Component reference for maintaining consistent design across
+              this dashboard. Not related to your projects -- this documents
+              the DevTools UI itself.
             </p>
           </div>
 

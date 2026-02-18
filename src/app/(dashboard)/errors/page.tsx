@@ -11,6 +11,8 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/lib/format-date'
+import { PaginationControls } from '@/components/pagination-controls'
 
 type ErrorEntry = {
   id: number
@@ -26,33 +28,30 @@ type ErrorEntry = {
   timestamp: string | null
 }
 
+type Project = {
+  id: string
+  name: string
+}
+
 const ERROR_TYPES = ['error', 'unhandledrejection'] as const
+const PAGE_SIZE = 20
 
 const TYPE_STYLES: Record<string, string> = {
   error: 'border-red-700 text-red-300',
   unhandledrejection: 'border-orange-700 text-orange-300',
 }
 
-function formatTime(iso: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 export default function ErrorsPage() {
   const [entries, setEntries] = useState<ErrorEntry[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [filterType, setFilterType] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [page, setPage] = useState(1)
 
   const fetchEntries = useCallback(async () => {
     try {
-      const res = await fetch('/api/devlog?type=error&limit=200')
+      const res = await fetch('/api/devlog?type=error&limit=500')
       const data = await res.json()
       const mapped: ErrorEntry[] = data.map(
         (row: {
@@ -85,11 +84,24 @@ export default function ErrorsPage() {
     }
   }, [])
 
+  const fetchProjects = useCallback(async () => {
+    try {
+      const res = await fetch('/api/projects')
+      const data = await res.json()
+      setProjects(data)
+    } catch {
+      setProjects([])
+    }
+  }, [])
+
   /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
     fetchEntries()
-  }, [fetchEntries])
+    fetchProjects()
+  }, [fetchEntries, fetchProjects])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const projectMap = new Map(projects.map((p) => [p.id, p.name]))
 
   const filtered = entries.filter((entry) => {
     if (filterType && entry.type !== filterType) return false
@@ -100,6 +112,18 @@ export default function ErrorsPage() {
       (entry.source?.toLowerCase().includes(q) ?? false)
     )
   })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  )
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filterType, searchQuery])
 
   return (
     <div className="space-y-6">
@@ -124,6 +148,11 @@ export default function ErrorsPage() {
           </Button>
         )}
       </div>
+
+      <p className="text-sm text-muted-foreground">
+        Runtime errors and unhandled promise rejections captured from your
+        sites. Click an error to see its stack trace.
+      </p>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -174,120 +203,135 @@ export default function ErrorsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map((entry) => (
-            <div
-              key={entry.id}
-              className={cn(
-                'rounded-lg border border-border',
-                'bg-card overflow-hidden'
-              )}
-            >
-              <button
-                onClick={() =>
-                  setExpandedId(
-                    expandedId === entry.id ? null : entry.id
-                  )
-                }
-                className="w-full text-left p-3 hover:bg-muted/30 transition-colors"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
-                      <span className="text-sm font-mono text-red-300 truncate">
-                        {entry.message}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <Badge
-                        className={cn(
-                          'text-[10px] border',
-                          TYPE_STYLES[entry.type] ||
-                            TYPE_STYLES.error
-                        )}
-                      >
-                        {entry.type === 'unhandledrejection'
-                          ? 'promise'
-                          : 'error'}
-                      </Badge>
-                      {entry.source && (
-                        <span className="font-mono truncate">
-                          {entry.source}
-                          {entry.lineNumber
-                            ? `:${entry.lineNumber}`
-                            : ''}
-                          {entry.colNumber
-                            ? `:${entry.colNumber}`
-                            : ''}
-                        </span>
-                      )}
-                      <span>{formatTime(entry.timestamp)}</span>
-                    </div>
-                  </div>
-                  <Trash2
-                    className="h-3.5 w-3.5 text-muted-foreground hover:text-red-400 shrink-0 mt-1"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setEntries((prev) =>
-                        prev.filter((en) => en.id !== entry.id)
+        <>
+          <div className="space-y-2">
+            {paged.map((entry) => {
+              const projectName = projectMap.get(entry.projectId)
+              return (
+                <div
+                  key={entry.id}
+                  className={cn(
+                    'rounded-lg border border-border',
+                    'bg-card overflow-hidden'
+                  )}
+                >
+                  <button
+                    onClick={() =>
+                      setExpandedId(
+                        expandedId === entry.id ? null : entry.id
                       )
-                    }}
-                  />
+                    }
+                    className="w-full text-left p-3 hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0" />
+                          <span className="text-sm font-mono text-red-300 truncate">
+                            {entry.message}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <Badge
+                            className={cn(
+                              'text-[10px] border',
+                              TYPE_STYLES[entry.type] ||
+                                TYPE_STYLES.error
+                            )}
+                          >
+                            {entry.type === 'unhandledrejection'
+                              ? 'promise'
+                              : 'error'}
+                          </Badge>
+                          {projectName && (
+                            <span className="text-muted-foreground/70 text-[10px]">
+                              {projectName}
+                            </span>
+                          )}
+                          {entry.source && (
+                            <span className="font-mono truncate">
+                              {entry.source}
+                              {entry.lineNumber
+                                ? `:${entry.lineNumber}`
+                                : ''}
+                              {entry.colNumber
+                                ? `:${entry.colNumber}`
+                                : ''}
+                            </span>
+                          )}
+                          <span>{formatDate(entry.timestamp)}</span>
+                        </div>
+                      </div>
+                      <Trash2
+                        className="h-3.5 w-3.5 text-muted-foreground hover:text-red-400 shrink-0 mt-1"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setEntries((prev) =>
+                            prev.filter((en) => en.id !== entry.id)
+                          )
+                        }}
+                      />
+                    </div>
+                  </button>
+
+                  {expandedId === entry.id && (
+                    <div className="border-t border-border p-3 space-y-3">
+                      {entry.pageUrl && (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Page
+                          </p>
+                          <a
+                            href={entry.pageUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+                          >
+                            {entry.pageUrl}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                      )}
+
+                      {entry.stackTrace && (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            Stack Trace
+                          </p>
+                          <pre
+                            className={cn(
+                              'text-xs font-mono text-muted-foreground',
+                              'bg-background rounded p-2',
+                              'overflow-x-auto whitespace-pre-wrap'
+                            )}
+                          >
+                            {entry.stackTrace}
+                          </pre>
+                        </div>
+                      )}
+
+                      {entry.userAgent && (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">
+                            User Agent
+                          </p>
+                          <p className="text-xs text-muted-foreground font-mono">
+                            {entry.userAgent}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </button>
-
-              {expandedId === entry.id && (
-                <div className="border-t border-border p-3 space-y-3">
-                  {entry.pageUrl && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Page
-                      </p>
-                      <a
-                        href={entry.pageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-400 hover:underline flex items-center gap-1"
-                      >
-                        {entry.pageUrl}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </div>
-                  )}
-
-                  {entry.stackTrace && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        Stack Trace
-                      </p>
-                      <pre
-                        className={cn(
-                          'text-xs font-mono text-muted-foreground',
-                          'bg-background rounded p-2',
-                          'overflow-x-auto whitespace-pre-wrap'
-                        )}
-                      >
-                        {entry.stackTrace}
-                      </pre>
-                    </div>
-                  )}
-
-                  {entry.userAgent && (
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">
-                        User Agent
-                      </p>
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {entry.userAgent}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+              )
+            })}
+          </div>
+          <PaginationControls
+            page={safePage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   )

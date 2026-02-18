@@ -25,6 +25,8 @@ import {
   Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/lib/format-date'
+import { PaginationControls } from '@/components/pagination-controls'
 
 type DevLogEntry = {
   id: number
@@ -45,6 +47,7 @@ type Project = {
 }
 
 const LOG_TYPES = ['note', 'error', 'warning', 'perf', 'network'] as const
+const PAGE_SIZE = 20
 
 const TYPE_CONFIG: Record<string, {
   icon: typeof StickyNote
@@ -83,22 +86,12 @@ const SOURCE_FILTER_STYLES: Record<string, string> = {
   auto: 'border-amber-700 text-amber-300',
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 export default function DevLogPage() {
   const [entries, setEntries] = useState<DevLogEntry[] | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const loading = entries === null
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [page, setPage] = useState(1)
 
   // Filters
   const [filterProject, setFilterProject] = useState<string>('')
@@ -116,10 +109,11 @@ export default function DevLogPage() {
 
   const fetchEntries = useCallback(async () => {
     const params = new URLSearchParams()
+    params.set('limit', '500')
     if (filterProject) params.set('project', filterProject)
     if (filterType) params.set('type', filterType)
     const qs = params.toString()
-    const res = await fetch(`/api/devlog${qs ? `?${qs}` : ''}`)
+    const res = await fetch(`/api/devlog?${qs}`)
     const data = await res.json()
     setEntries(data)
   }, [filterProject, filterType])
@@ -136,6 +130,11 @@ export default function DevLogPage() {
     fetchProjects()
   }, [fetchEntries, fetchProjects])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filterProject, filterType, filterSource, searchQuery])
 
   async function handleCreate() {
     if (!newEntry.projectId || !newEntry.title) return
@@ -172,6 +171,13 @@ export default function DevLogPage() {
     const contentMatch = entry.content?.toLowerCase().includes(q) ?? false
     return titleMatch || contentMatch
   })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  )
 
   if (loading) {
     return (
@@ -299,6 +305,11 @@ export default function DevLogPage() {
         </Dialog>
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        Development timeline combining manual notes and auto-captured events.
+        Use it to track decisions, issues, and progress.
+      </p>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <select
@@ -392,86 +403,93 @@ export default function DevLogPage() {
           </p>
         </div>
       ) : (
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
+        <>
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
 
-          <div className="space-y-1">
-            {filtered.map((entry) => {
-              const config = TYPE_CONFIG[entry.type] || TYPE_CONFIG.note
-              const Icon = config.icon
-              return (
-                <div key={entry.id} className="relative flex gap-4 pl-0">
-                  {/* Icon dot */}
-                  <div
-                    className={cn(
-                      'relative z-10 flex items-center justify-center',
-                      'h-8 w-8 rounded-full bg-card border border-border',
-                      'shrink-0'
-                    )}
-                  >
-                    <Icon className={cn('h-4 w-4', config.color)} />
-                  </div>
-
-                  {/* Entry card */}
-                  <div
-                    className={cn(
-                      'flex-1 rounded-lg border border-border',
-                      'bg-card p-3 mb-1'
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="space-y-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-foreground truncate">
-                            {entry.title}
-                          </span>
-                          <Badge
-                            className={cn(
-                              'text-[10px] uppercase border shrink-0',
-                              config.filterStyle
-                            )}
-                          >
-                            {entry.type}
-                          </Badge>
-                          {entry.source === 'auto' && (
-                            <Badge
-                              className={cn(
-                                'text-[10px] border shrink-0',
-                                'border-amber-700 text-amber-300'
-                              )}
-                            >
-                              auto
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(entry.createdAt)}
-                          {' | '}
-                          {entry.projectId}
-                        </p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-muted-foreground hover:text-red-400 shrink-0"
-                        onClick={() => handleDelete(entry.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
+            <div className="space-y-1">
+              {paged.map((entry) => {
+                const config = TYPE_CONFIG[entry.type] || TYPE_CONFIG.note
+                const Icon = config.icon
+                return (
+                  <div key={entry.id} className="relative flex gap-4 pl-0">
+                    {/* Icon dot */}
+                    <div
+                      className={cn(
+                        'relative z-10 flex items-center justify-center',
+                        'h-8 w-8 rounded-full bg-card border border-border',
+                        'shrink-0'
+                      )}
+                    >
+                      <Icon className={cn('h-4 w-4', config.color)} />
                     </div>
 
-                    {entry.content && (
-                      <p className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
-                        {entry.content}
-                      </p>
-                    )}
+                    {/* Entry card */}
+                    <div
+                      className={cn(
+                        'flex-1 rounded-lg border border-border',
+                        'bg-card p-3 mb-1'
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {entry.title}
+                            </span>
+                            <Badge
+                              className={cn(
+                                'text-[10px] uppercase border shrink-0',
+                                config.filterStyle
+                              )}
+                            >
+                              {entry.type}
+                            </Badge>
+                            {entry.source === 'auto' && (
+                              <Badge
+                                className={cn(
+                                  'text-[10px] border shrink-0',
+                                  'border-amber-700 text-amber-300'
+                                )}
+                              >
+                                auto
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(entry.createdAt)}
+                            {' | '}
+                            {entry.projectId}
+                          </p>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="text-muted-foreground hover:text-red-400 shrink-0"
+                          onClick={() => handleDelete(entry.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+
+                      {entry.content && (
+                        <p className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
+                          {entry.content}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
-        </div>
+          <PaginationControls
+            page={safePage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   )

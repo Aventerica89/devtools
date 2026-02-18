@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/lib/format-date'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -53,17 +54,6 @@ const STATUS_CYCLE: Record<string, string> = {
   resolved: 'open',
 }
 
-function formatDate(iso: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 type BugCardProps = {
   bug: Bug
   onStatusChange: (id: number, status: string) => void
@@ -78,16 +68,16 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
   return (
     <Card className="bg-card border-border">
       <CardHeader>
-        <CardTitle className="text-sm text-foreground flex items-center gap-2">
+        <CardTitle className="text-sm text-foreground flex items-center gap-2 min-w-0">
           <Badge
             className={cn(
-              'text-[10px] uppercase border',
+              'text-[10px] uppercase border shrink-0',
               SEVERITY_STYLES[severity]
             )}
           >
             {severity}
           </Badge>
-          <span className="truncate">{bug.title}</span>
+          <span className="truncate" title={bug.title}>{bug.title}</span>
         </CardTitle>
         <CardAction>
           <div className="flex items-center gap-1">

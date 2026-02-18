@@ -14,6 +14,8 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatTime } from '@/lib/format-date'
+import { PaginationControls } from '@/components/pagination-controls'
 
 type ConsoleEntry = {
   id: number
@@ -25,7 +27,13 @@ type ConsoleEntry = {
   timestamp: string | null
 }
 
+type Project = {
+  id: string
+  name: string
+}
+
 const LEVELS = ['log', 'warn', 'error', 'info'] as const
+const PAGE_SIZE = 20
 
 const LEVEL_CONFIG: Record<
   string,
@@ -53,24 +61,16 @@ const LEVEL_CONFIG: Record<
   },
 }
 
-function formatTime(iso: string | null): string {
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  })
-}
-
 export default function ConsolePage() {
   const [entries, setEntries] = useState<ConsoleEntry[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
   const [filterLevel, setFilterLevel] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
 
   const fetchEntries = useCallback(async () => {
     try {
-      const res = await fetch('/api/devlog?type=console&limit=200')
+      const res = await fetch('/api/devlog?type=console&limit=500')
       const data = await res.json()
       const mapped: ConsoleEntry[] = data.map(
         (row: {
@@ -99,17 +99,42 @@ export default function ConsolePage() {
     }
   }, [])
 
+  const fetchProjects = useCallback(async () => {
+    try {
+      const res = await fetch('/api/projects')
+      const data = await res.json()
+      setProjects(data)
+    } catch {
+      setProjects([])
+    }
+  }, [])
+
   /* eslint-disable react-hooks/set-state-in-effect -- async data fetching */
   useEffect(() => {
     fetchEntries()
-  }, [fetchEntries])
+    fetchProjects()
+  }, [fetchEntries, fetchProjects])
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  const projectMap = new Map(projects.map((p) => [p.id, p.name]))
 
   const filtered = entries.filter((entry) => {
     if (filterLevel && entry.level !== filterLevel) return false
     if (!searchQuery) return true
     return entry.message.toLowerCase().includes(searchQuery.toLowerCase())
   })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice(
+    (safePage - 1) * PAGE_SIZE,
+    safePage * PAGE_SIZE
+  )
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [filterLevel, searchQuery])
 
   return (
     <div className="space-y-6">
@@ -134,6 +159,11 @@ export default function ConsolePage() {
           </Button>
         )}
       </div>
+
+      <p className="text-sm text-muted-foreground">
+        Live console output captured from your sites via the DevTools widget.
+        Shows console.log, warn, error, and info messages.
+      </p>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
@@ -188,38 +218,51 @@ export default function ConsolePage() {
           </p>
         </div>
       ) : (
-        <div
-          className={cn(
-            'rounded-lg border border-border bg-background',
-            'font-mono text-xs overflow-hidden'
-          )}
-        >
-          {filtered.map((entry) => {
-            const config =
-              LEVEL_CONFIG[entry.level] || LEVEL_CONFIG.log
-            const Icon = config.icon
-            return (
-              <div
-                key={entry.id}
-                className={cn(
-                  'flex items-start gap-2 px-3 py-1.5',
-                  'border-b border-border/50 last:border-0',
-                  'hover:bg-card/50'
-                )}
-              >
-                <Icon
-                  className={cn('h-3.5 w-3.5 mt-0.5 shrink-0', config.color)}
-                />
-                <span className="flex-1 text-foreground break-all">
-                  {entry.message}
-                </span>
-                <span className="text-muted-foreground shrink-0">
-                  {formatTime(entry.timestamp)}
-                </span>
-              </div>
-            )
-          })}
-        </div>
+        <>
+          <div
+            className={cn(
+              'rounded-lg border border-border bg-background',
+              'font-mono text-xs overflow-hidden'
+            )}
+          >
+            {paged.map((entry) => {
+              const config =
+                LEVEL_CONFIG[entry.level] || LEVEL_CONFIG.log
+              const Icon = config.icon
+              const projectName = projectMap.get(entry.projectId)
+              return (
+                <div
+                  key={entry.id}
+                  className={cn(
+                    'flex items-start gap-2 px-3 py-1.5',
+                    'border-b border-border/50 last:border-0',
+                    'hover:bg-card/50'
+                  )}
+                >
+                  <Icon
+                    className={cn('h-3.5 w-3.5 mt-0.5 shrink-0', config.color)}
+                  />
+                  <span className="flex-1 text-foreground break-all">
+                    {entry.message}
+                  </span>
+                  {projectName && (
+                    <span className="text-muted-foreground/70 shrink-0 text-[10px]">
+                      {projectName}
+                    </span>
+                  )}
+                  <span className="text-muted-foreground shrink-0">
+                    {formatTime(entry.timestamp)}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+          <PaginationControls
+            page={safePage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   )

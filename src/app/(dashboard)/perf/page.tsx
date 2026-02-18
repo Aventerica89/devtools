@@ -146,6 +146,11 @@ export default function PerfPage() {
         </div>
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        Core Web Vitals (LCP, CLS, INP, FCP, TTFB) collected by the widget.
+        Tracks page load performance over time.
+      </p>
+
       {!hasData ? (
         <EmptyState />
       ) : (

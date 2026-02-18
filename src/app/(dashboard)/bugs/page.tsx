@@ -292,6 +292,11 @@ export default function BugsPage() {
         </Dialog>
       </div>
 
+      <p className="text-sm text-muted-foreground">
+        Track and manage bugs across your projects. Bugs can be reported
+        manually or captured automatically by the widget.
+      </p>
+
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <select
