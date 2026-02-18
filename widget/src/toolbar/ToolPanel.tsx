@@ -19,6 +19,7 @@ import { ErrorListViewer } from '../tools/ErrorOverlay'
 import { BugReporter } from '../tools/BugReporter'
 import { AIChat } from '../tools/AIChat'
 import { PerfViewer } from '../tools/PerfViewer'
+import { DebugSnapshot } from '../tools/DebugSnapshot'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
 
@@ -29,6 +30,7 @@ interface ToolDef {
 }
 
 const TOOLS: readonly ToolDef[] = [
+  { id: 'debug', label: 'Debug Snapshot', icon: '\u{229A}' },
   { id: 'console', label: 'Console Viewer', icon: '>' },
   { id: 'network', label: 'Network Viewer', icon: '\u{21C5}' },
   { id: 'errors', label: 'Error Log', icon: '\u{26A0}' },
@@ -150,7 +152,8 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
               ...toolContentStyle,
               borderTop: `1px solid ${COLORS.panelBorder}`,
               // Reset centering for viewers that need full layout
-              ...(activeTool === 'console'
+              ...(activeTool === 'debug'
+                || activeTool === 'console'
                 || activeTool === 'network'
                 || activeTool === 'errors'
                 || activeTool === 'bugs'
@@ -164,28 +167,30 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
                 : {}),
             },
           },
-          activeTool === 'console'
-            ? h(ConsoleViewer, null)
-            : activeTool === 'network'
-              ? h(NetworkViewer, null)
-              : activeTool === 'errors'
-                ? h(ErrorListViewer, { onReportBug: handleReportBug })
-                : activeTool === 'bugs'
-                  ? h(BugReporter, {
-                      apiClient,
-                      projectId,
-                      prefillTitle: bugPrefillTitle || undefined,
-                      prefillStack: bugPrefillStack || undefined,
-                    })
-                  : activeTool === 'perf'
-                    ? h(PerfViewer, null)
-                    : activeTool === 'ai'
-                      ? h(AIChat, { apiBase, pinHash })
-                      : h(
-                          'span',
-                          null,
-                          `${activeToolDef.label} -- coming soon`
-                        )
+          activeTool === 'debug'
+            ? h(DebugSnapshot, null)
+            : activeTool === 'console'
+              ? h(ConsoleViewer, null)
+              : activeTool === 'network'
+                ? h(NetworkViewer, null)
+                : activeTool === 'errors'
+                  ? h(ErrorListViewer, { onReportBug: handleReportBug })
+                  : activeTool === 'bugs'
+                    ? h(BugReporter, {
+                        apiClient,
+                        projectId,
+                        prefillTitle: bugPrefillTitle || undefined,
+                        prefillStack: bugPrefillStack || undefined,
+                      })
+                    : activeTool === 'perf'
+                      ? h(PerfViewer, null)
+                      : activeTool === 'ai'
+                        ? h(AIChat, { apiBase, pinHash })
+                        : h(
+                            'span',
+                            null,
+                            `${activeToolDef.label} -- coming soon`
+                          )
         )
       : null
   )
