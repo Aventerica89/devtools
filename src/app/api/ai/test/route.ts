@@ -1,26 +1,33 @@
-import { generateText } from 'ai'
-import { createAnthropic } from '@ai-sdk/anthropic'
+import Anthropic from '@anthropic-ai/sdk'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { generateText } from 'ai'
 import { NextResponse } from 'next/server'
 import { getAiKey } from '@/lib/ai-keys'
+
+function createAnthropicClient(token: string): Anthropic {
+  if (token.startsWith('sk-ant-oat')) {
+    return new Anthropic({ authToken: token })
+  }
+  return new Anthropic({ apiKey: token })
+}
 
 export async function POST(request: Request) {
   const { provider } = await request.json()
 
   try {
     if (provider === 'anthropic') {
-      const apiKey = await getAiKey('anthropic')
-      if (!apiKey) {
+      const token = await getAiKey('anthropic')
+      if (!token) {
         return NextResponse.json({
           success: false,
-          error: 'ANTHROPIC_API_KEY not configured',
+          error: 'Claude token not configured',
         })
       }
-      const client = createAnthropic({ apiKey })
-      await generateText({
-        model: client('claude-haiku-4-5-20251001'),
-        prompt: 'Say "OK"',
-        maxOutputTokens: 5,
+      const client = createAnthropicClient(token)
+      await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 5,
+        messages: [{ role: 'user', content: 'Say "OK"' }],
       })
       return NextResponse.json({ success: true, provider: 'anthropic' })
     }

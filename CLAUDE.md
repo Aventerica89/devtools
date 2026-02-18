@@ -166,6 +166,20 @@ widget/                        # Embeddable Preact widget (separate package)
 
 1Password template: `.env.local.tpl` (run `npm run env:inject` to generate `.env.local`).
 
+## Anthropic OAuth Rule (STRICTLY ENFORCED)
+
+**NEVER** use `@ai-sdk/anthropic` default behavior (`anthropic('model')`) for Claude API calls — it reads `ANTHROPIC_API_KEY` env var directly and does NOT support OAuth tokens.
+
+**ALWAYS** use `@anthropic-ai/sdk` with `createClient()` pattern:
+```ts
+import Anthropic from '@anthropic-ai/sdk'
+function createClient(token: string): Anthropic {
+  if (token.startsWith('sk-ant-oat')) return new Anthropic({ authToken: token })
+  return new Anthropic({ apiKey: token })
+}
+```
+Fetch the token from DB first via `getAiKey('anthropic')`. OAuth tokens (`sk-ant-oat...`) and API keys (`sk-ant-api...`) are both supported.
+
 ## Gotchas
 
 - **Widget PIN is a bcrypt hash comparison**, not plaintext. The widget embeds the hash and sends it as a header. The server compares it directly to the DB-stored hash (no re-hashing on the server side for widget requests).

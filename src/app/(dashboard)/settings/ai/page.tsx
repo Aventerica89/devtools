@@ -58,12 +58,11 @@ export default function AiSettingsPage() {
       <div className="flex gap-3 p-4 rounded-lg border border-blue-900/50 bg-blue-950/30">
         <Info className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
         <div className="text-sm text-blue-200 space-y-1">
-          <p className="font-medium">API key storage</p>
+          <p className="font-medium">Claude token storage</p>
           <p className="text-blue-300/80">
-            Keys are saved to the database and used for AI features.
-            You can also set them as environment variables
-            (<code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">.env.local</code>)
-            which take lower priority.
+            Tokens are saved to the database and used for AI features.
+            Anthropic accepts both API keys (<code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">sk-ant-api...</code>) and OAuth tokens (<code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">sk-ant-oat...</code>).
+            Run <code className="px-1 py-0.5 rounded bg-blue-900/50 text-xs">claude setup-token</code> in your terminal to get an OAuth token.
           </p>
         </div>
       </div>

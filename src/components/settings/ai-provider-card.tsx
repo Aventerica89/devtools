@@ -151,7 +151,9 @@ export function AiProviderCard({
 
       {/* Key input */}
       <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">API Key</Label>
+        <Label className="text-xs text-muted-foreground">
+          {provider === 'anthropic' ? 'Claude Token (API key or OAuth token)' : 'API Key'}
+        </Label>
         <div className="flex items-center gap-2">
           <Input
             type={showKey ? 'text' : 'password'}
@@ -160,7 +162,13 @@ export function AiProviderCard({
               setKeyValue(e.target.value)
               setSaveResult({ status: 'idle', message: '' })
             }}
-            placeholder={isConfigured ? 'Key configured — enter new key to replace' : 'Paste your API key'}
+            placeholder={
+              isConfigured
+                ? 'Token configured — enter new token to replace'
+                : provider === 'anthropic'
+                  ? 'Paste sk-ant-api... or sk-ant-oat... token'
+                  : 'Paste your API key'
+            }
             className="bg-background border-border font-mono text-xs"
           />
           <Button

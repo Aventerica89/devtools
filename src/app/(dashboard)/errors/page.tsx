@@ -9,6 +9,8 @@ import {
   Search,
   Trash2,
   ExternalLink,
+  Copy,
+  Check,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDate } from '@/lib/format-date'
@@ -47,7 +49,36 @@ export default function ErrorsPage() {
   const [filterType, setFilterType] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
+
+  function buildCopyText(entry: ErrorEntry): string {
+    const parts: string[] = [
+      `Error: ${entry.message}`,
+      `Type: ${entry.type}`,
+    ]
+    if (entry.source) {
+      const loc = [entry.source, entry.lineNumber, entry.colNumber]
+        .filter(Boolean)
+        .join(':')
+      parts.push(`Source: ${loc}`)
+    }
+    if (entry.timestamp) parts.push(`Time: ${entry.timestamp}`)
+    if (entry.pageUrl) parts.push(`Page: ${entry.pageUrl}`)
+    if (entry.stackTrace) parts.push(`\nStack Trace:\n${entry.stackTrace}`)
+    return parts.join('\n')
+  }
+
+  async function handleCopyEntry(entry: ErrorEntry, e: React.MouseEvent) {
+    e.stopPropagation()
+    try {
+      await navigator.clipboard.writeText(buildCopyText(entry))
+      setCopiedId(entry.id)
+      setTimeout(() => setCopiedId(null), 1500)
+    } catch {
+      // ignore
+    }
+  }
 
   const fetchEntries = useCallback(async () => {
     try {
@@ -262,15 +293,28 @@ export default function ErrorsPage() {
                           <span>{formatDate(entry.timestamp)}</span>
                         </div>
                       </div>
-                      <Trash2
-                        className="h-3.5 w-3.5 text-muted-foreground hover:text-red-400 shrink-0 mt-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setEntries((prev) =>
-                            prev.filter((en) => en.id !== entry.id)
-                          )
-                        }}
-                      />
+                      <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                        <button
+                          onClick={(e) => handleCopyEntry(entry, e)}
+                          title="Copy error for Claude"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {copiedId === entry.id ? (
+                            <Check className="h-3.5 w-3.5 text-green-400" />
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" />
+                          )}
+                        </button>
+                        <Trash2
+                          className="h-3.5 w-3.5 text-muted-foreground hover:text-red-400"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEntries((prev) =>
+                              prev.filter((en) => en.id !== entry.id)
+                            )
+                          }}
+                        />
+                      </div>
                     </div>
                   </button>
 
