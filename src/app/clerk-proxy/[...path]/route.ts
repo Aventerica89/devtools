@@ -22,9 +22,16 @@ async function proxyToClerk(request: NextRequest, params: Promise<{ path: string
     duplex: 'half',
   })
 
+  const responseHeaders = new Headers(response.headers)
+  // fetch() auto-decompresses the body, so strip encoding headers
+  // to avoid ERR_CONTENT_DECODING_FAILED in the browser
+  responseHeaders.delete('content-encoding')
+  responseHeaders.delete('content-length')
+  responseHeaders.delete('transfer-encoding')
+
   return new NextResponse(response.body, {
     status: response.status,
-    headers: response.headers,
+    headers: responseHeaders,
   })
 }
 
