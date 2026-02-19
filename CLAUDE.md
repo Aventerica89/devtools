@@ -200,3 +200,11 @@ Fetch the token from DB first via `getAiKey('anthropic')`. OAuth tokens (`sk-ant
 - **URL**: https://devtools.jbcloud.app
 - **Auto-deploys** on push to main
 - **DB**: Shared Turso instance (also used by other JB Cloud projects)
+
+<!-- llmstxt:start -->
+## Installed Documentation (llmstxt)
+
+When working with these technologies, read the corresponding skill for detailed reference:
+
+- Clerk: .agents/skills/clerk/SKILL.md
+<!-- llmstxt:end -->
