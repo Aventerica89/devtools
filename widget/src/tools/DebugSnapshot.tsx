@@ -32,12 +32,44 @@ interface SavedSnapshot {
   readonly report: string
 }
 
+// File System Access API types (not yet in standard TS DOM lib)
+interface FileSystemWritableFileStream {
+  write(data: Blob | ArrayBuffer | string): Promise<void>
+  close(): Promise<void>
+}
+interface FileSystemFileHandle {
+  createWritable(): Promise<FileSystemWritableFileStream>
+}
+interface FileSystemDirectoryHandle {
+  getFileHandle(name: string, opts?: { create?: boolean }): Promise<FileSystemFileHandle>
+}
+type ShowDirectoryPicker = (opts?: {
+  startIn?: string
+  mode?: 'read' | 'readwrite'
+}) => Promise<FileSystemDirectoryHandle>
+
 // ---------------------------------------------------------------------------
 // Persistence
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY = 'devtools-debug-snapshots'
+const FOLDER_KEY = 'devtools-screenshot-folder'
+const DEFAULT_FOLDER = '/Users/jb/Downloads/Misc/Temp Assets/DevTools Debug'
 const MAX_SAVED = 5
+
+function loadFolder(): string {
+  try {
+    return localStorage.getItem(FOLDER_KEY) ?? DEFAULT_FOLDER
+  } catch {
+    return DEFAULT_FOLDER
+  }
+}
+
+function saveFolder(path: string): void {
+  try {
+    localStorage.setItem(FOLDER_KEY, path)
+  } catch { /* quota exceeded */ }
+}
 
 function loadSaved(): SavedSnapshot[] {
   try {
@@ -123,7 +155,7 @@ function cookieNames(): string {
   }
 }
 
-function buildReport(shots: Screenshot[], errorsOnly: boolean): string {
+function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: string): string {
   const now = new Date()
   const ts = now.toISOString().replace('T', ' ').slice(0, 19)
   const consoleAll = getConsoleEntries()
@@ -151,7 +183,8 @@ function buildReport(shots: Screenshot[], errorsOnly: boolean): string {
 
   if (shots.length) {
     lines.push(`## Screenshots (${shots.length} downloaded)`)
-    lines.push(shots.map((s) => s.name).join(', '))
+    const folder = folderPath.replace(/\/+$/, '')
+    lines.push(shots.map((s) => `${folder}/${s.name}`).join(', '))
     lines.push('')
   }
 
@@ -206,6 +239,53 @@ function buildReport(shots: Screenshot[], errorsOnly: boolean): string {
   lines.push(timingSection())
 
   return lines.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Screenshot download helpers
+// ---------------------------------------------------------------------------
+
+// Persists for the lifetime of the page — user picks folder once per session
+let sessionDirHandle: FileSystemDirectoryHandle | null = null
+
+/**
+ * Try to save screenshots via the File System Access API.
+ * First call opens a directory picker; subsequent calls reuse the handle.
+ * Returns true if all files were saved, false if API unavailable or cancelled.
+ */
+async function saveViaFSAA(shots: Screenshot[]): Promise<boolean> {
+  try {
+    const picker = (window as Window & { showDirectoryPicker?: ShowDirectoryPicker }).showDirectoryPicker
+    if (!picker) return false
+
+    if (!sessionDirHandle) {
+      sessionDirHandle = await picker({ startIn: 'downloads', mode: 'readwrite' })
+    }
+
+    for (const s of shots) {
+      const fh = await sessionDirHandle.getFileHandle(s.name, { create: true })
+      const writable = await fh.createWritable()
+      await writable.write(s.blob)
+      await writable.close()
+    }
+    return true
+  } catch {
+    // User cancelled the picker or permission denied — reset so next attempt re-prompts
+    sessionDirHandle = null
+    return false
+  }
+}
+
+/** Fallback: browser's default <a download> behaviour (goes to Downloads folder). */
+function downloadFallback(shots: Screenshot[]): void {
+  for (const s of shots) {
+    const a = document.createElement('a')
+    a.href = s.url
+    a.download = s.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -490,6 +570,8 @@ export function DebugSnapshot() {
   const [isCapturing, setIsCapturing] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [errorsOnly, setErrorsOnly] = useState(true)
+  const [folderPath, setFolderPath] = useState<string>(loadFolder)
+  const [editingFolder, setEditingFolder] = useState(false)
 
   // Cleanup blob URLs when component unmounts
   useEffect(() => {
@@ -550,26 +632,18 @@ export function DebugSnapshot() {
     })
   }, [])
 
-  const downloadShots = useCallback((shots: Screenshot[]) => {
-    for (const s of shots) {
-      const a = document.createElement('a')
-      a.href = s.url
-      a.download = s.name
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    }
-  }, [])
-
   const markCopied = useCallback((id: string) => {
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
   }, [])
 
   const handleCopyReport = useCallback(async () => {
-    const report = buildReport(screenshots, errorsOnly)
+    const report = buildReport(screenshots, errorsOnly, folderPath)
 
-    if (screenshots.length > 0) downloadShots(screenshots)
+    if (screenshots.length > 0) {
+      const ok = await saveViaFSAA(screenshots)
+      if (!ok) downloadFallback(screenshots)
+    }
 
     const snap: SavedSnapshot = {
       id: String(Date.now()),
@@ -586,7 +660,7 @@ export function DebugSnapshot() {
 
     await navigator.clipboard.writeText(report)
     markCopied(snap.id)
-  }, [screenshots, errorsOnly, downloadShots, markCopied])
+  }, [screenshots, errorsOnly, folderPath, markCopied])
 
   const copyHistoryItem = useCallback(async (snap: SavedSnapshot) => {
     await navigator.clipboard.writeText(snap.report)
@@ -724,10 +798,44 @@ export function DebugSnapshot() {
             copiedId ? 'Copied!' : 'Copy Report & Download Screenshots'
           ),
 
+          // Folder path setting
           h(
             'div',
-            { style: { fontSize: '10px', color: COLORS.textMuted, lineHeight: '1.4' } },
-            'Copies a full markdown report. Screenshots download to your Downloads folder as numbered PNG files. Report saved to History for re-copying.'
+            { style: { fontSize: '10px', color: COLORS.textMuted } },
+            h(
+              'div',
+              { style: { display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' } },
+              h('span', { style: { color: COLORS.textMuted, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.4px' } }, 'Save folder'),
+              h(
+                'button',
+                {
+                  style: { background: 'none', border: 'none', color: COLORS.fabBg, fontSize: '10px', cursor: 'pointer', padding: '0' },
+                  onClick: () => setEditingFolder((v) => !v),
+                },
+                editingFolder ? 'done' : 'edit'
+              )
+            ),
+            editingFolder
+              ? h('input', {
+                  value: folderPath,
+                  onInput: (e: Event) => {
+                    const val = (e.target as HTMLInputElement).value
+                    setFolderPath(val)
+                    saveFolder(val)
+                  },
+                  style: {
+                    width: '100%',
+                    background: COLORS.toolBtnBg,
+                    border: `1px solid ${COLORS.panelBorder}`,
+                    borderRadius: '3px',
+                    color: COLORS.text,
+                    fontSize: '10px',
+                    padding: '3px 5px',
+                    fontFamily: 'monospace',
+                    boxSizing: 'border-box',
+                  },
+                })
+              : h('div', { style: { fontFamily: 'monospace', fontSize: '10px', color: COLORS.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, folderPath)
           )
         )
       : // History tab
