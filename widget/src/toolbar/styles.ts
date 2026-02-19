@@ -48,18 +48,17 @@ export const fabStyle: Record<string, string | number> = {
 
 export const panelStyle: Record<string, string | number> = {
   position: 'fixed',
-  top: '0',
-  right: '0',
   width: `${PANEL_WIDTH}px`,
-  height: '100vh',
   backgroundColor: COLORS.panelBg,
-  borderLeft: `1px solid ${COLORS.panelBorder}`,
+  border: `1px solid ${COLORS.panelBorder}`,
+  borderRadius: '8px',
   zIndex: 999998,
   display: 'flex',
   flexDirection: 'column',
   fontFamily: 'system-ui, -apple-system, sans-serif',
   color: COLORS.text,
-  boxShadow: `-4px 0 20px ${COLORS.shadow}`,
+  boxShadow: `0 8px 32px ${COLORS.shadow}`,
+  overflow: 'hidden',
 }
 
 export const panelHeaderStyle: Record<string, string | number> = {
@@ -145,5 +144,4 @@ export const toolContentStyle: Record<string, string | number> = {
   justifyContent: 'center',
 }
 
-export const panelSlideIn = 'translateX(0)' as const
-export const panelSlideOut = `translateX(${PANEL_WIDTH}px)` as const
+// Panel visibility is now handled via opacity in ToolPanel

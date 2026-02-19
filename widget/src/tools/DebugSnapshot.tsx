@@ -32,22 +32,6 @@ interface SavedSnapshot {
   readonly report: string
 }
 
-// File System Access API types (not yet in standard TS DOM lib)
-interface FileSystemWritableFileStream {
-  write(data: Blob | ArrayBuffer | string): Promise<void>
-  close(): Promise<void>
-}
-interface FileSystemFileHandle {
-  createWritable(): Promise<FileSystemWritableFileStream>
-}
-interface FileSystemDirectoryHandle {
-  getFileHandle(name: string, opts?: { create?: boolean }): Promise<FileSystemFileHandle>
-}
-type ShowDirectoryPicker = (opts?: {
-  startIn?: string
-  mode?: 'read' | 'readwrite'
-}) => Promise<FileSystemDirectoryHandle>
-
 // ---------------------------------------------------------------------------
 // Persistence
 // ---------------------------------------------------------------------------
@@ -155,7 +139,7 @@ function cookieNames(): string {
   }
 }
 
-function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: string): string {
+function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: string, comment: string): string {
   const now = new Date()
   const ts = now.toISOString().replace('T', ' ').slice(0, 19)
   const consoleAll = getConsoleEntries()
@@ -180,6 +164,12 @@ function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: strin
   lines.push(`**User-Agent:** ${navigator.userAgent}`)
   lines.push(`**Cookies:** ${cookieNames()}`)
   lines.push('')
+
+  if (comment.trim()) {
+    lines.push(`## Notes`)
+    lines.push(comment.trim())
+    lines.push('')
+  }
 
   if (shots.length) {
     lines.push(`## Screenshots (${shots.length} downloaded)`)
@@ -245,39 +235,11 @@ function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: strin
 // Screenshot download helpers
 // ---------------------------------------------------------------------------
 
-// Persists for the lifetime of the page — user picks folder once per session
-let sessionDirHandle: FileSystemDirectoryHandle | null = null
-
 /**
- * Try to save screenshots via the File System Access API.
- * First call opens a directory picker; subsequent calls reuse the handle.
- * Returns true if all files were saved, false if API unavailable or cancelled.
+ * Downloads screenshots silently to the browser's Downloads folder via <a download>.
+ * No picker prompts — files just land in Downloads automatically.
  */
-async function saveViaFSAA(shots: Screenshot[]): Promise<boolean> {
-  try {
-    const picker = (window as Window & { showDirectoryPicker?: ShowDirectoryPicker }).showDirectoryPicker
-    if (!picker) return false
-
-    if (!sessionDirHandle) {
-      sessionDirHandle = await picker({ startIn: 'downloads', mode: 'readwrite' })
-    }
-
-    for (const s of shots) {
-      const fh = await sessionDirHandle.getFileHandle(s.name, { create: true })
-      const writable = await fh.createWritable()
-      await writable.write(s.blob)
-      await writable.close()
-    }
-    return true
-  } catch {
-    // User cancelled the picker or permission denied — reset so next attempt re-prompts
-    sessionDirHandle = null
-    return false
-  }
-}
-
-/** Fallback: browser's default <a download> behaviour (goes to Downloads folder). */
-function downloadFallback(shots: Screenshot[]): void {
+function downloadScreenshots(shots: Screenshot[]): void {
   for (const s of shots) {
     const a = document.createElement('a')
     a.href = s.url
@@ -313,15 +275,22 @@ async function captureScreenViaMedia(): Promise<Blob | null> {
   // Small delay for first frame to render
   await new Promise((r) => setTimeout(r, 120))
 
+  // Scale down to max 1920px wide to avoid memory crashes on HiDPI/4K screens
+  const MAX_WIDTH = 1920
+  const srcW = video.videoWidth || window.innerWidth
+  const srcH = video.videoHeight || window.innerHeight
+  const scale = srcW > MAX_WIDTH ? MAX_WIDTH / srcW : 1
+
   const canvas = document.createElement('canvas')
-  canvas.width = video.videoWidth || window.innerWidth
-  canvas.height = video.videoHeight || window.innerHeight
+  canvas.width = Math.round(srcW * scale)
+  canvas.height = Math.round(srcH * scale)
   const ctx = canvas.getContext('2d')
 
   let blob: Blob | null = null
   if (ctx) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-    blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/png'))
+    // WebP is ~3-5x smaller than PNG at 0.82 quality — prevents tab/browser crashes
+    blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.82))
   }
 
   stream.getTracks().forEach((t) => t.stop())
@@ -572,6 +541,7 @@ export function DebugSnapshot() {
   const [errorsOnly, setErrorsOnly] = useState(true)
   const [folderPath, setFolderPath] = useState<string>(loadFolder)
   const [editingFolder, setEditingFolder] = useState(false)
+  const [comment, setComment] = useState('')
 
   // Cleanup blob URLs when component unmounts
   useEffect(() => {
@@ -603,7 +573,8 @@ export function DebugSnapshot() {
   function appendScreenshot(blob: Blob) {
     const id = screenshotSeq++
     const url = URL.createObjectURL(blob)
-    setScreenshots((prev) => [...prev, { id, url, blob, name: `screenshot-${id}.png` }])
+    const ext = blob.type === 'image/webp' ? 'webp' : blob.type === 'image/jpeg' ? 'jpg' : 'png'
+    setScreenshots((prev) => [...prev, { id, url, blob, name: `screenshot-${id}.${ext}` }])
   }
 
   const handleCapture = useCallback(async () => {
@@ -638,11 +609,10 @@ export function DebugSnapshot() {
   }, [])
 
   const handleCopyReport = useCallback(async () => {
-    const report = buildReport(screenshots, errorsOnly, folderPath)
+    const report = buildReport(screenshots, errorsOnly, folderPath, comment)
 
     if (screenshots.length > 0) {
-      const ok = await saveViaFSAA(screenshots)
-      if (!ok) downloadFallback(screenshots)
+      downloadScreenshots(screenshots)
     }
 
     const snap: SavedSnapshot = {
@@ -660,7 +630,7 @@ export function DebugSnapshot() {
 
     await navigator.clipboard.writeText(report)
     markCopied(snap.id)
-  }, [screenshots, errorsOnly, folderPath, markCopied])
+  }, [screenshots, errorsOnly, folderPath, comment, markCopied])
 
   const copyHistoryItem = useCallback(async (snap: SavedSnapshot) => {
     await navigator.clipboard.writeText(snap.report)
@@ -787,6 +757,31 @@ export function DebugSnapshot() {
             )
           ),
 
+          // Notes / comments field
+          h(
+            'div',
+            null,
+            h('span', { style: label }, 'Notes (optional)'),
+            h('textarea', {
+              value: comment,
+              onInput: (e: Event) => setComment((e.target as HTMLTextAreaElement).value),
+              placeholder: 'Add your own comments or context…',
+              rows: 3,
+              style: {
+                width: '100%',
+                background: COLORS.toolBtnBg,
+                border: `1px solid ${COLORS.panelBorder}`,
+                borderRadius: '4px',
+                color: COLORS.text,
+                fontSize: '11px',
+                padding: '5px 6px',
+                resize: 'vertical',
+                fontFamily: 'system-ui, -apple-system, sans-serif',
+                boxSizing: 'border-box',
+              },
+            })
+          ),
+
           // Primary action
           h(
             'button',
@@ -798,44 +793,11 @@ export function DebugSnapshot() {
             copiedId ? 'Copied!' : 'Copy Report & Download Screenshots'
           ),
 
-          // Folder path setting
+          // Download destination note
           h(
             'div',
             { style: { fontSize: '10px', color: COLORS.textMuted } },
-            h(
-              'div',
-              { style: { display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' } },
-              h('span', { style: { color: COLORS.textMuted, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.4px' } }, 'Save folder'),
-              h(
-                'button',
-                {
-                  style: { background: 'none', border: 'none', color: COLORS.fabBg, fontSize: '10px', cursor: 'pointer', padding: '0' },
-                  onClick: () => setEditingFolder((v) => !v),
-                },
-                editingFolder ? 'done' : 'edit'
-              )
-            ),
-            editingFolder
-              ? h('input', {
-                  value: folderPath,
-                  onInput: (e: Event) => {
-                    const val = (e.target as HTMLInputElement).value
-                    setFolderPath(val)
-                    saveFolder(val)
-                  },
-                  style: {
-                    width: '100%',
-                    background: COLORS.toolBtnBg,
-                    border: `1px solid ${COLORS.panelBorder}`,
-                    borderRadius: '3px',
-                    color: COLORS.text,
-                    fontSize: '10px',
-                    padding: '3px 5px',
-                    fontFamily: 'monospace',
-                    boxSizing: 'border-box',
-                  },
-                })
-              : h('div', { style: { fontFamily: 'monospace', fontSize: '10px', color: COLORS.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, folderPath)
+            'Screenshots save to your browser\u2019s Downloads folder automatically.'
           )
         )
       : // History tab

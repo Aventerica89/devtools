@@ -1,7 +1,8 @@
 import { h } from 'preact'
-import { useState, useCallback } from 'preact/hooks'
+import { useState, useCallback, useRef } from 'preact/hooks'
 import {
   COLORS,
+  PANEL_WIDTH,
   panelStyle,
   panelHeaderStyle,
   panelTitleStyle,
@@ -10,8 +11,6 @@ import {
   toolBtnStyle,
   toolIconStyle,
   toolContentStyle,
-  panelSlideIn,
-  panelSlideOut,
 } from './styles'
 import { ConsoleViewer } from '../tools/ConsoleViewer'
 import { NetworkViewer } from '../tools/NetworkViewer'
@@ -55,6 +54,37 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
   const [bugPrefillTitle, setBugPrefillTitle] = useState('')
   const [bugPrefillStack, setBugPrefillStack] = useState('')
 
+  // Draggable panel position — starts at top-right, user can drag header to move
+  const [panelPos, setPanelPos] = useState(() => ({
+    x: Math.max(0, window.innerWidth - PANEL_WIDTH - 4),
+    y: 0,
+  }))
+  const [isDraggingPanel, setIsDraggingPanel] = useState(false)
+  const panelDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null)
+
+  const handleHeaderPointerDown = useCallback((e: PointerEvent) => {
+    if ((e.target as Element).closest('button')) return
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    panelDragRef.current = { startX: e.clientX, startY: e.clientY, originX: panelPos.x, originY: panelPos.y }
+    setIsDraggingPanel(true)
+  }, [panelPos.x, panelPos.y])
+
+  const handleHeaderPointerMove = useCallback((e: PointerEvent) => {
+    if (!panelDragRef.current) return
+    const { startX, startY, originX, originY } = panelDragRef.current
+    const maxX = window.innerWidth - PANEL_WIDTH
+    const maxY = window.innerHeight - 48
+    setPanelPos({
+      x: Math.max(0, Math.min(maxX, originX + (e.clientX - startX))),
+      y: Math.max(0, Math.min(maxY, originY + (e.clientY - startY))),
+    })
+  }, [])
+
+  const handleHeaderPointerUp = useCallback(() => {
+    panelDragRef.current = null
+    setIsDraggingPanel(false)
+  }, [])
+
   const handleToolClick = useCallback((toolId: string) => {
     // When switching away from bugs, clear prefill state
     setActiveTool((prev) => {
@@ -76,23 +106,33 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
     ? TOOLS.find((t) => t.id === activeTool)
     : null
 
-  const slideTransform = isOpen ? panelSlideIn : panelSlideOut
-
   return h(
     'div',
     {
       style: {
         ...panelStyle,
-        transform: slideTransform,
-        transition: 'transform 0.25s ease',
+        left: `${panelPos.x}px`,
+        top: `${panelPos.y}px`,
+        height: 'min(85vh, 700px)',
+        opacity: isOpen ? '1' : '0',
+        transition: 'opacity 0.2s ease',
         pointerEvents: isOpen ? 'auto' : 'none',
       },
       'aria-hidden': !isOpen,
     },
-    // Header
+    // Header — drag handle
     h(
       'div',
-      { style: panelHeaderStyle },
+      {
+        style: {
+          ...panelHeaderStyle,
+          cursor: isDraggingPanel ? 'grabbing' : 'grab',
+          userSelect: 'none',
+        },
+        onPointerDown: handleHeaderPointerDown,
+        onPointerMove: handleHeaderPointerMove,
+        onPointerUp: handleHeaderPointerUp,
+      },
       h('span', { style: panelTitleStyle, title: projectId }, projectId),
       h(
         'button',
