@@ -20,6 +20,10 @@ async function proxyToClerk(request: NextRequest, params: Promise<{ path: string
     body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : null,
     // @ts-expect-error duplex required for streaming body
     duplex: 'half',
+    // Don't follow redirects — Clerk's oauth_callback returns a 302 to the app.
+    // If we follow it internally, the browser never receives the redirect and the
+    // OAuth session cookies are not set correctly on the app domain.
+    redirect: 'manual',
   })
 
   const responseHeaders = new Headers(response.headers)
