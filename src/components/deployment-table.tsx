@@ -37,8 +37,11 @@ const ENV_STYLES: Record<string, string> = {
 
 const STATUS_STYLES: Record<string, string> = {
   ready: 'bg-green-500/20 text-green-400 border-green-500/30',
+  deployed: 'bg-green-500/20 text-green-400 border-green-500/30',
   building: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   error: 'bg-red-500/20 text-red-400 border-red-500/30',
+  failed: 'bg-red-500/20 text-red-400 border-red-500/30',
   queued: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
 }
 
