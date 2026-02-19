@@ -8,7 +8,7 @@ import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
   Send, Braces, Regex, Palette, KeyRound,
   GitBranch, ScrollText, Settings, FolderKanban,
-  BookOpen, Smartphone
+  BookOpen, Smartphone, LayoutDashboard, History
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -32,6 +32,12 @@ const OWNER_DEV: Role[] = ['owner', 'dev']
 const OWNER_ONLY: Role[] = ['owner']
 
 const sections: NavSection[] = [
+  {
+    label: 'Overview',
+    items: [
+      { href: '/', label: 'Dashboard', icon: LayoutDashboard, roles: ALL_ROLES },
+    ],
+  },
   {
     label: 'Debug',
     items: [
@@ -72,6 +78,7 @@ const sections: NavSection[] = [
       { href: '/settings/projects', label: 'Projects', icon: FolderKanban, roles: OWNER_ONLY },
       { href: '/settings/ai', label: 'AI Config', icon: Settings, roles: OWNER_ONLY },
       { href: '/settings/widget', label: 'Widget Setup', icon: Settings, roles: OWNER_ONLY },
+      { href: '/changelog', label: 'Changelog', icon: History, roles: ALL_ROLES },
     ],
   },
 ]
@@ -113,7 +120,7 @@ export function Sidebar() {
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-md text-sm',
                     'transition-colors',
-                    pathname === item.href
+                    (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))
                       ? 'bg-accent text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
                   )}
