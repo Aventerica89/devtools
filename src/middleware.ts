@@ -1,8 +1,5 @@
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { verifySessionTokenEdge } from '@/lib/auth.edge'
-
-const PUBLIC_PATHS = ['/unlock', '/api/auth/verify', '/widget.js']
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -11,33 +8,28 @@ const CORS_HEADERS = {
   'Access-Control-Max-Age': '86400',
 } as const
 
-function isWidgetPath(pathname: string): boolean {
-  return (
-    pathname.startsWith('/api/widget') ||
-    pathname.startsWith('/api/bugs') ||
-    pathname.startsWith('/api/ai')
-  )
-}
+const isWidgetRoute = createRouteMatcher([
+  '/api/widget(.*)',
+  '/api/bugs(.*)',
+  '/api/ai(.*)',
+])
 
-export async function middleware(request: NextRequest) {
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/widget.js',
+])
+
+export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl
 
-  // CORS preflight for widget endpoints (cross-origin script tags)
-  if (isWidgetPath(pathname) && request.method === 'OPTIONS') {
+  // CORS preflight for widget routes (cross-origin script embeds)
+  if (isWidgetRoute(request) && request.method === 'OPTIONS') {
     return new NextResponse(null, { status: 204, headers: CORS_HEADERS })
   }
 
-  // Allow public paths and static assets
-  if (
-    PUBLIC_PATHS.some((p) => pathname.startsWith(p)) ||
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/favicon')
-  ) {
-    return NextResponse.next()
-  }
-
-  // Allow widget API calls with PIN header and add CORS to response
-  if (isWidgetPath(pathname)) {
+  // Widget routes with PIN header bypass Clerk (cross-origin can't use Clerk)
+  if (isWidgetRoute(request)) {
     const pinHeader = request.headers.get('x-devtools-pin')
     if (pinHeader) {
       const response = NextResponse.next()
@@ -48,14 +40,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Check session cookie for dashboard
-  const session = request.cookies.get('devtools-session')?.value
-  if (!session || !(await verifySessionTokenEdge(session))) {
-    return NextResponse.redirect(new URL('/unlock', request.url))
-  }
+  // Skip Clerk for static assets and explicitly public routes
+  if (isPublicRoute(request)) return NextResponse.next()
 
-  return NextResponse.next()
-}
+  // Skip for _next internals (redundant with matcher but safe)
+  if (pathname.startsWith('/_next')) return NextResponse.next()
+
+  // Require Clerk authentication for all other routes
+  await auth.protect()
+})
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],

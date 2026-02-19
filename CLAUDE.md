@@ -11,8 +11,8 @@ A web-based developer tools dashboard with embeddable widget for capturing conso
 - **UI**: React 19, Tailwind CSS v4, shadcn/ui, Lucide icons
 - **Database**: Turso (libSQL) + Drizzle ORM
 - **AI**: Vercel AI SDK v6 + @ai-sdk/anthropic + @ai-sdk/google
-- **Auth**: PIN-based (bcrypt hash) + HMAC session tokens
-- **Encryption**: AES-256-GCM (SESSION_SECRET-derived key)
+- **Auth**: Clerk (email+password, Google, GitHub) — role-based: owner/dev/viewer
+- **Widget Auth**: `X-DevTools-Pin` header (bcrypt hash comparison, cross-origin)
 - **Widget**: Preact 10 + Vite (separate build, Shadow DOM)
 - **Deployment**: Vercel (jb-cloud-apps team)
 
@@ -117,8 +117,6 @@ widget/                        # Embeddable Preact widget (separate package)
 
 | Route | Methods | Purpose |
 |-------|---------|---------|
-| `/api/auth/verify` | POST | PIN login, sets session cookie |
-| `/api/auth/logout` | POST | Clear session |
 | `/api/projects` | GET, POST | List/create projects |
 | `/api/projects/[id]` | GET, PUT, DELETE | Project CRUD |
 | `/api/bugs` | GET, POST | List (filter: project, status, limit) / create |
@@ -157,8 +155,8 @@ widget/                        # Embeddable Preact widget (separate package)
 |----------|----------|---------|
 | `TURSO_DATABASE_URL` | Yes | Turso database connection URL |
 | `TURSO_AUTH_TOKEN` | Yes | Turso auth token |
-| `SESSION_SECRET` | Yes | HMAC session signing + AES-256-GCM key derivation |
-| `DEVTOOLS_PIN_HASH` | Yes | bcrypt hash of dashboard access PIN |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key (public) |
+| `CLERK_SECRET_KEY` | Yes | Clerk secret key (server-only) |
 | `ANTHROPIC_API_KEY` | No | Claude API key (fallback if not in DB) |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | No | Google AI key (fallback if not in DB) |
 | `APP_TRACKER_SUPABASE_URL` | No | JB Cloud App Tracker Supabase URL |
@@ -184,7 +182,9 @@ Fetch the token from DB first via `getAiKey('anthropic')`. OAuth tokens (`sk-ant
 
 - **Widget PIN is a bcrypt hash comparison**, not plaintext. The widget embeds the hash and sends it as a header. The server compares it directly to the DB-stored hash (no re-hashing on the server side for widget requests).
 - **Deployments page reads from external Supabase** (JB Cloud App Tracker), not the local Turso DB. Returns `{ configured: false }` gracefully when env vars are missing.
-- **`devtools-session` cookie** is httpOnly, 7-day expiry. The `/unlock` page is the only public route.
+- **Clerk handles dashboard auth**. `clerkMiddleware()` in `middleware.ts` requires authentication on all routes except widget paths and sign-in. Roles (`owner`/`dev`/`viewer`) are stored in Clerk `publicMetadata.role` and control sidebar visibility.
+- **Widget PIN is separate from Clerk** — widget scripts run cross-origin and send `X-DevTools-Pin` header. The middleware passes these through without Clerk auth. The `pinHash` stored in `widgetConfig` table is compared directly.
+- **Setting user roles**: In Clerk Dashboard → Users → select user → Metadata → add `{ "role": "owner" }` to Public Metadata. Default role for new users is `viewer`.
 - **CORS is wide open** (`Access-Control-Allow-Origin: *`) on widget endpoints to support cross-origin script embedding.
 - **Cross-project batch events are rejected** to prevent PIN bypass by mixing projectIds in a single batch.
 - **DB client uses Proxy** for lazy initialization -- avoids crashing at import time when env vars are missing.
