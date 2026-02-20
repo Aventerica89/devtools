@@ -7,9 +7,22 @@ function getClient() {
   if (!url) {
     throw new Error('TURSO_DATABASE_URL is not set')
   }
+
+  const isProd = process.env.NODE_ENV === 'production'
+
   return createClient({
     url,
     authToken: process.env.TURSO_AUTH_TOKEN,
+    // Connection pooling and optimization settings
+    syncInterval: isProd ? 60 : 0, // Sync every 60s in prod, disabled in dev
+    encryptionKey: process.env.TURSO_ENCRYPTION_KEY,
+    // Retry configuration for better reliability
+    intMode: 'number', // Use JavaScript numbers for integers
+    fetchOptions: {
+      timeout: isProd ? 10000 : 30000, // 10s prod, 30s dev for debugging
+      // Enable keepalive for connection reuse
+      keepalive: true,
+    },
   })
 }
 

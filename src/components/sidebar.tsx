@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser, UserButton } from '@clerk/nextjs'
 import { cn } from '@/lib/utils'
+import { useMemo } from 'react'
 import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
   Send, Braces, Regex, Palette, KeyRound,
@@ -95,44 +96,55 @@ export function Sidebar() {
   const { user } = useUser()
   const role = getRole(user?.publicMetadata as Record<string, unknown> | undefined)
 
+  // Memoize filtered sections to avoid recalculating on every render
+  const visibleSections = useMemo(() => {
+    return sections.map((section) => ({
+      ...section,
+      items: section.items.filter((item) => item.roles.includes(role)),
+    })).filter((section) => section.items.length > 0)
+  }, [role])
+
   return (
-    <div className="w-56 border-r border-border bg-background flex flex-col">
+    <nav className="w-56 border-r border-border bg-background flex flex-col" aria-label="Main navigation">
       <div className="p-4 flex items-center justify-between">
         <h1 className="text-lg font-bold text-foreground">DevTools</h1>
-        <UserButton afterSignOutUrl="/sign-in" />
+        <div aria-label="User account">
+          <UserButton afterSignOutUrl="/sign-in" />
+        </div>
       </div>
       <ScrollArea className="flex-1 px-2">
-        {sections.map((section, i) => {
-          const visibleItems = section.items.filter((item) =>
-            item.roles.includes(role)
-          )
-          if (visibleItems.length === 0) return null
+        {visibleSections.map((section, i) => {
           return (
-            <div key={section.label}>
+            <div key={section.label} role="group" aria-labelledby={`section-${section.label}`}>
               {i > 0 && <Separator className="my-2 bg-border" />}
-              <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase">
+              <p id={`section-${section.label}`} className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase">
                 {section.label}
               </p>
-              {visibleItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 rounded-md text-sm',
-                    'transition-colors',
-                    (item.href === '/' ? pathname === '/' : pathname.startsWith(item.href))
-                      ? 'bg-accent text-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-                  )}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              ))}
+              {section.items.map((item) => {
+                const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center gap-2 px-3 py-2 rounded-md text-sm',
+                      'transition-colors',
+                      isActive
+                        ? 'bg-accent text-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" aria-hidden="true" />
+                    {item.label}
+                  </Link>
+                )
+              })}
             </div>
           )
         })}
       </ScrollArea>
-    </div>
+    </nav>
   )
 }

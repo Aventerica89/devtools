@@ -6,7 +6,11 @@ import { apiError, parseBody, ProjectSchema } from '@/lib/api'
 export async function GET() {
   try {
     const all = await db.select().from(projects).all()
-    return NextResponse.json(all)
+    return NextResponse.json(all, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return apiError(500, `Failed to fetch projects: ${message}`)

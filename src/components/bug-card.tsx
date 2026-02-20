@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { cn } from '@/lib/utils'
 import { formatDate } from '@/lib/format-date'
 import { Badge } from '@/components/ui/badge'
@@ -60,10 +60,22 @@ type BugCardProps = {
   onDelete: (id: number) => void
 }
 
-export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
+export const BugCard = memo(function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
   const [expanded, setExpanded] = useState(false)
   const severity = bug.severity || 'medium'
   const status = bug.status || 'open'
+
+  const handleToggleExpand = useCallback(() => {
+    setExpanded((prev) => !prev)
+  }, [])
+
+  const handleStatusChange = useCallback(() => {
+    onStatusChange(bug.id, STATUS_CYCLE[status] || 'open')
+  }, [bug.id, status, onStatusChange])
+
+  const handleDelete = useCallback(() => {
+    onDelete(bug.id)
+  }, [bug.id, onDelete])
 
   return (
     <Card className="bg-card border-border">
@@ -88,16 +100,14 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
                 'text-[10px] uppercase border rounded-full px-2',
                 STATUS_STYLES[status]
               )}
-              onClick={() =>
-                onStatusChange(bug.id, STATUS_CYCLE[status] || 'open')
-              }
+              onClick={handleStatusChange}
             >
               {status}
             </Button>
             <Button
               variant="ghost"
               size="icon-xs"
-              onClick={() => setExpanded((prev) => !prev)}
+              onClick={handleToggleExpand}
               className="text-muted-foreground"
             >
               {expanded ? (
@@ -166,7 +176,7 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
                 variant="ghost"
                 size="xs"
                 className="text-red-400 hover:text-red-300"
-                onClick={() => onDelete(bug.id)}
+                onClick={handleDelete}
               >
                 <Trash2 className="h-3 w-3" />
                 Delete
@@ -177,4 +187,4 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
       </CardContent>
     </Card>
   )
-}
+})

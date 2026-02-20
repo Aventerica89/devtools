@@ -3,10 +3,12 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { widgetConfig } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { timingSafeEqual } from 'crypto'
 
 /**
  * Verify the X-DevTools-Pin header against the stored pinHash for a project.
  * The widget sends its pinHash directly; we compare it to the DB-stored hash.
+ * Uses timing-safe comparison to prevent timing attacks.
  * Returns an error response if verification fails, or null if it passes.
  */
 export async function verifyWidgetPin(
@@ -28,7 +30,18 @@ export async function verifyWidgetPin(
     return apiError(401, 'Unknown project')
   }
 
-  if (pinHeader !== rows[0].pinHash) {
+  const storedHash = rows[0].pinHash
+
+  // Prevent timing attacks with constant-time comparison
+  try {
+    const stored = Buffer.from(storedHash, 'utf-8')
+    const provided = Buffer.from(pinHeader, 'utf-8')
+
+    if (stored.length !== provided.length || !timingSafeEqual(stored, provided)) {
+      return apiError(401, 'Invalid PIN')
+    }
+  } catch {
+    // Buffer creation or comparison failed
     return apiError(401, 'Invalid PIN')
   }
 
@@ -119,4 +132,27 @@ export const WidgetConfigUpdateSchema = z.object({
   enabledTools: z.array(z.string().max(64)).optional(),
   theme: z.enum(['dark', 'light']).optional(),
   position: z.enum(['bottom-right', 'bottom-left', 'top-right', 'top-left']).optional(),
+  allowedOrigins: z.array(z.string().url()).optional(),
 })
+
+/**
+ * Verify that the request origin is allowed for the widget.
+ * @param origin - The Origin header from the request
+ * @param allowedOrigins - JSON string of allowed origins from widgetConfig, or null for wildcard
+ * @returns true if allowed, false otherwise
+ */
+export function isOriginAllowed(origin: string | null, allowedOrigins: string | null): boolean {
+  // No origin header (same-origin request) is always allowed
+  if (!origin) return true
+
+  // Null allowedOrigins means wildcard (allow all)
+  if (!allowedOrigins) return true
+
+  try {
+    const allowed: string[] = JSON.parse(allowedOrigins)
+    return allowed.includes(origin)
+  } catch {
+    // Invalid JSON, default to wildcard
+    return true
+  }
+}

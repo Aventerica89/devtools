@@ -87,6 +87,8 @@ export const widgetConfig = sqliteTable('widget_config', {
   position: text('position').default('bottom-right'),
   /** bcrypt hash of the widget access PIN. */
   pinHash: text('pin_hash').notNull(),
+  /** JSON array of allowed origins for CORS, e.g. ["https://example.com", "https://app.example.com"]. Null = allow all (*) */
+  allowedOrigins: text('allowed_origins'),
 })
 
 /**
