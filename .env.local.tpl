@@ -3,7 +3,6 @@
 
 TURSO_DATABASE_URL={{ op://App Dev/#devtools / TURSO_DATABASE_URL/credential }}
 TURSO_AUTH_TOKEN={{ op://App Dev/#devtools / TURSO_AUTH_TOKEN/credential }}
-ANTHROPIC_API_KEY={{ op://Business/ANTHROPIC_API_KEY/credential }}
 
 # Clerk Auth
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY={{ op://App Dev/#devtools / NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY/credential }}

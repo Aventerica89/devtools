@@ -25,9 +25,8 @@ export async function getAiKey(
       return isEncrypted(raw) ? decrypt(raw) : raw
     }
   } catch {
-    // DB not available, fall through to env
+    // DB not available
   }
 
-  // Fall back to env var
-  return process.env[envKey]?.trim() || null
+  return null
 }

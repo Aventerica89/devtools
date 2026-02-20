@@ -157,7 +157,6 @@ widget/                        # Embeddable Preact widget (separate package)
 | `TURSO_AUTH_TOKEN` | Yes | Turso auth token |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key (public) |
 | `CLERK_SECRET_KEY` | Yes | Clerk secret key (server-only) |
-| `ANTHROPIC_API_KEY` | No | Claude API key (fallback if not in DB) |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | No | Google AI key (fallback if not in DB) |
 | `APP_TRACKER_SUPABASE_URL` | No | JB Cloud App Tracker Supabase URL |
 | `APP_TRACKER_SERVICE_KEY` | No | Supabase service role key for deployments |
