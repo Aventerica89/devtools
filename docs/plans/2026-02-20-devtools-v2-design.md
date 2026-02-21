@@ -2,7 +2,7 @@
 
 **Date:** 2026-02-20
 **Status:** Approved
-**Scope:** Widget overhaul, Routines system, Hub page, Command palette, Dashboard refresh
+**Scope:** Widget overhaul, Routines system, Hub page, Command palette, Copy for Claude system, Dashboard refresh
 
 ---
 
@@ -225,6 +225,79 @@ Unique constraint on `(source, cacheKey)`.
 
 ---
 
+## 5. Copy for Claude System
+
+The widget is frequently used to capture context for pasting into Claude Code or claude.ai. Every piece of data in the widget needs to be copyable at two levels.
+
+### Row-level copy
+
+Every data row in every tab gets a copy icon that appears on hover. One click copies a single formatted string:
+
+```
+[ERROR] TypeError: Cannot read properties of undefined (reading 'price')
+  at CartItem.render (cart.js:88:22)
+  at renderComponents (react-dom.js:6421:14)
+  Page: /products | 14:32:07
+```
+
+```
+[NETWORK] POST /api/cart/add → 201  87ms  fetch
+```
+
+```
+[WARN] Deprecated API used: window.webkitStorageInfo (vendor.js:234)
+```
+
+### Tab-level copy
+
+Each tab has a "Copy [tab]" button in the tab content header that copies all entries in that tab as a formatted markdown block.
+
+### "Copy for Claude" bundle
+
+A **Copy for Claude** button in the widget panel header copies a full-page context bundle — everything relevant in one shot:
+
+```markdown
+## Page Context — wp-jupiter.com/products
+**Captured:** 2026-02-20 14:32
+
+### Errors (2)
+- TypeError: Cannot read properties of undefined (reading 'price') — cart.js:88
+- Unhandled rejection: NetworkError /api/analytics/track 503 — analytics.js:34
+
+### Console Warnings (3)
+- Deprecated API: window.webkitStorageInfo (vendor.js:234)
+- Image lazy-load skipped: missing data-src on 2 elements (lazy.js:91)
+- localStorage quota at 82% (storage.js:7)
+
+### Network Issues (2)
+- GET /api/recommendations/v2 → 404 (22ms)
+- POST /api/analytics/track → 503 (1240ms)
+
+### Health Issues (3)
+- [ERROR] Mixed content: /images/legacy/banner.jpg loaded over HTTP
+- [WARN] 2 images missing alt text
+- [WARN] Slow resource: vendor.bundle.js 2.4s
+
+### Performance
+- Score: 91 | LCP: 1.2s | CLS: 0.18 | FID: 62ms
+```
+
+This is a single clipboard copy. Paste directly into Claude with no editing needed.
+
+### Scope of copy buttons
+
+| Location | What copies |
+|----------|-------------|
+| Every log row | Single formatted entry with level, message, source, timestamp |
+| Every network row | Method, status, URL, type, duration |
+| Every error row | Message + full stack trace + metadata |
+| Every health item | Severity, description, detail |
+| Every routine snippet | The raw snippet text only (for terminal pasting) |
+| Tab header "Copy [tab]" | All entries in that tab as markdown list |
+| Panel header "Copy for Claude" | Full bundle as shown above |
+
+---
+
 ## Implementation Order
 
 | Phase | Scope |
@@ -235,7 +308,8 @@ Unique constraint on `(source, cacheKey)`.
 | 4 — Command palette | Dashboard `⌘K` overlay, widget `⌘⇧K` Shadow DOM overlay |
 | 5 — Widget tabs | Storage, DOM, Health interceptors + new tabs |
 | 6 — Widget Routines + AI tabs | Active run in widget, AI chat tab with page context |
-| 7 — Dashboard refresh | Tighten density across all existing pages |
+| 7 — Copy system | Row-level copy icons, tab-level copy buttons, "Copy for Claude" bundle |
+| 8 — Dashboard refresh | Tighten density across all existing pages |
 
 ---
 
