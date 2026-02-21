@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run build:widget",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -11,7 +12,10 @@
     "test:watch": "vitest",
     "build:widget": "cd widget && npx vite build",
     "env:inject": "op inject -i .env.local.tpl -o .env.local",
-    "db:push": "npx drizzle-kit push"
+    "db:push": "npx drizzle-kit push",
+    "db:generate": "npx drizzle-kit generate",
+    "db:migrate": "npx drizzle-kit migrate",
+    "db:studio": "npx drizzle-kit studio"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.44",

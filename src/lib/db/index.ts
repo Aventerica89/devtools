@@ -7,9 +7,13 @@ function getClient() {
   if (!url) {
     throw new Error('TURSO_DATABASE_URL is not set')
   }
+
+  const isProd = process.env.NODE_ENV === 'production'
+
   return createClient({
     url,
     authToken: process.env.TURSO_AUTH_TOKEN,
+    intMode: 'number',
   })
 }
 

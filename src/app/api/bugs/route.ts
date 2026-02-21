@@ -3,6 +3,7 @@ import { db } from '@/lib/db'
 import { bugs } from '@/lib/db/schema'
 import { eq, desc, and } from 'drizzle-orm'
 import { apiError, parseBody, verifyWidgetPin, BugSchema } from '@/lib/api'
+import { sanitizeInput, sanitizeMetadata, sanitizeUrl } from '@/lib/sanitize'
 
 export async function GET(request: Request) {
   try {
@@ -48,10 +49,18 @@ export async function POST(request: Request) {
     }
 
     const { metadata, ...fields } = parsed.data
-    const result = await db.insert(bugs).values({
+
+    // Sanitize user inputs to prevent XSS
+    const sanitizedData = {
       ...fields,
-      metadata: metadata ? JSON.stringify(metadata) : null,
-    }).returning()
+      title: sanitizeInput(fields.title),
+      description: fields.description ? sanitizeInput(fields.description) : null,
+      pageUrl: fields.pageUrl ? (sanitizeUrl(fields.pageUrl) || fields.pageUrl) : null,
+      screenshotUrl: fields.screenshotUrl ? (sanitizeUrl(fields.screenshotUrl) || fields.screenshotUrl) : null,
+      metadata: metadata ? JSON.stringify(sanitizeMetadata(metadata)) : null,
+    }
+
+    const result = await db.insert(bugs).values(sanitizedData).returning()
     return NextResponse.json(result[0], { status: 201 })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'

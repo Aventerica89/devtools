@@ -91,6 +91,8 @@ export const widgetConfig = sqliteTable('widget_config', {
   enabledTabs: text('enabled_tabs'),
   /** nullable label for snapshot UI */
   screenshotFolder: text('screenshot_folder'),
+  /** JSON array of allowed origins for CORS, e.g. ["https://example.com"]. Null = allow all (*) */
+  allowedOrigins: text('allowed_origins'),
 })
 
 /**

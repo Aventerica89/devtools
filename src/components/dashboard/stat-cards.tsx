@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useMemo } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import {
@@ -64,7 +65,7 @@ interface StatCardsProps {
   readonly loading: boolean
 }
 
-function StatCardSkeleton() {
+const StatCardSkeleton = memo(function StatCardSkeleton() {
   return (
     <Card className="bg-card border-border">
       <CardContent className="pt-0">
@@ -78,9 +79,11 @@ function StatCardSkeleton() {
       </CardContent>
     </Card>
   )
-}
+})
 
-export function StatCards({ stats, loading }: StatCardsProps) {
+export const StatCards = memo(function StatCards({ stats, loading }: StatCardsProps) {
+  const items = useMemo(() => buildStatItems(stats), [stats])
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -90,8 +93,6 @@ export function StatCards({ stats, loading }: StatCardsProps) {
       </div>
     )
   }
-
-  const items = buildStatItems(stats)
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -119,4 +120,4 @@ export function StatCards({ stats, loading }: StatCardsProps) {
       ))}
     </div>
   )
-}
+})
