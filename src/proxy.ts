@@ -12,6 +12,7 @@ const isWidgetRoute = createRouteMatcher([
   '/api/widget(.*)',
   '/api/bugs(.*)',
   '/api/ai(.*)',
+  '/api/routines(.*)',
 ])
 
 const isPublicRoute = createRouteMatcher([

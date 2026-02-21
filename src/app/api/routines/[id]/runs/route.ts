@@ -9,9 +9,14 @@ type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_req: Request, { params }: Params) {
   try {
-    const { userId } = await auth()
-    if (!userId) return apiError(401, 'Unauthorized')
     const { id } = await params
+    const [checklist] = await db.select().from(routineChecklists).where(eq(routineChecklists.id, Number(id)))
+    if (!checklist) return apiError(404, 'Checklist not found')
+    const { userId } = await auth()
+    if (!userId) {
+      const pinError = await verifyWidgetPin(_req, checklist.projectId)
+      if (pinError) return pinError
+    }
     const rows = await db.select().from(routineRuns).where(eq(routineRuns.checklistId, Number(id)))
     return NextResponse.json(rows)
   } catch (error) {

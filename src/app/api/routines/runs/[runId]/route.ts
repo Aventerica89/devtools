@@ -36,9 +36,13 @@ export async function PUT(request: Request, { params }: Params) {
       if (pinError) return pinError
     }
     const body = await request.json().catch(() => ({}))
-    const completedAt = body.close ? new Date().toISOString() : null
+    const updates: Record<string, unknown> = {}
+    if (body.close === true) {
+      updates.completedAt = new Date().toISOString()
+    }
+    if (Object.keys(updates).length === 0) return apiError(400, 'Nothing to update')
     const [updated] = await db
-      .update(routineRuns).set({ completedAt })
+      .update(routineRuns).set(updates)
       .where(eq(routineRuns.id, Number(runId))).returning()
     return NextResponse.json(updated)
   } catch (error) {
