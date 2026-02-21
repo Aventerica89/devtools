@@ -5,6 +5,9 @@
 import { h } from 'preact'
 import { useState, useCallback, useRef } from 'preact/hooks'
 import { COLORS } from '../toolbar/styles'
+import { getConsoleEntries } from '../interceptors/console'
+import { getNetworkEntries } from '../interceptors/network'
+import { getErrorEntries } from '../interceptors/errors'
 
 // -- Types --
 
@@ -96,6 +99,25 @@ const errorBoxStyle: Record<string, string> = {
   borderRadius: '4px',
 }
 
+// -- Helpers --
+
+function buildPageContext(): string {
+  const errors = getErrorEntries().slice(0, 5)
+    .map((e) => `- ${e.message}`).join('\n')
+  const net = getNetworkEntries().filter((e) => e.status >= 400).slice(0, 5)
+    .map((e) => `- ${e.method} ${e.url} \u2192 ${e.status}`).join('\n')
+  const cons = getConsoleEntries()
+    .filter((e) => e.level === 'error' || e.level === 'warn').slice(0, 5)
+    .map((e) => `[${e.level}] ${e.args.join(' ')}`).join('\n')
+  const parts = [
+    `Page: ${window.location.href}`,
+    errors && `Recent errors:\n${errors}`,
+    net && `Network issues:\n${net}`,
+    cons && `Console issues:\n${cons}`,
+  ].filter(Boolean)
+  return parts.join('\n\n')
+}
+
 // -- Component --
 
 export function AIChat({ apiBase, pinHash }: AIChatProps) {
@@ -105,6 +127,7 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
   const [errorMsg, setErrorMsg] = useState('')
 
   const abortRef = useRef<AbortController | null>(null)
+  const sentCountRef = useRef(0)
 
   const canSend = prompt.trim().length > 0
     && chatState !== 'loading'
@@ -114,6 +137,11 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
     if (!canSend) return
 
     const text = prompt.trim()
+    const context = sentCountRef.current === 0 ? buildPageContext() : ''
+    const messageWithContext = context
+      ? `Context:\n${context}\n\n---\n\n${text}`
+      : text
+    const cappedMessage = messageWithContext.slice(0, 2000)
     setResponse('')
     setChatState('loading')
     setErrorMsg('')
@@ -132,7 +160,7 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
           'X-DevTools-Pin': pinHash,
         },
         body: JSON.stringify({
-          text,
+          text: cappedMessage,
           context: window.location.href,
         }),
         signal: controller.signal,
@@ -160,6 +188,7 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
         }
       }
 
+      sentCountRef.current += 1
       setChatState('idle')
     } catch (err) {
       if ((err as Error).name === 'AbortError') return
