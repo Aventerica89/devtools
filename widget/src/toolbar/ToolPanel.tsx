@@ -24,6 +24,11 @@ import { HealthViewer } from '../tools/HealthViewer'
 import { RoutinesTab } from '../tools/RoutinesTab'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
+import { buildCopyForClaudeBundle } from '../lib/copy'
+import { getConsoleEntries } from '../interceptors/console'
+import { getNetworkEntries } from '../interceptors/network'
+import { getErrorEntries } from '../interceptors/errors'
+import { getHealthIssues } from '../interceptors/health'
 
 interface ToolDef {
   readonly id: string
@@ -140,6 +145,30 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
         onPointerUp: handleHeaderPointerUp,
       },
       h('span', { style: panelTitleStyle, title: projectId }, projectId),
+      h('button', {
+        style: {
+          background: 'none',
+          border: `1px solid ${COLORS.panelBorder}`,
+          color: COLORS.textMuted,
+          cursor: 'pointer',
+          fontSize: 9,
+          padding: '2px 6px',
+          borderRadius: 4,
+          fontFamily: 'inherit',
+          marginLeft: 'auto',
+          marginRight: 6,
+        },
+        title: 'Copy full page context for Claude',
+        onClick: () => {
+          const bundle = buildCopyForClaudeBundle(
+            [...getConsoleEntries()],
+            [...getNetworkEntries()],
+            [...getErrorEntries()],
+            getHealthIssues(),
+          )
+          navigator.clipboard.writeText(bundle).catch(() => {})
+        },
+      }, '\u29C7 Copy for Claude'),
       h(
         'button',
         {
