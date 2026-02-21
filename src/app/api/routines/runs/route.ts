@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { routineRuns, routineRunItems } from '@/lib/db/schema'
-import { eq, and, isNull } from 'drizzle-orm'
+import { eq, and, isNull, desc } from 'drizzle-orm'
 import { apiError, verifyWidgetPin } from '@/lib/api'
 
 export async function GET(request: Request) {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
       .select()
       .from(routineRuns)
       .where(and(eq(routineRuns.projectId, projectId), isNull(routineRuns.completedAt)))
-      .orderBy(routineRuns.id)
+      .orderBy(desc(routineRuns.id))
       .limit(1)
 
     if (!run) return NextResponse.json(null)

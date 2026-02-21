@@ -28,6 +28,7 @@ export async function PUT(request: Request, { params }: Params) {
       .set({ checked: parsed.data.checked ? 1 : 0, checkedAt: parsed.data.checked ? new Date().toISOString() : null })
       .where(and(eq(routineRunItems.runId, Number(runId)), eq(routineRunItems.itemId, Number(itemId))))
       .returning()
+    if (!row) return apiError(404, 'Run item not found')
     return NextResponse.json(row)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'

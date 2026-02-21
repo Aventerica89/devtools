@@ -15,36 +15,43 @@ export function RoutinesTab({ apiBase, pinHash, projectId }: Props) {
   const apiHeaders = { 'X-DevTools-Pin': pinHash, 'Content-Type': 'application/json' }
 
   useEffect(() => {
-    fetch(`${apiBase}/api/routines?projectId=${projectId}`, { headers: apiHeaders })
+    const controller = new AbortController()
+    const signal = controller.signal
+
+    fetch(`${apiBase}/api/routines?projectId=${projectId}`, { headers: apiHeaders, signal })
       .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
       .then(setChecklists)
       .catch(() => {})
 
     // Check for active run
-    fetch(`${apiBase}/api/routines/runs?projectId=${projectId}`, { headers: apiHeaders })
+    fetch(`${apiBase}/api/routines/runs?projectId=${projectId}`, { headers: apiHeaders, signal })
       .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
       .then(async (run) => {
         if (!run) return
         setActiveRun(run)
         // Fetch item defs for the active run's checklist
-        const defs = await fetch(`${apiBase}/api/routines/${run.checklistId}/items`, { headers: apiHeaders })
+        const defs = await fetch(`${apiBase}/api/routines/${run.checklistId}/items`, { headers: apiHeaders, signal })
           .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
           .catch(() => [])
         setItemDefs(defs)
       })
       .catch(() => {})
-  }, [projectId])
+
+    return () => controller.abort()
+  }, [projectId, pinHash])
 
   async function startRun(checklistId: number) {
-    const res = await fetch(`${apiBase}/api/routines/${checklistId}/runs`, { method: 'POST', headers: apiHeaders })
-    if (!res.ok) return
-    const run: Run = await res.json()
-    const [full, defs] = await Promise.all([
-      fetch(`${apiBase}/api/routines/runs/${run.id}`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
-      fetch(`${apiBase}/api/routines/${checklistId}/items`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
-    ])
-    setActiveRun(full)
-    setItemDefs(defs)
+    try {
+      const res = await fetch(`${apiBase}/api/routines/${checklistId}/runs`, { method: 'POST', headers: apiHeaders })
+      if (!res.ok) return
+      const run: Run = await res.json()
+      const [full, defs] = await Promise.all([
+        fetch(`${apiBase}/api/routines/runs/${run.id}`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
+        fetch(`${apiBase}/api/routines/${checklistId}/items`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
+      ])
+      setActiveRun(full)
+      setItemDefs(defs)
+    } catch { /* network error or server error */ }
   }
 
   async function checkItem(itemId: number, checked: boolean) {
