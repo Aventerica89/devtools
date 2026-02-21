@@ -25,10 +25,15 @@ export function NotionPanel() {
 
   async function load(refresh = false) {
     setLoading(true)
-    const data = await fetch(`/api/hub/kb${refresh ? '?refresh=true' : ''}`).then((r) => r.json())
-    setEntries(Array.isArray(data) ? data : [])
-    setLoading(false)
-    setRefreshing(false)
+    try {
+      const data = await fetch(`/api/hub/kb${refresh ? '?refresh=true' : ''}`).then((r) => r.json())
+      setEntries(Array.isArray(data) ? data : [])
+    } catch {
+      setEntries([])
+    } finally {
+      setLoading(false)
+      setRefreshing(false)
+    }
   }
 
   useEffect(() => { load() }, [])
@@ -51,7 +56,7 @@ export function NotionPanel() {
       <div className="px-4 py-2 border-b border-border">
         <input placeholder="Search..." value={search}
           className="w-full text-sm bg-transparent outline-none placeholder:text-muted-foreground"
-          onInput={(e) => setSearch((e.target as HTMLInputElement).value)} />
+          onChange={(e) => setSearch(e.target.value)} />
       </div>
       <div className="flex-1 overflow-auto">
         {loading && <p className="p-4 text-sm text-muted-foreground">Loading...</p>}

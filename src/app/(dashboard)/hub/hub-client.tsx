@@ -11,8 +11,10 @@ export function HubClient() {
   useEffect(() => {
     fetch('/api/bugs?status=open&limit=500').then((r) => r.json())
       .then((d) => setOpenBugs(Array.isArray(d) ? d.length : 0))
+      .catch(() => {})
     fetch('/api/hub/kb').then((r) => r.json())
       .then((d) => setKbCount(Array.isArray(d) ? d.length : 0))
+      .catch(() => {})
   }, [])
 
   return (

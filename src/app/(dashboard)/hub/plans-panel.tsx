@@ -20,7 +20,7 @@ export function PlansPanel() {
       setAvailable(data.available)
       setReason(data.reason ?? null)
       if (data.available) setPlans(data.plans ?? [])
-    })
+    }).catch(() => setAvailable(false))
   }, [])
 
   return (
@@ -36,8 +36,8 @@ export function PlansPanel() {
             {reason && <p className="text-xs mt-1 opacity-60">{reason}</p>}
           </div>
         )}
-        {available && plans.map((plan, i) => (
-          <div key={i} className="flex items-start justify-between px-4 py-3 border-b border-border">
+        {available && plans.map((plan) => (
+          <div key={`${plan.title}:${plan.project}`} className="flex items-start justify-between px-4 py-3 border-b border-border">
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-sm font-medium truncate">{plan.title}</span>
               <span className="text-xs text-muted-foreground">{plan.project} · {plan.date}</span>
