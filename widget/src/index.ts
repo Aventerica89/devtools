@@ -109,7 +109,7 @@ function init() {
   let cmdPaletteMount: HTMLElement | null = null
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'K' && e.metaKey && e.shiftKey) {
+    if (e.key.toLowerCase() === 'k' && e.metaKey && e.shiftKey) {
       e.preventDefault()
       if (cmdPaletteMount) {
         shadow.removeChild(cmdPaletteMount)
@@ -124,6 +124,10 @@ function init() {
           cmdPaletteMount
         )
       }
+    }
+    if (e.key === 'Escape' && cmdPaletteMount) {
+      shadow.removeChild(cmdPaletteMount)
+      cmdPaletteMount = null
     }
   })
 }
