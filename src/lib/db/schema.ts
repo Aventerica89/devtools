@@ -87,6 +87,10 @@ export const widgetConfig = sqliteTable('widget_config', {
   position: text('position').default('bottom-right'),
   /** bcrypt hash of the widget access PIN. */
   pinHash: text('pin_hash').notNull(),
+  /** JSON array of tab IDs, null = all enabled */
+  enabledTabs: text('enabled_tabs'),
+  /** nullable label for snapshot UI */
+  screenshotFolder: text('screenshot_folder'),
 })
 
 /**
@@ -117,3 +121,54 @@ export const envVars = sqliteTable('env_vars', {
   index('env_vars_project_id_idx').on(t.projectId),
   uniqueIndex('env_vars_project_key_idx').on(t.projectId, t.key),
 ])
+
+/** Named checklists of routine maintenance tasks, grouped per project. */
+export const routineChecklists = sqliteTable('routineChecklists', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: text('project_id').notNull().references(() => projects.id),
+  name: text('name').notNull(),
+  description: text('description'),
+  sortOrder: integer('sort_order').notNull().default(0),
+})
+
+/** Individual items within a routine checklist. */
+export const routineItems = sqliteTable('routineItems', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  checklistId: integer('checklist_id').notNull().references(() => routineChecklists.id),
+  name: text('name').notNull(),
+  type: text('type').notNull().default('maintenance'),
+  snippet: text('snippet'),
+  notes: text('notes'),
+  sortOrder: integer('sort_order').notNull().default(0),
+})
+
+/** A single execution run of a checklist for a project. */
+export const routineRuns = sqliteTable('routineRuns', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: text('project_id').notNull().references(() => projects.id),
+  checklistId: integer('checklist_id').notNull().references(() => routineChecklists.id),
+  startedAt: text('started_at').notNull(),
+  completedAt: text('completed_at'),
+})
+
+/** Per-item completion state within a routine run. */
+export const routineRunItems = sqliteTable('routineRunItems', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  runId: integer('run_id').notNull().references(() => routineRuns.id),
+  itemId: integer('item_id').notNull().references(() => routineItems.id),
+  checked: integer('checked').notNull().default(0),
+  checkedAt: text('checked_at'),
+})
+
+/** Cache for external data fetched from Notion, plan files, etc. */
+export const hubCache = sqliteTable(
+  'hubCache',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    source: text('source').notNull(),   // 'notion' | 'plans'
+    cacheKey: text('cache_key').notNull(),
+    content: text('content').notNull(), // JSON blob
+    fetchedAt: text('fetched_at').notNull(),
+  },
+  (t) => [uniqueIndex('hubCache_source_cacheKey_idx').on(t.source, t.cacheKey)]
+)
