@@ -134,7 +134,7 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
     && chatState !== 'streaming'
 
   const handleSend = useCallback(async () => {
-    if (!canSend) return
+    if (prompt.trim().length === 0 || chatState === 'loading' || chatState === 'streaming') return
 
     const text = prompt.trim()
     const context = sentCountRef.current === 0 ? buildPageContext() : ''
@@ -198,7 +198,7 @@ export function AIChat({ apiBase, pinHash }: AIChatProps) {
         : 'Analysis failed'
       setErrorMsg(msg)
     }
-  }, [canSend, prompt, apiBase, pinHash])
+  }, [prompt, chatState, apiBase, pinHash])
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
