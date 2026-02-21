@@ -298,7 +298,7 @@ export default function NetworkPage() {
                   </button>
 
                   {expandedId === entry.id && (
-                    <div className="px-6 py-3 bg-card/30 border-b border-border/50">
+                    <div className="px-6 py-2 bg-card/30 border-b border-border/50">
                       <p className="text-xs text-muted-foreground">
                         Request details will appear here when
                         intercepted by the widget.

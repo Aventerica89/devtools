@@ -457,7 +457,7 @@ export default function DevLogPage() {
                               </Badge>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-xs font-mono text-muted-foreground">
                             {formatDate(entry.createdAt)}
                             {' | '}
                             {entry.projectId}

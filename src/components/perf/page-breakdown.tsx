@@ -163,7 +163,7 @@ export function PageBreakdown({ entries, thresholds }: PageBreakdownProps) {
               key={page.url}
               className="border-border hover:bg-accent/30"
             >
-              <TableCell className="text-sm text-foreground max-w-xs truncate">
+              <TableCell className="font-mono text-xs text-foreground max-w-xs truncate">
                 {page.url}
               </TableCell>
               {(['lcp', 'cls', 'inp', 'fcp', 'ttfb'] as const).map((key) => {

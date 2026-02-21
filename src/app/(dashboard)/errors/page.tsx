@@ -290,7 +290,7 @@ export default function ErrorsPage() {
                                 : ''}
                             </span>
                           )}
-                          <span>{formatDate(entry.timestamp)}</span>
+                          <span className="font-mono">{formatDate(entry.timestamp)}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0 mt-0.5">
@@ -329,7 +329,7 @@ export default function ErrorsPage() {
                             href={entry.pageUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs text-blue-400 hover:underline flex items-center gap-1"
+                            className="text-xs font-mono text-blue-400 hover:underline flex items-center gap-1"
                           >
                             {entry.pageUrl}
                             <ExternalLink className="h-3 w-3" />

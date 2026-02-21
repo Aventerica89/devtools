@@ -112,13 +112,13 @@ export function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
 
       <CardContent className="pt-0 -mt-4">
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
-          <span>{formatDate(bug.createdAt)}</span>
+          <span className="font-mono">{formatDate(bug.createdAt)}</span>
           {bug.pageUrl && (
             <a
               href={bug.pageUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:text-foreground"
+              className="font-mono flex items-center gap-1 hover:text-foreground"
             >
               <ExternalLink className="h-3 w-3" />
               {bug.pageUrl}
