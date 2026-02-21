@@ -22,7 +22,7 @@ export const COLORS = {
 } as const
 
 export const FAB_SIZE = 48
-export const PANEL_WIDTH = 300
+export const PANEL_WIDTH = 580
 export const DRAG_THRESHOLD = 5
 
 export const fabStyle: Record<string, string | number> = {
@@ -51,24 +51,24 @@ export const panelStyle: Record<string, string | number> = {
   width: `${PANEL_WIDTH}px`,
   backgroundColor: COLORS.panelBg,
   border: `1px solid ${COLORS.panelBorder}`,
-  borderRadius: '8px',
+  borderRadius: '12px',
   zIndex: 999998,
   display: 'flex',
   flexDirection: 'column',
   fontFamily: 'system-ui, -apple-system, sans-serif',
   color: COLORS.text,
-  boxShadow: `0 8px 32px ${COLORS.shadow}`,
+  boxShadow: '0 24px 64px rgba(0,0,0,0.7)',
   overflow: 'hidden',
 }
 
 export const panelHeaderStyle: Record<string, string | number> = {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'flex-start',
-  padding: '12px 16px',
-  backgroundColor: COLORS.panelHeaderBg,
-  borderBottom: `1px solid ${COLORS.panelBorder}`,
-  flexShrink: '0',
+  justifyContent: 'space-between',
+  padding: '8px 12px 0',
+  flexShrink: 0,
+  cursor: 'grab',
+  userSelect: 'none',
 }
 
 export const panelTitleStyle: Record<string, string | number> = {
@@ -97,51 +97,103 @@ export const closeBtnStyle: Record<string, string | number> = {
   flexShrink: '0',
 }
 
-export const toolListStyle: Record<string, string | number> = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '4px',
-  padding: '12px',
-  overflowY: 'auto',
-  flex: '1',
-}
-
-export const toolBtnStyle: Record<string, string | number> = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-  padding: '10px 12px',
-  borderRadius: '8px',
-  border: 'none',
-  backgroundColor: COLORS.toolBtnBg,
-  color: COLORS.text,
-  cursor: 'pointer',
-  fontSize: '13px',
-  fontWeight: '500',
-  textAlign: 'left',
-  transition: 'background-color 0.12s ease',
-  width: '100%',
-}
-
-export const toolIconStyle: Record<string, string | number> = {
-  width: '20px',
-  height: '20px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: '14px',
-  flexShrink: '0',
-}
-
 export const toolContentStyle: Record<string, string | number> = {
-  flex: '1',
-  padding: '16px',
+  flex: 1,
   overflowY: 'auto',
+  padding: '10px 12px',
   fontSize: '13px',
   color: COLORS.textMuted,
+  display: 'block',
+}
+
+export const domainInfoStyle: Record<string, string | number> = {
+  fontSize: 11,
+  color: '#475569',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+}
+
+export const domainDotStyle: Record<string, string | number> = {
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: '#4ade80',
+  flexShrink: 0,
+}
+
+export const headerActionsStyle: Record<string, string | number> = {
+  display: 'flex',
+  gap: 4,
+  alignItems: 'center',
+}
+
+export const iconBtnStyle: Record<string, string | number> = {
+  background: 'none',
+  border: 'none',
+  color: '#475569',
+  cursor: 'pointer',
+  padding: 4,
+  borderRadius: 4,
+  fontSize: 12,
+  lineHeight: '1',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 }
 
-// Panel visibility is now handled via opacity in ToolPanel
+export const copyClaudeBtnStyle: Record<string, string | number> = {
+  background: '#1a2547',
+  border: '1px solid #2d3b6e',
+  color: '#a5b4fc',
+  fontSize: 10,
+  padding: '3px 8px',
+  borderRadius: 4,
+  whiteSpace: 'nowrap',
+  fontFamily: 'inherit',
+  lineHeight: '1.4',
+  cursor: 'pointer',
+}
+
+export const tabBarStyle: Record<string, string | number> = {
+  display: 'flex',
+  borderBottom: `1px solid ${COLORS.panelBorder}`,
+  overflowX: 'auto',
+  scrollbarWidth: 'none',
+  flexShrink: 0,
+  marginTop: 6,
+}
+
+// Base tab style (inactive)
+export const tabStyle: Record<string, string | number> = {
+  padding: '6px 10px',
+  fontSize: 11,
+  color: '#475569',
+  cursor: 'pointer',
+  borderBottom: '2px solid transparent',
+  whiteSpace: 'nowrap',
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+  flexShrink: 0,
+  userSelect: 'none',
+  background: 'none',
+  border: 'none',
+  fontFamily: 'inherit',
+}
+
+// Additional styles for active tab (spread on top of tabStyle)
+export const activeTabStyle: Record<string, string | number> = {
+  color: '#a5b4fc',
+  borderBottom: '2px solid #6366f1',
+}
+
+export const tabBadgeStyle: Record<string, string | number> = {
+  background: '#ef4444',
+  color: '#fff',
+  borderRadius: 6,
+  padding: '0 4px',
+  fontSize: 9,
+  fontWeight: '700',
+  lineHeight: '14px',
+}

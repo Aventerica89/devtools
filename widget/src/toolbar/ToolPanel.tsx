@@ -1,16 +1,20 @@
 import { h } from 'preact'
-import { useState, useCallback, useRef } from 'preact/hooks'
+import { useState, useCallback, useEffect, useRef } from 'preact/hooks'
 import {
-  COLORS,
   PANEL_WIDTH,
   panelStyle,
   panelHeaderStyle,
-  panelTitleStyle,
   closeBtnStyle,
-  toolListStyle,
-  toolBtnStyle,
-  toolIconStyle,
   toolContentStyle,
+  domainInfoStyle,
+  domainDotStyle,
+  headerActionsStyle,
+  iconBtnStyle,
+  copyClaudeBtnStyle,
+  tabBarStyle,
+  tabStyle,
+  activeTabStyle,
+  tabBadgeStyle,
 } from './styles'
 import { ConsoleViewer } from '../tools/ConsoleViewer'
 import { NetworkViewer } from '../tools/NetworkViewer'
@@ -30,23 +34,25 @@ import { getNetworkEntries } from '../interceptors/network'
 import { getErrorEntries } from '../interceptors/errors'
 import { getHealthIssues } from '../interceptors/health'
 
-interface ToolDef {
+interface TabDef {
   readonly id: string
   readonly label: string
   readonly icon: string
+  readonly badge?: number
 }
 
-const TOOLS: readonly ToolDef[] = [
-  { id: 'debug', label: 'Debug Snapshot', icon: '\u{229A}' },
-  { id: 'console', label: 'Console Viewer', icon: '>' },
-  { id: 'network', label: 'Network Viewer', icon: '\u{21C5}' },
-  { id: 'errors', label: 'Error Log', icon: '\u{26A0}' },
-  { id: 'bugs', label: 'Bug Reporter', icon: '\u{1F41B}' },
-  { id: 'perf', label: 'Performance', icon: '\u{26A1}' },
-  { id: 'storage', label: 'Storage', icon: '\u{1F5C4}' },
-  { id: 'health', label: 'Health', icon: '\u2764' },
+const TABS: readonly Omit<TabDef, 'badge'>[] = [
+  { id: 'console', label: 'Console', icon: '>_' },
+  { id: 'network', label: 'Network', icon: '\u21C4' },
+  { id: 'errors', label: 'Errors', icon: '\u26A0' },
+  { id: 'perf', label: 'Perf', icon: '\u26A1' },
+  { id: 'storage', label: 'Storage', icon: '\u25EB' },
+  { id: 'dom', label: 'DOM', icon: '\u2B21' },
+  { id: 'health', label: 'Health', icon: '\u2665' },
   { id: 'routines', label: 'Routines', icon: '\u2713' },
-  { id: 'ai', label: 'AI Assistant', icon: '\u{2728}' },
+  { id: 'ai', label: 'AI', icon: '\u2726' },
+  { id: 'bugs', label: 'Bugs', icon: '\u2316' },
+  { id: 'snapshot', label: 'Snapshot', icon: '\u25CE' },
 ] as const
 
 interface ToolPanelProps {
@@ -59,11 +65,14 @@ interface ToolPanelProps {
 }
 
 export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinHash }: ToolPanelProps) {
-  const [activeTool, setActiveTool] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<string>('errors')
+  const [isMinimized, setIsMinimized] = useState(false)
   const [hoverClose, setHoverClose] = useState(false)
-  const [hoverTool, setHoverTool] = useState<string | null>(null)
   const [bugPrefillTitle, setBugPrefillTitle] = useState('')
   const [bugPrefillStack, setBugPrefillStack] = useState('')
+  const [badges, setBadges] = useState({ errors: 0, console: 0 })
+
+  const domain = typeof window !== 'undefined' ? window.location.hostname : projectId
 
   // Draggable panel position — starts at top-right, user can drag header to move
   const [panelPos, setPanelPos] = useState(() => ({
@@ -72,6 +81,19 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
   }))
   const [isDraggingPanel, setIsDraggingPanel] = useState(false)
   const panelDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null)
+
+  // Badge count polling
+  useEffect(() => {
+    function update() {
+      setBadges({
+        errors: getErrorEntries().length,
+        console: getConsoleEntries().filter((e) => e.level === 'warn' || e.level === 'error').length,
+      })
+    }
+    update()
+    const timer = setInterval(update, 2000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleHeaderPointerDown = useCallback((e: PointerEvent) => {
     if ((e.target as Element).closest('button')) return
@@ -96,26 +118,65 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
     setIsDraggingPanel(false)
   }, [])
 
-  const handleToolClick = useCallback((toolId: string) => {
-    // When switching away from bugs, clear prefill state
-    setActiveTool((prev) => {
-      if (prev === 'bugs' && toolId !== 'bugs') {
-        setBugPrefillTitle('')
-        setBugPrefillStack('')
-      }
-      return prev === toolId ? null : toolId
-    })
-  }, [])
-
   const handleReportBug = useCallback((entry: ErrorEntry) => {
     setBugPrefillTitle(entry.message)
     setBugPrefillStack(entry.stack)
-    setActiveTool('bugs')
+    setActiveTab('bugs')
   }, [])
 
-  const activeToolDef = activeTool
-    ? TOOLS.find((t) => t.id === activeTool)
-    : null
+  const handleTabClick = useCallback((tabId: string) => {
+    // When switching away from bugs, clear prefill state
+    if (activeTab === 'bugs' && tabId !== 'bugs') {
+      setBugPrefillTitle('')
+      setBugPrefillStack('')
+    }
+    setActiveTab(tabId)
+  }, [activeTab])
+
+  function renderTabContent() {
+    switch (activeTab) {
+      case 'console':
+        return h(ConsoleViewer, null)
+      case 'network':
+        return h(NetworkViewer, null)
+      case 'errors':
+        return h(ErrorListViewer, { onReportBug: handleReportBug })
+      case 'bugs':
+        return h(BugReporter, {
+          apiClient,
+          projectId,
+          prefillTitle: bugPrefillTitle || undefined,
+          prefillStack: bugPrefillStack || undefined,
+        })
+      case 'perf':
+        return h(PerfViewer, null)
+      case 'storage':
+        return h(StorageViewer, null)
+      case 'health':
+        return h(HealthViewer, null)
+      case 'routines':
+        return h(RoutinesTab, { apiBase, pinHash, projectId })
+      case 'ai':
+        return h(AIChat, { apiBase, pinHash })
+      case 'snapshot':
+        return h(DebugSnapshot, null)
+      case 'dom':
+        return h(
+          'div',
+          {
+            style: {
+              padding: '40px 20px',
+              textAlign: 'center',
+              color: '#334155',
+              fontSize: 13,
+            },
+          },
+          'Click any element on the page to inspect it.'
+        )
+      default:
+        return h('div', { style: { padding: '40px 20px', textAlign: 'center', color: '#334155', fontSize: 13 } }, `${activeTab} — coming soon`)
+    }
+  }
 
   return h(
     'div',
@@ -124,7 +185,7 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
         ...panelStyle,
         left: `${panelPos.x}px`,
         top: `${panelPos.y}px`,
-        height: 'min(85vh, 700px)',
+        height: isMinimized ? 'auto' : 'min(85vh, 520px)',
         opacity: isOpen ? '1' : '0',
         transition: 'opacity 0.2s ease',
         pointerEvents: isOpen ? 'auto' : 'none',
@@ -138,144 +199,126 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
         style: {
           ...panelHeaderStyle,
           cursor: isDraggingPanel ? 'grabbing' : 'grab',
-          userSelect: 'none',
         },
         onPointerDown: handleHeaderPointerDown,
         onPointerMove: handleHeaderPointerMove,
         onPointerUp: handleHeaderPointerUp,
       },
-      h('span', { style: panelTitleStyle, title: projectId }, projectId),
-      h('button', {
-        style: {
-          background: 'none',
-          border: `1px solid ${COLORS.panelBorder}`,
-          color: COLORS.textMuted,
-          cursor: 'pointer',
-          fontSize: 9,
-          padding: '2px 6px',
-          borderRadius: 4,
-          fontFamily: 'inherit',
-          marginLeft: 'auto',
-          marginRight: 6,
-        },
-        title: 'Copy full page context for Claude',
-        onClick: () => {
-          const bundle = buildCopyForClaudeBundle(
-            [...getConsoleEntries()],
-            [...getNetworkEntries()],
-            [...getErrorEntries()],
-            getHealthIssues(),
-          )
-          navigator.clipboard.writeText(bundle).catch(() => {})
-        },
-      }, '\u29C7 Copy for Claude'),
+      // Left: green dot + domain name
       h(
-        'button',
-        {
-          style: {
-            ...closeBtnStyle,
-            backgroundColor: hoverClose ? COLORS.closeBtnHover : 'transparent',
-            color: hoverClose ? '#fff' : COLORS.textMuted,
+        'div',
+        { style: domainInfoStyle },
+        h('div', { style: domainDotStyle }),
+        h('span', null, domain)
+      ),
+      // Right: action buttons
+      h(
+        'div',
+        { style: headerActionsStyle },
+        h(
+          'button',
+          {
+            style: copyClaudeBtnStyle,
+            title: 'Copy full page context for Claude',
+            onClick: () => {
+              const bundle = buildCopyForClaudeBundle(
+                [...getConsoleEntries()],
+                [...getNetworkEntries()],
+                [...getErrorEntries()],
+                getHealthIssues(),
+              )
+              navigator.clipboard.writeText(bundle).catch(() => {})
+            },
           },
-          onClick: onClose,
-          onMouseEnter: () => setHoverClose(true),
-          onMouseLeave: () => setHoverClose(false),
-          'aria-label': 'Close panel',
-          title: 'Close',
-        },
-        '\u{2715}'
+          'Copy for Claude'
+        ),
+        h(
+          'button',
+          {
+            style: iconBtnStyle,
+            title: 'Minimize',
+            onClick: () => setIsMinimized((v) => !v),
+          },
+          '\u2014'
+        ),
+        h(
+          'button',
+          {
+            style: {
+              ...closeBtnStyle,
+              backgroundColor: hoverClose ? '#ef4444' : 'transparent',
+              color: hoverClose ? '#fff' : '#475569',
+            },
+            onClick: onClose,
+            onMouseEnter: () => setHoverClose(true),
+            onMouseLeave: () => setHoverClose(false),
+            'aria-label': 'Close panel',
+            title: 'Close',
+          },
+          '\u2715'
+        )
       )
     ),
-    // Tool list
-    h(
+    // Tab bar (hidden when minimized)
+    isMinimized ? null : h(
       'div',
-      { style: toolListStyle },
-      TOOLS.map((tool) => {
-        const isActive = activeTool === tool.id
-        const isHovered = hoverTool === tool.id
-        let bg: string = COLORS.toolBtnBg
-        if (isActive) {
-          bg = COLORS.toolBtnBgActive
-        } else if (isHovered) {
-          bg = COLORS.toolBtnBgHover
-        }
+      { style: tabBarStyle },
+      TABS.map((tab) => {
+        const isActive = activeTab === tab.id
+        const badgeCount = tab.id === 'errors' ? badges.errors : tab.id === 'console' ? badges.console : 0
+        const isWarnBadge = tab.id === 'console'
 
         return h(
           'button',
           {
-            key: tool.id,
+            key: tab.id,
             style: {
-              ...toolBtnStyle,
-              backgroundColor: bg,
-              color: isActive ? '#fff' : COLORS.text,
+              ...tabStyle,
+              ...(isActive ? activeTabStyle : {}),
+              // Ensure inactive tabs keep the 2px transparent bottom border to prevent layout shift
+              borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent',
             },
-            onClick: () => handleToolClick(tool.id),
-            onMouseEnter: () => setHoverTool(tool.id),
-            onMouseLeave: () => setHoverTool(null),
+            onClick: () => handleTabClick(tab.id),
           },
-          h('span', { style: toolIconStyle }, tool.icon),
-          h('span', null, tool.label)
+          tab.icon,
+          ' ',
+          tab.label,
+          badgeCount > 0
+            ? h(
+                'span',
+                {
+                  style: isWarnBadge
+                    ? { ...tabBadgeStyle, background: '#d97706' }
+                    : tabBadgeStyle,
+                },
+                badgeCount
+              )
+            : null
         )
       })
     ),
-    // Active tool content area
-    activeToolDef
-      ? h(
-          'div',
-          {
-            style: {
-              ...toolContentStyle,
-              borderTop: `1px solid ${COLORS.panelBorder}`,
-              // Reset centering for viewers that need full layout
-              ...(activeTool === 'debug'
-                || activeTool === 'console'
-                || activeTool === 'network'
-                || activeTool === 'errors'
-                || activeTool === 'bugs'
-                || activeTool === 'perf'
-                || activeTool === 'storage'
-                || activeTool === 'health'
-                || activeTool === 'routines'
-                || activeTool === 'ai'
-                ? {
-                    alignItems: 'stretch',
-                    justifyContent: 'stretch',
-                    padding: '0',
-                  }
-                : {}),
-            },
+    // Content area (hidden when minimized)
+    isMinimized ? null : h(
+      'div',
+      {
+        style: {
+          ...toolContentStyle,
+          padding: 0,
+        },
+      },
+      h(
+        'div',
+        {
+          style: {
+            height: '100%',
+            overflowY: 'auto',
+            padding: '10px 12px',
+            fontSize: '13px',
+            color: '#94a3b8',
           },
-          activeTool === 'debug'
-            ? h(DebugSnapshot, null)
-            : activeTool === 'console'
-              ? h(ConsoleViewer, null)
-              : activeTool === 'network'
-                ? h(NetworkViewer, null)
-                : activeTool === 'errors'
-                  ? h(ErrorListViewer, { onReportBug: handleReportBug })
-                  : activeTool === 'bugs'
-                    ? h(BugReporter, {
-                        apiClient,
-                        projectId,
-                        prefillTitle: bugPrefillTitle || undefined,
-                        prefillStack: bugPrefillStack || undefined,
-                      })
-                    : activeTool === 'perf'
-                      ? h(PerfViewer, null)
-                      : activeTool === 'storage'
-                        ? h(StorageViewer, null)
-                        : activeTool === 'health'
-                          ? h(HealthViewer, null)
-                          : activeTool === 'routines'
-                            ? h(RoutinesTab, { apiBase, pinHash, projectId })
-                            : activeTool === 'ai'
-                            ? h(AIChat, { apiBase, pinHash })
-                            : h(
-                            'span',
-                            null,
-                            `${activeToolDef.label} -- coming soon`
-                          )
-        )
-      : null
+        },
+        renderTabContent()
+      )
+    )
   )
 }
