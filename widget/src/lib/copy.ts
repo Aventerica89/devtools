@@ -13,7 +13,8 @@ export function formatNetworkRow(entry: NetworkEntry): string {
 }
 
 export function formatErrorRow(entry: ErrorEntry): string {
-  return `[ERROR] ${entry.message}\n  ${entry.stack ?? ''}`.trimEnd()
+  const stackLine = entry.stack ? `\n  ${entry.stack}` : ''
+  return `[ERROR] ${entry.message}${stackLine}`
 }
 
 export function formatHealthRow(issue: HealthIssue): string {
