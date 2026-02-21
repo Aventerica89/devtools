@@ -37,23 +37,7 @@ interface SavedSnapshot {
 // ---------------------------------------------------------------------------
 
 const STORAGE_KEY = 'devtools-debug-snapshots'
-const FOLDER_KEY = 'devtools-screenshot-folder'
-const DEFAULT_FOLDER = '/Users/jb/Downloads/Misc/Temp Assets/DevTools Debug'
 const MAX_SAVED = 5
-
-function loadFolder(): string {
-  try {
-    return localStorage.getItem(FOLDER_KEY) ?? DEFAULT_FOLDER
-  } catch {
-    return DEFAULT_FOLDER
-  }
-}
-
-function saveFolder(path: string): void {
-  try {
-    localStorage.setItem(FOLDER_KEY, path)
-  } catch { /* quota exceeded */ }
-}
 
 function loadSaved(): SavedSnapshot[] {
   try {
@@ -139,7 +123,7 @@ function cookieNames(): string {
   }
 }
 
-function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: string, comment: string): string {
+function buildReport(shots: Screenshot[], errorsOnly: boolean, comment: string): string {
   const now = new Date()
   const ts = now.toISOString().replace('T', ' ').slice(0, 19)
   const consoleAll = getConsoleEntries()
@@ -172,9 +156,8 @@ function buildReport(shots: Screenshot[], errorsOnly: boolean, folderPath: strin
   }
 
   if (shots.length) {
-    lines.push(`## Screenshots (${shots.length} downloaded)`)
-    const folder = folderPath.replace(/\/+$/, '')
-    lines.push(shots.map((s) => `${folder}/${s.name}`).join(', '))
+    lines.push(`## Screenshots (${shots.length} downloaded to ~/Downloads)`)
+    lines.push(shots.map((s) => s.name).join(', '))
     lines.push('')
   }
 
@@ -251,6 +234,26 @@ function downloadScreenshots(shots: Screenshot[]): void {
 }
 
 // ---------------------------------------------------------------------------
+// WebP conversion helper
+// ---------------------------------------------------------------------------
+
+async function blobToWebP(blob: Blob): Promise<Blob> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob)
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+      canvas.getContext('2d')!.drawImage(img, 0, 0)
+      canvas.toBlob((out) => resolve(out ?? blob), 'image/webp', 0.82)
+      URL.revokeObjectURL(url)
+    }
+    img.src = url
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Screenshot capture via Screen Capture API
 // ---------------------------------------------------------------------------
 
@@ -272,18 +275,18 @@ async function captureScreenViaMedia(): Promise<Blob | null> {
     }
   })
 
+  // Stop stream before drawing to canvas — frees camera indicator immediately
+  stream.getTracks().forEach((t) => t.stop())
+
   // Small delay for first frame to render
   await new Promise((r) => setTimeout(r, 120))
 
-  // Scale down to max 1920px wide to avoid memory crashes on HiDPI/4K screens
-  const MAX_WIDTH = 1920
-  const srcW = video.videoWidth || window.innerWidth
-  const srcH = video.videoHeight || window.innerHeight
-  const scale = srcW > MAX_WIDTH ? MAX_WIDTH / srcW : 1
-
+  // Scale down to max 1440px wide to avoid memory crashes on HiDPI/4K screens
+  const MAX_WIDTH = 1440
+  const scale = Math.min(1, MAX_WIDTH / video.videoWidth)
   const canvas = document.createElement('canvas')
-  canvas.width = Math.round(srcW * scale)
-  canvas.height = Math.round(srcH * scale)
+  canvas.width = Math.round(video.videoWidth * scale)
+  canvas.height = Math.round(video.videoHeight * scale)
   const ctx = canvas.getContext('2d')
 
   let blob: Blob | null = null
@@ -293,7 +296,6 @@ async function captureScreenViaMedia(): Promise<Blob | null> {
     blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.82))
   }
 
-  stream.getTracks().forEach((t) => t.stop())
   video.srcObject = null
 
   return blob
@@ -539,8 +541,6 @@ export function DebugSnapshot() {
   const [isCapturing, setIsCapturing] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [errorsOnly, setErrorsOnly] = useState(true)
-  const [folderPath, setFolderPath] = useState<string>(loadFolder)
-  const [editingFolder, setEditingFolder] = useState(false)
   const [comment, setComment] = useState('')
 
   // Cleanup blob URLs when component unmounts
@@ -560,8 +560,10 @@ export function DebugSnapshot() {
       if (!items) return
       for (const item of Array.from(items)) {
         if (item.type.startsWith('image/')) {
-          const blob = item.getAsFile()
-          if (blob) appendScreenshot(blob)
+          const file = item.getAsFile()
+          if (file) {
+            blobToWebP(file).then((webpBlob) => appendScreenshot(webpBlob))
+          }
         }
       }
     }
@@ -609,7 +611,7 @@ export function DebugSnapshot() {
   }, [])
 
   const handleCopyReport = useCallback(async () => {
-    const report = buildReport(screenshots, errorsOnly, folderPath, comment)
+    const report = buildReport(screenshots, errorsOnly, comment)
 
     if (screenshots.length > 0) {
       downloadScreenshots(screenshots)
@@ -630,7 +632,7 @@ export function DebugSnapshot() {
 
     await navigator.clipboard.writeText(report)
     markCopied(snap.id)
-  }, [screenshots, errorsOnly, folderPath, comment, markCopied])
+  }, [screenshots, errorsOnly, comment, markCopied])
 
   const copyHistoryItem = useCallback(async (snap: SavedSnapshot) => {
     await navigator.clipboard.writeText(snap.report)
@@ -795,9 +797,16 @@ export function DebugSnapshot() {
 
           // Download destination note
           h(
-            'div',
-            { style: { fontSize: '10px', color: COLORS.textMuted } },
-            'Screenshots save to your browser\u2019s Downloads folder automatically.'
+            'p',
+            {
+              style: { fontSize: 10, color: COLORS.textMuted, textAlign: 'center', padding: '4px 8px' },
+            },
+            'Screenshots save to ~/Downloads \u00b7 ',
+            h('a', {
+              style: { color: '#475569', textDecoration: 'underline', cursor: 'pointer' },
+              href: '/settings/widget',
+              target: '_blank',
+            }, 'Set label in Settings')
           )
         )
       : // History tab
