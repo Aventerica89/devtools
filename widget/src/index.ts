@@ -5,6 +5,7 @@ import { createApiClient } from './api/client'
 import { ErrorToast } from './tools/ErrorToast'
 import { BugReporter } from './tools/BugReporter'
 import { QuickAI } from './tools/QuickAI'
+import { CommandPalette } from './tools/CommandPalette'
 import type { ErrorEntry } from './interceptors/errors'
 import type { ApiClient } from './api/client'
 import { useState, useCallback } from 'preact/hooks'
@@ -104,6 +105,27 @@ function init() {
 
   // Start interceptors
   initInterceptors(projectId, pinHash, apiBase)
+
+  let cmdPaletteMount: HTMLElement | null = null
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'K' && e.metaKey && e.shiftKey) {
+      e.preventDefault()
+      if (cmdPaletteMount) {
+        shadow.removeChild(cmdPaletteMount)
+        cmdPaletteMount = null
+      } else {
+        cmdPaletteMount = document.createElement('div')
+        shadow.appendChild(cmdPaletteMount)
+        render(
+          h(CommandPalette, { apiBase, pinHash, onClose: () => {
+            if (cmdPaletteMount) { shadow.removeChild(cmdPaletteMount); cmdPaletteMount = null }
+          }}),
+          cmdPaletteMount
+        )
+      }
+    }
+  })
 }
 
 // Auto-init when script loads
