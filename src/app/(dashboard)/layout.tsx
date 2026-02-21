@@ -1,5 +1,6 @@
 import { Sidebar } from '@/components/sidebar'
 import { DevButton } from '@/components/dev-button'
+import { CommandPalette } from '@/components/command-palette'
 
 export default function DashboardLayout({
   children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
         {children}
       </main>
       <DevButton />
+      <CommandPalette />
     </div>
   )
 }
