@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser, UserButton } from '@clerk/nextjs'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
@@ -102,6 +103,17 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user } = useUser()
   const role = getRole(user?.publicMetadata as Record<string, unknown> | undefined)
+  const [counts, setCounts] = useState({ bugs: 0, errors: 0 })
+  useEffect(() => {
+    fetch('/api/bugs?status=open&limit=500')
+      .then((r) => r.json())
+      .then((d) => setCounts((prev) => ({ ...prev, bugs: Array.isArray(d) ? d.length : 0 })))
+      .catch(() => {})
+    fetch('/api/devlog?type=error&days=1&limit=500')
+      .then((r) => r.json())
+      .then((d) => setCounts((prev) => ({ ...prev, errors: Array.isArray(d) ? d.length : 0 })))
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="w-56 border-r border-border bg-background flex flex-col">
@@ -118,7 +130,7 @@ export function Sidebar() {
           return (
             <div key={section.label}>
               {i > 0 && <Separator className="my-2 bg-border" />}
-              <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase">
+              <p className="px-3 py-1 text-xs font-semibold text-foreground/60 uppercase tracking-wide">
                 {section.label}
               </p>
               {visibleItems.map((item) => (
@@ -135,6 +147,16 @@ export function Sidebar() {
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
+                  {item.href === '/bugs' && counts.bugs > 0 && (
+                    <span className="ml-auto text-xs bg-destructive/20 text-destructive px-1.5 py-0.5 rounded-full leading-none">
+                      {counts.bugs}
+                    </span>
+                  )}
+                  {item.href === '/errors' && counts.errors > 0 && (
+                    <span className="ml-auto text-xs bg-destructive/20 text-destructive px-1.5 py-0.5 rounded-full leading-none">
+                      {counts.errors}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
