@@ -298,6 +298,56 @@ This is a single clipboard copy. Paste directly into Claude with no editing need
 
 ---
 
+## 6. Snapshot Tab (v2 Fixes)
+
+The existing `DebugSnapshot.tsx` has three root-cause bugs. Fix these during Phase 5 (Widget tabs):
+
+### Fix 1 — Paste path always saves PNG
+
+**Root cause:** `appendScreenshot` uses `item.getAsFile()` directly — clipboard images are always PNG because the OS clipboard doesn't preserve encoding.
+
+**Fix:** Run pasted blobs through a canvas conversion before saving:
+```ts
+function blobToWebP(blob: Blob): Promise<Blob> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob)
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.naturalWidth
+      canvas.height = img.naturalHeight
+      canvas.getContext('2d')!.drawImage(img, 0, 0)
+      canvas.toBlob((out) => resolve(out ?? blob), 'image/webp', 0.82)
+      URL.revokeObjectURL(url)
+    }
+    img.src = url
+  })
+}
+```
+
+### Fix 2 — Screen capture crashes on retina displays
+
+**Root causes:**
+1. Stream stays open while canvas draws from `<video>`, holding GPU memory
+2. `MAX_WIDTH = 1920` on a 2× display means 3840px canvas — OOM on older Macs
+
+**Fixes:**
+- Stop stream tracks before drawing: `stream.getTracks().forEach(t => t.stop())` immediately after `video.play()` resolves — the video element retains the last frame
+- Cap effective width at `1440` (sufficient for debugging, safe on all devices)
+
+### Fix 3 — Download location
+
+**Root cause:** `<a download>` always goes to the browser's Downloads folder. The `folderPath` stored in localStorage only appears in the report text — it never affected the actual save destination. Browser security prevents `<a download>` from targeting arbitrary paths.
+
+**Fix:**
+- Add `screenshotFolder` field to `widgetConfig` table (nullable text, default `null`)
+- Configurable in DevTools Settings → Widget alongside other per-project widget options
+- The actual download still goes to ~/Downloads (browser constraint — cannot be changed)
+- Widget Snapshot tab shows: "Screenshots save to ~/Downloads · Set label in Settings"
+- Report text includes the configured label as a note for context
+
+---
+
 ## Implementation Order
 
 | Phase | Scope |
@@ -306,7 +356,7 @@ This is a single clipboard copy. Paste directly into Claude with no editing need
 | 2 — Routines dashboard | `/routines` page, checklist editor, run history |
 | 3 — Hub page | Hub layout, Notion panel, Plans panel, stats strip |
 | 4 — Command palette | Dashboard `⌘K` overlay, widget `⌘⇧K` Shadow DOM overlay |
-| 5 — Widget tabs | Storage, DOM, Health interceptors + new tabs |
+| 5 — Widget tabs | Storage, DOM, Health interceptors + new tabs + Snapshot v2 fixes |
 | 6 — Widget Routines + AI tabs | Active run in widget, AI chat tab with page context |
 | 7 — Copy system | Row-level copy icons, tab-level copy buttons, "Copy for Claude" bundle |
 | 8 — Dashboard refresh | Tighten density across all existing pages |
