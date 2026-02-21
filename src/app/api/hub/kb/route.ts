@@ -5,7 +5,7 @@ import { hubCache } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { apiError } from '@/lib/api'
 
-const NOTION_DB_ID = '885cd9c275bd45bb93e17fe0f156d1b1'
+const NOTION_DB_ID = '2fabdc9f-eca4-4431-b16c-d6b03dae3667'
 const TTL_MS = 60 * 60 * 1000 // 1 hour
 
 async function fetchNotionPages(token: string) {
