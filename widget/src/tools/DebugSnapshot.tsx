@@ -8,7 +8,7 @@
  */
 
 import { h } from 'preact'
-import { useState, useCallback, useEffect } from 'preact/hooks'
+import { useState, useCallback, useEffect, useRef } from 'preact/hooks'
 import { COLORS } from '../toolbar/styles'
 import { getConsoleEntries } from '../interceptors/console'
 import { getNetworkEntries } from '../interceptors/network'
@@ -249,6 +249,10 @@ async function blobToWebP(blob: Blob): Promise<Blob> {
       canvas.toBlob((out) => resolve(out ?? blob), 'image/webp', 0.82)
       URL.revokeObjectURL(url)
     }
+    img.onerror = () => {
+      URL.revokeObjectURL(url)
+      resolve(blob)
+    }
     img.src = url
   })
 }
@@ -258,47 +262,49 @@ async function blobToWebP(blob: Blob): Promise<Blob> {
 // ---------------------------------------------------------------------------
 
 async function captureScreenViaMedia(): Promise<Blob | null> {
-  const stream = await navigator.mediaDevices.getDisplayMedia({
-    video: { displaySurface: 'browser' } as MediaTrackConstraints,
-    // Non-standard Chrome flag — pre-selects current tab in the picker
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ...(({ preferCurrentTab: true }) as Record<string, unknown>),
-  } as DisplayMediaStreamOptions)
+  let stream: MediaStream | null = null
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video: { displaySurface: 'browser' } as MediaTrackConstraints,
+      // Non-standard Chrome flag — pre-selects current tab in the picker
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ...(({ preferCurrentTab: true }) as Record<string, unknown>),
+    } as DisplayMediaStreamOptions)
 
-  const video = document.createElement('video')
-  video.srcObject = stream
-  video.muted = true
+    const video = document.createElement('video')
+    video.srcObject = stream
+    video.muted = true
 
-  await new Promise<void>((resolve) => {
-    video.onloadedmetadata = () => {
-      video.play().then(resolve).catch(resolve)
+    await new Promise<void>((resolve) => {
+      video.onloadedmetadata = () => {
+        video.play().then(resolve).catch(resolve)
+      }
+    })
+
+    // Small delay for first frame to render
+    await new Promise((r) => setTimeout(r, 120))
+
+    // Scale down to max 1440px wide to avoid memory crashes on HiDPI/4K screens
+    const MAX_WIDTH = 1440
+    const scale = Math.min(1, MAX_WIDTH / video.videoWidth)
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(video.videoWidth * scale)
+    canvas.height = Math.round(video.videoHeight * scale)
+    const ctx = canvas.getContext('2d')
+
+    let blob: Blob | null = null
+    if (ctx) {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+      // WebP is ~3-5x smaller than PNG at 0.82 quality — prevents tab/browser crashes
+      blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.82))
     }
-  })
 
-  // Stop stream before drawing to canvas — frees camera indicator immediately
-  stream.getTracks().forEach((t) => t.stop())
+    video.srcObject = null
 
-  // Small delay for first frame to render
-  await new Promise((r) => setTimeout(r, 120))
-
-  // Scale down to max 1440px wide to avoid memory crashes on HiDPI/4K screens
-  const MAX_WIDTH = 1440
-  const scale = Math.min(1, MAX_WIDTH / video.videoWidth)
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(video.videoWidth * scale)
-  canvas.height = Math.round(video.videoHeight * scale)
-  const ctx = canvas.getContext('2d')
-
-  let blob: Blob | null = null
-  if (ctx) {
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-    // WebP is ~3-5x smaller than PNG at 0.82 quality — prevents tab/browser crashes
-    blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.82))
+    return blob
+  } finally {
+    stream?.getTracks().forEach((t) => t.stop())
   }
-
-  video.srcObject = null
-
-  return blob
 }
 
 // ---------------------------------------------------------------------------
@@ -537,17 +543,20 @@ const emptyHistory: Record<string, string> = {
 export function DebugSnapshot() {
   const [tab, setTab] = useState<'capture' | 'history'>('capture')
   const [screenshots, setScreenshots] = useState<Screenshot[]>([])
+  const screenshotsRef = useRef(screenshots)
   const [saved, setSaved] = useState<SavedSnapshot[]>(loadSaved)
   const [isCapturing, setIsCapturing] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [errorsOnly, setErrorsOnly] = useState(true)
   const [comment, setComment] = useState('')
 
+  // Keep ref in sync so the unmount cleanup always sees latest screenshots
+  useEffect(() => { screenshotsRef.current = screenshots }, [screenshots])
+
   // Cleanup blob URLs when component unmounts
   useEffect(() => {
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      for (const s of screenshots) URL.revokeObjectURL(s.url)
+      for (const s of screenshotsRef.current) URL.revokeObjectURL(s.url)
     }
   }, [])  // intentionally only on unmount
 

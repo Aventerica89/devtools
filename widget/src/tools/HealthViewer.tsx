@@ -14,9 +14,9 @@ export function HealthViewer() {
   return h('div', { style: { flex: 1, overflowY: 'auto' } },
     issues.length === 0
       ? h('p', { style: { padding: 16, fontSize: 12, color: COLORS.textMuted } }, 'No health issues detected.')
-      : issues.map((issue) =>
+      : issues.map((issue, i) =>
         h('div', {
-          key: `${issue.category}:${issue.message}`,
+          key: `${issue.category}:${issue.message}:${i}`,
           style: {
             padding: '8px 12px',
             borderBottom: `1px solid ${COLORS.panelBorder}`,
