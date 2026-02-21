@@ -19,6 +19,7 @@ import { BugReporter } from '../tools/BugReporter'
 import { AIChat } from '../tools/AIChat'
 import { PerfViewer } from '../tools/PerfViewer'
 import { DebugSnapshot } from '../tools/DebugSnapshot'
+import { StorageViewer } from '../tools/StorageViewer'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
 
@@ -35,6 +36,7 @@ const TOOLS: readonly ToolDef[] = [
   { id: 'errors', label: 'Error Log', icon: '\u{26A0}' },
   { id: 'bugs', label: 'Bug Reporter', icon: '\u{1F41B}' },
   { id: 'perf', label: 'Performance', icon: '\u{26A1}' },
+  { id: 'storage', label: 'Storage', icon: '\u{1F5C4}' },
   { id: 'ai', label: 'AI Assistant', icon: '\u{2728}' },
 ] as const
 
@@ -198,6 +200,7 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
                 || activeTool === 'errors'
                 || activeTool === 'bugs'
                 || activeTool === 'perf'
+                || activeTool === 'storage'
                 || activeTool === 'ai'
                 ? {
                     alignItems: 'stretch',
@@ -224,9 +227,11 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
                       })
                     : activeTool === 'perf'
                       ? h(PerfViewer, null)
-                      : activeTool === 'ai'
-                        ? h(AIChat, { apiBase, pinHash })
-                        : h(
+                      : activeTool === 'storage'
+                        ? h(StorageViewer, null)
+                        : activeTool === 'ai'
+                          ? h(AIChat, { apiBase, pinHash })
+                          : h(
                             'span',
                             null,
                             `${activeToolDef.label} -- coming soon`
