@@ -50,7 +50,7 @@ export function RoutinesClient() {
     if (selectedChecklist?.id === id) setSelectedChecklist(null)
   }
 
-  if (loading) return <div className="p-6 text-sm text-muted-foreground">Loading...</div>
+  if (loading) return <div className="p-4 text-sm text-muted-foreground">Loading...</div>
 
   return (
     <div className="flex h-full">
@@ -92,7 +92,7 @@ export function RoutinesClient() {
           </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-4">
         {selectedChecklist ? (
           <ChecklistEditor checklist={selectedChecklist} onUpdate={(c) => {
             setChecklists((prev) => prev.map((x) => x.id === c.id ? c : x))

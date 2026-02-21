@@ -21,7 +21,7 @@ export function ContrastChecker() {
 
       {/* Preview */}
       <div
-        className="rounded-lg border border-border p-6 text-center space-y-2"
+        className="rounded-lg border border-border p-4 text-center space-y-2"
         style={{ backgroundColor: bg, color: fg }}
       >
         <p className="text-2xl font-bold">Sample Heading</p>
