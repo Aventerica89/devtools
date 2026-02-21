@@ -8,7 +8,8 @@ import {
   Bug, Terminal, Globe, AlertTriangle, Gauge,
   Send, Braces, Regex, Palette, KeyRound,
   GitBranch, ScrollText, Settings, FolderKanban,
-  BookOpen, Smartphone, LayoutDashboard, History
+  BookOpen, Smartphone, LayoutDashboard, History,
+  Library, ListChecks
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -32,6 +33,13 @@ const OWNER_DEV: Role[] = ['owner', 'dev']
 const OWNER_ONLY: Role[] = ['owner']
 
 const sections: NavSection[] = [
+  {
+    label: 'Resources',
+    items: [
+      { href: '/hub', label: 'Hub', icon: Library, roles: OWNER_DEV },
+      { href: '/routines', label: 'Routines', icon: ListChecks, roles: OWNER_DEV },
+    ],
+  },
   {
     label: 'Overview',
     items: [
