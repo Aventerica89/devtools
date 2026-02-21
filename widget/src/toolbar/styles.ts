@@ -64,7 +64,7 @@ export const panelStyle: Record<string, string | number> = {
 export const panelHeaderStyle: Record<string, string | number> = {
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'space-between',
+  justifyContent: 'flex-start',
   padding: '12px 16px',
   backgroundColor: COLORS.panelHeaderBg,
   borderBottom: `1px solid ${COLORS.panelBorder}`,
