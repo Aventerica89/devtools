@@ -119,4 +119,30 @@ export const WidgetConfigUpdateSchema = z.object({
   enabledTools: z.array(z.string().max(64)).optional(),
   theme: z.enum(['dark', 'light']).optional(),
   position: z.enum(['bottom-right', 'bottom-left', 'top-right', 'top-left']).optional(),
+  enabledTabs: z.array(z.string()).nullable().optional(),
+  screenshotFolder: z.string().max(500).nullable().optional(),
+})
+
+export const RoutineChecklistSchema = z.object({
+  projectId: z.string().min(1),
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  sortOrder: z.number().int().optional(),
+})
+
+export const RoutineItemSchema = z.object({
+  name: z.string().min(1).max(200),
+  type: z.enum(['health', 'maintenance', 'pre-deploy', 'workflow']).default('maintenance'),
+  snippet: z.string().max(2000).optional(),
+  notes: z.string().max(2000).optional(),
+  sortOrder: z.number().int().optional(),
+})
+
+export const RoutineRunCheckSchema = z.object({
+  checked: z.boolean(),
+})
+
+export const HubKbQuerySchema = z.object({
+  type: z.string().optional(),
+  refresh: z.enum(['true', 'false']).optional(),
 })
