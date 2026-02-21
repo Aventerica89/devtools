@@ -5,9 +5,9 @@
  */
 
 export const COLORS = {
-  fabBg: '#3b82f6',
-  fabBgHover: '#2563eb',
-  fabBgActive: '#1d4ed8',
+  fabBg: '#6366f1',
+  fabBgHover: '#4f46e5',
+  fabBgActive: '#4338ca',
   panelBg: '#0f172a',
   panelBorder: '#1e293b',
   panelHeaderBg: '#1e293b',
@@ -39,8 +39,8 @@ export const fabStyle: Record<string, string | number> = {
   alignItems: 'center',
   justifyContent: 'center',
   zIndex: 999999,
-  boxShadow: `0 4px 12px ${COLORS.shadow}`,
-  transition: 'background-color 0.15s ease, box-shadow 0.15s ease',
+  boxShadow: '0 4px 16px rgba(99, 102, 241, 0.5)',
+  transition: 'background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease',
   touchAction: 'none',
   userSelect: 'none',
   WebkitUserSelect: 'none',

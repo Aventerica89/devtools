@@ -18,6 +18,13 @@ const SCRIPT_EL = document.currentScript as HTMLScriptElement | null
 const WIDGET_CSS = [
   ':host { all: initial; }',
   '#devtools-root { font-family: system-ui, sans-serif; }',
+  '* { box-sizing: border-box; }',
+  // Thin dark custom scrollbar for all scrollable areas inside the shadow DOM
+  '*::-webkit-scrollbar { width: 4px; height: 4px; }',
+  '*::-webkit-scrollbar-track { background: transparent; }',
+  '*::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 2px; }',
+  '*::-webkit-scrollbar-corner { background: transparent; }',
+  '* { scrollbar-width: thin; scrollbar-color: #1e293b transparent; }',
 ].join('\n')
 
 /**

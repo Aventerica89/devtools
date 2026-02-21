@@ -68,17 +68,23 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
   const [activeTab, setActiveTab] = useState<string>('errors')
   const [isMinimized, setIsMinimized] = useState(false)
   const [hoverClose, setHoverClose] = useState(false)
+  const [hoverTab, setHoverTab] = useState<string | null>(null)
   const [bugPrefillTitle, setBugPrefillTitle] = useState('')
   const [bugPrefillStack, setBugPrefillStack] = useState('')
   const [badges, setBadges] = useState({ errors: 0, console: 0 })
 
   const domain = typeof window !== 'undefined' ? window.location.hostname : projectId
 
-  // Draggable panel position — starts at top-right, user can drag header to move
-  const [panelPos, setPanelPos] = useState(() => ({
-    x: Math.max(0, window.innerWidth - PANEL_WIDTH - 4),
-    y: 0,
-  }))
+  // Draggable panel position — starts above the FAB (bottom-right area), user can drag header to move
+  const [panelPos, setPanelPos] = useState(() => {
+    const w = typeof window !== 'undefined' ? window.innerWidth : 1200
+    const h = typeof window !== 'undefined' ? window.innerHeight : 800
+    const panelH = Math.min(h * 0.85, 520)
+    return {
+      x: Math.max(0, w - PANEL_WIDTH - 24),   // right: 24px matches FAB offset
+      y: Math.max(0, h - panelH - 82),         // above FAB (FAB bottom: 24px + height 48px + gap 10px)
+    }
+  })
   const [isDraggingPanel, setIsDraggingPanel] = useState(false)
   const panelDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null)
 
@@ -277,8 +283,12 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
               ...(isActive ? activeTabStyle : {}),
               // Ensure inactive tabs keep the 2px transparent bottom border to prevent layout shift
               borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent',
+              // Hover color for non-active tabs (matches mockup: #94a3b8)
+              color: isActive ? '#a5b4fc' : hoverTab === tab.id ? '#94a3b8' : '#475569',
             },
             onClick: () => handleTabClick(tab.id),
+            onMouseEnter: () => setHoverTab(tab.id),
+            onMouseLeave: () => setHoverTab(null),
           },
           tab.icon,
           ' ',

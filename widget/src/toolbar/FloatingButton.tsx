@@ -1,8 +1,10 @@
 import { h } from 'preact'
-import { useState, useRef, useCallback } from 'preact/hooks'
+import { useState, useRef, useCallback, useEffect } from 'preact/hooks'
 import { COLORS, DRAG_THRESHOLD, fabStyle } from './styles'
 import { ToolPanel } from './ToolPanel'
 import type { ApiClient } from '../api/client'
+import { getErrorEntries } from '../interceptors/errors'
+import { getConsoleEntries } from '../interceptors/console'
 
 interface ToolbarProps {
   readonly projectId: string
@@ -52,8 +54,21 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
   const [fabHover, setFabHover] = useState(false)
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
+  const [badgeCount, setBadgeCount] = useState(0)
   const dragRef = useRef<DragState>(INITIAL_DRAG)
   const btnRef = useRef<HTMLButtonElement | null>(null)
+
+  // Poll badge count every 2s (errors + console warns/errors)
+  useEffect(() => {
+    function update() {
+      const errors = getErrorEntries().length
+      const warns = getConsoleEntries().filter((e) => e.level === 'warn' || e.level === 'error').length
+      setBadgeCount(errors + warns)
+    }
+    update()
+    const timer = setInterval(update, 2000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handlePointerDown = useCallback(
     (e: PointerEvent) => {
@@ -107,15 +122,16 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
     setPanelOpen(false)
   }, [])
 
-  // Compute FAB position: bottom-right with drag offset
+  // Compute FAB position: bottom-right with drag offset (24px matches mockup)
   const fabComputedStyle = {
     ...fabStyle,
-    bottom: `${20 - position.y}px`,
-    right: `${20 - position.x}px`,
+    bottom: `${24 - position.y}px`,
+    right: `${24 - position.x}px`,
     backgroundColor: fabHover ? COLORS.fabBgHover : COLORS.fabBg,
     boxShadow: fabHover
-      ? `0 6px 16px ${COLORS.shadow}`
-      : `0 4px 12px ${COLORS.shadow}`,
+      ? '0 6px 20px rgba(99, 102, 241, 0.6)'
+      : '0 4px 16px rgba(99, 102, 241, 0.5)',
+    transform: fabHover ? 'scale(1.05)' : 'scale(1)',
     cursor: isDragging ? 'grabbing' : 'grab',
   }
 
@@ -127,7 +143,7 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
       'button',
       {
         ref: btnRef,
-        style: fabComputedStyle,
+        style: { ...fabComputedStyle, overflow: 'visible' },
         title: `DevTools (${projectId})`,
         'aria-label': 'Toggle DevTools panel',
         onPointerDown: handlePointerDown,
@@ -136,7 +152,32 @@ export function Toolbar({ projectId, pinHash, apiBase, apiClient }: ToolbarProps
         onMouseEnter: () => setFabHover(true),
         onMouseLeave: () => setFabHover(false),
       },
-      WRENCH_ICON
+      WRENCH_ICON,
+      badgeCount > 0
+        ? h(
+            'span',
+            {
+              style: {
+                position: 'absolute',
+                top: '-4px',
+                right: '-4px',
+                width: '18px',
+                height: '18px',
+                background: '#ef4444',
+                borderRadius: '50%',
+                fontSize: '9px',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: '700',
+                border: '2px solid #0f172a',
+                lineHeight: '1',
+              },
+            },
+            badgeCount > 99 ? '99+' : String(badgeCount)
+          )
+        : null
     ),
     // Tool Panel
     h(ToolPanel, {
