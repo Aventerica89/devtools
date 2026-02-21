@@ -6,7 +6,7 @@
     "dev": "next dev",
     "prebuild": "npm run build:widget",
     "build": "next build",
-    "postbuild": "node -e \"const fs=require('fs');const p='.next/server/middleware.js.nft.json';if(!fs.existsSync(p)&&fs.existsSync('.next/server/middleware-manifest.json')){fs.writeFileSync(p,JSON.stringify({version:2,files:{}}))}\"",
+    "postbuild": "node -e \"const fs=require('fs');const p='.next/server/middleware.js.nft.json';if(!fs.existsSync(p)&&fs.existsSync('.next/server/middleware-manifest.json')){fs.writeFileSync(p,JSON.stringify({version:1,files:[]}))}\"",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
