@@ -1,17 +1,22 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { routineRunItems } from '@/lib/db/schema'
+import { routineRunItems, routineRuns } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
-import { apiError, parseBody, RoutineRunCheckSchema } from '@/lib/api'
+import { apiError, parseBody, RoutineRunCheckSchema, verifyWidgetPin } from '@/lib/api'
 
 type Params = { params: Promise<{ runId: string }> }
 
 export async function PUT(request: Request, { params }: Params) {
   try {
-    const { userId } = await auth()
-    if (!userId) return apiError(401, 'Unauthorized')
     const { runId } = await params
+    const [run] = await db.select().from(routineRuns).where(eq(routineRuns.id, Number(runId)))
+    if (!run) return apiError(404, 'Run not found')
+    const { userId } = await auth()
+    if (!userId) {
+      const pinError = await verifyWidgetPin(request, run.projectId)
+      if (pinError) return pinError
+    }
     const { searchParams } = new URL(request.url)
     const itemId = searchParams.get('itemId')
     if (!itemId) return apiError(400, 'itemId required')

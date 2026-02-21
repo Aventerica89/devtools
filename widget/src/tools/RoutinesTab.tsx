@@ -12,22 +12,36 @@ export function RoutinesTab({ apiBase, pinHash, projectId }: Props) {
   const [checklists, setChecklists] = useState<Checklist[]>([])
   const [activeRun, setActiveRun] = useState<Run | null>(null)
   const [itemDefs, setItemDefs] = useState<ItemDef[]>([])
-  const h_ = { 'X-DevTools-Pin': pinHash, 'Content-Type': 'application/json' }
+  const apiHeaders = { 'X-DevTools-Pin': pinHash, 'Content-Type': 'application/json' }
 
   useEffect(() => {
-    fetch(`${apiBase}/api/routines?projectId=${projectId}`, { headers: h_ })
+    fetch(`${apiBase}/api/routines?projectId=${projectId}`, { headers: apiHeaders })
       .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
       .then(setChecklists)
+      .catch(() => {})
+
+    // Check for active run
+    fetch(`${apiBase}/api/routines/runs?projectId=${projectId}`, { headers: apiHeaders })
+      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
+      .then(async (run) => {
+        if (!run) return
+        setActiveRun(run)
+        // Fetch item defs for the active run's checklist
+        const defs = await fetch(`${apiBase}/api/routines/${run.checklistId}/items`, { headers: apiHeaders })
+          .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
+          .catch(() => [])
+        setItemDefs(defs)
+      })
       .catch(() => {})
   }, [projectId])
 
   async function startRun(checklistId: number) {
-    const res = await fetch(`${apiBase}/api/routines/${checklistId}/runs`, { method: 'POST', headers: h_ })
+    const res = await fetch(`${apiBase}/api/routines/${checklistId}/runs`, { method: 'POST', headers: apiHeaders })
     if (!res.ok) return
     const run: Run = await res.json()
     const [full, defs] = await Promise.all([
-      fetch(`${apiBase}/api/routines/runs/${run.id}`, { headers: h_ }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
-      fetch(`${apiBase}/api/routines/${checklistId}/items`, { headers: h_ }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
+      fetch(`${apiBase}/api/routines/runs/${run.id}`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
+      fetch(`${apiBase}/api/routines/${checklistId}/items`, { headers: apiHeaders }).then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() }),
     ])
     setActiveRun(full)
     setItemDefs(defs)
@@ -36,7 +50,7 @@ export function RoutinesTab({ apiBase, pinHash, projectId }: Props) {
   async function checkItem(itemId: number, checked: boolean) {
     if (!activeRun) return
     await fetch(`${apiBase}/api/routines/runs/${activeRun.id}/items?itemId=${itemId}`, {
-      method: 'PUT', headers: h_, body: JSON.stringify({ checked }),
+      method: 'PUT', headers: apiHeaders, body: JSON.stringify({ checked }),
     }).catch(() => {})
     setActiveRun((prev) => prev ? {
       ...prev,
@@ -77,7 +91,16 @@ export function RoutinesTab({ apiBase, pinHash, projectId }: Props) {
       ),
       h('button', {
         style: { margin: 8, padding: '6px 0', border: `1px solid ${COLORS.panelBorder}`, borderRadius: 6, background: 'none', color: COLORS.textMuted, fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' },
-        onClick: () => setActiveRun(null),
+        onClick: async () => {
+          if (activeRun) {
+            await fetch(`${apiBase}/api/routines/runs/${activeRun.id}`, {
+              method: 'PUT',
+              headers: apiHeaders,
+              body: JSON.stringify({ close: true }),
+            }).catch(() => {})
+          }
+          setActiveRun(null)
+        },
       }, 'Close Run')
     )
   }

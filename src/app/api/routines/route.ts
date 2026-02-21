@@ -3,14 +3,17 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { routineChecklists } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { apiError, parseBody, RoutineChecklistSchema } from '@/lib/api'
+import { apiError, parseBody, RoutineChecklistSchema, verifyWidgetPin } from '@/lib/api'
 
 export async function GET(request: Request) {
   try {
-    const { userId } = await auth()
-    if (!userId) return apiError(401, 'Unauthorized')
     const { searchParams } = new URL(request.url)
     const projectId = searchParams.get('projectId')
+    const { userId } = await auth()
+    if (!userId) {
+      const pinError = await verifyWidgetPin(request, projectId ?? '')
+      if (pinError) return pinError
+    }
     const query = db.select().from(routineChecklists)
     const rows = projectId
       ? await query.where(eq(routineChecklists.projectId, projectId))

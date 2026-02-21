@@ -1,17 +1,25 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { routineItems } from '@/lib/db/schema'
+import { routineItems, routineChecklists } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { apiError, parseBody, RoutineItemSchema } from '@/lib/api'
+import { apiError, parseBody, RoutineItemSchema, verifyWidgetPin } from '@/lib/api'
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_req: Request, { params }: Params) {
   try {
-    const { userId } = await auth()
-    if (!userId) return apiError(401, 'Unauthorized')
     const { id } = await params
+    const [checklist] = await db
+      .select({ projectId: routineChecklists.projectId })
+      .from(routineChecklists)
+      .where(eq(routineChecklists.id, Number(id)))
+    if (!checklist) return apiError(404, 'Checklist not found')
+    const { userId } = await auth()
+    if (!userId) {
+      const pinError = await verifyWidgetPin(_req, checklist.projectId)
+      if (pinError) return pinError
+    }
     const rows = await db.select().from(routineItems).where(eq(routineItems.checklistId, Number(id)))
     return NextResponse.json(rows)
   } catch (error) {

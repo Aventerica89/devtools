@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
 import { routineChecklists, routineRuns, routineItems, routineRunItems } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { apiError } from '@/lib/api'
+import { apiError, verifyWidgetPin } from '@/lib/api'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -23,18 +23,22 @@ export async function GET(_req: Request, { params }: Params) {
 export async function POST(_req: Request, { params }: Params) {
   try {
     const { userId } = await auth()
-    if (!userId) return apiError(401, 'Unauthorized')
     const { id } = await params
     const checklistId = Number(id)
-
-    const items = await db.select().from(routineItems).where(eq(routineItems.checklistId, checklistId))
-    if (items.length === 0) return apiError(400, 'Checklist has no items')
 
     const [checklist] = await db
       .select({ projectId: routineChecklists.projectId })
       .from(routineChecklists)
       .where(eq(routineChecklists.id, checklistId))
     if (!checklist) return apiError(404, 'Checklist not found')
+
+    if (!userId) {
+      const pinError = await verifyWidgetPin(_req, checklist.projectId)
+      if (pinError) return pinError
+    }
+
+    const items = await db.select().from(routineItems).where(eq(routineItems.checklistId, checklistId))
+    if (items.length === 0) return apiError(400, 'Checklist has no items')
 
     const [run] = await db
       .insert(routineRuns)
