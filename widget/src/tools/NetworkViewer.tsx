@@ -7,6 +7,7 @@ import {
 } from '../interceptors/network'
 import type { NetworkEntry } from '../interceptors/network'
 import { COLORS } from '../toolbar/styles'
+import { formatNetworkRow, formatNetworkTab } from '../lib/copy'
 
 // -- Method badge colors --
 
@@ -107,6 +108,18 @@ const clearBtnStyle: Record<string, string> = {
   flexShrink: '0',
 }
 
+const copyTabBtnStyle: Record<string, string> = {
+  padding: '2px 8px',
+  borderRadius: '4px',
+  border: `1px solid ${COLORS.panelBorder}`,
+  backgroundColor: 'none',
+  color: COLORS.textMuted,
+  cursor: 'pointer',
+  fontSize: '10px',
+  fontFamily: 'inherit',
+  flexShrink: '0',
+}
+
 const listStyle: Record<string, string> = {
   flex: '1',
   overflowY: 'auto',
@@ -124,6 +137,7 @@ const rowStyle: Record<string, string> = {
   fontFamily: 'monospace',
   cursor: 'pointer',
   transition: 'background-color 0.1s ease',
+  position: 'relative',
 }
 
 const rowHeaderStyle: Record<string, string> = {
@@ -288,6 +302,7 @@ export function NetworkViewer() {
     getNetworkEntries
   )
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
 
   useEffect(() => {
     const unsubscribe = subscribeNetwork(() => {
@@ -321,6 +336,18 @@ export function NetworkViewer() {
       h(
         'button',
         {
+          style: copyTabBtnStyle,
+          onClick: () =>
+            navigator.clipboard
+              .writeText(formatNetworkTab(entries as NetworkEntry[]))
+              .catch(() => {}),
+          title: 'Copy all network entries',
+        },
+        'Copy Network'
+      ),
+      h(
+        'button',
+        {
           style: clearBtnStyle,
           onClick: handleClear,
           title: 'Clear network entries',
@@ -334,7 +361,7 @@ export function NetworkViewer() {
       : h(
           'div',
           { style: listStyle },
-          entries.map((entry) => {
+          entries.map((entry, i) => {
             const isExpanded = expandedId === entry.id
             return h(
               'div',
@@ -347,6 +374,8 @@ export function NetworkViewer() {
                     : getStatusBg(entry.status),
                 },
                 onClick: () => toggleExpand(entry.id),
+                onMouseEnter: () => setHoveredRow(i),
+                onMouseLeave: () => setHoveredRow(null),
               },
               // Row header: method | status | url | duration | time
               h(
@@ -392,7 +421,27 @@ export function NetworkViewer() {
                   'span',
                   { style: timestampStyle },
                   formatTime(entry.timestamp)
-                )
+                ),
+                // Copy row button (hover-reveal)
+                h('button', {
+                  style: {
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: 'auto',
+                    flexShrink: 0,
+                    color: COLORS.textMuted,
+                    fontSize: 12,
+                    opacity: hoveredRow === i ? 1 : 0,
+                    transition: 'opacity .1s',
+                    padding: '0 4px',
+                  },
+                  onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(formatNetworkRow(entry)).catch(() => {})
+                  },
+                  title: 'Copy row',
+                }, '\u29C7')
               ),
               // Expanded details
               isExpanded ? h(EntryDetails, { entry }) : null

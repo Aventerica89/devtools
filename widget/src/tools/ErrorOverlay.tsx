@@ -11,6 +11,7 @@ import {
 } from '../interceptors/errors'
 import type { ErrorEntry } from '../interceptors/errors'
 import { COLORS } from '../toolbar/styles'
+import { formatErrorRow, formatErrorsTab } from '../lib/copy'
 
 const ERROR_COLOR = '#ef4444'
 const ERROR_BG = 'rgba(239, 68, 68, 0.15)'
@@ -54,6 +55,18 @@ const clearBtnStyle: Record<string, string> = {
   flexShrink: '0',
 }
 
+const copyTabBtnStyle: Record<string, string> = {
+  padding: '2px 8px',
+  borderRadius: '4px',
+  border: `1px solid ${COLORS.panelBorder}`,
+  backgroundColor: 'none',
+  color: COLORS.textMuted,
+  cursor: 'pointer',
+  fontSize: '10px',
+  fontFamily: 'inherit',
+  flexShrink: '0',
+}
+
 const listStyle: Record<string, string> = {
   flex: '1',
   overflowY: 'auto',
@@ -72,6 +85,7 @@ const entryStyle: Record<string, string> = {
   fontFamily: 'monospace',
   wordBreak: 'break-all',
   cursor: 'pointer',
+  position: 'relative',
 }
 
 const entryHeaderStyle: Record<string, string> = {
@@ -169,6 +183,7 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
     getErrorEntries
   )
   const [expandedId, setExpandedId] = useState<number | null>(null)
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
 
   useEffect(() => {
     const unsubscribe = subscribeErrors(() => {
@@ -201,6 +216,18 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
       h(
         'button',
         {
+          style: copyTabBtnStyle,
+          onClick: () =>
+            navigator.clipboard
+              .writeText(formatErrorsTab(entries as ErrorEntry[]))
+              .catch(() => {}),
+          title: 'Copy all error entries',
+        },
+        'Copy Errors'
+      ),
+      h(
+        'button',
+        {
           style: clearBtnStyle,
           onClick: handleClear,
           title: 'Clear error entries',
@@ -213,7 +240,7 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
       : h(
           'div',
           { style: listStyle },
-          entries.map((entry) => {
+          entries.map((entry, i) => {
             const isExpanded = expandedId === entry.id
             const frames = parseStack(entry.stack)
 
@@ -228,6 +255,8 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
                     : getTypeBg(entry.type),
                 },
                 onClick: () => toggleExpand(entry.id),
+                onMouseEnter: () => setHoveredRow(i),
+                onMouseLeave: () => setHoveredRow(null),
               },
               h(
                 'div',
@@ -260,7 +289,26 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
                   'span',
                   { style: timestampStyle },
                   formatTime(entry.timestamp)
-                )
+                ),
+                h('button', {
+                  style: {
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: 'auto',
+                    flexShrink: 0,
+                    color: COLORS.textMuted,
+                    fontSize: 12,
+                    opacity: hoveredRow === i ? 1 : 0,
+                    transition: 'opacity .1s',
+                    padding: '0 4px',
+                  },
+                  onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(formatErrorRow(entry)).catch(() => {})
+                  },
+                  title: 'Copy row',
+                }, '\u29C7')
               ),
               isExpanded
                 ? h(
@@ -289,11 +337,11 @@ export function ErrorListViewer({ onReportBug }: ErrorListProps) {
                         )
                       : null,
                     frames.length > 0
-                      ? frames.map((frame, i) =>
+                      ? frames.map((frame, fi) =>
                           h(
                             'div',
                             {
-                              key: i,
+                              key: fi,
                               style: isNodeModulesFrame(frame)
                                 ? stackFrameDimStyle
                                 : stackFrameStyle,

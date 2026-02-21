@@ -7,6 +7,7 @@ import {
 } from '../interceptors/console'
 import type { ConsoleEntry, ConsoleLevel } from '../interceptors/console'
 import { COLORS } from '../toolbar/styles'
+import { formatConsoleRow, formatConsoleTab } from '../lib/copy'
 
 const LEVEL_COLORS: Record<ConsoleLevel, string> = {
   log: '#94a3b8',
@@ -26,11 +27,11 @@ const ALL_LEVELS: readonly ConsoleLevel[] = ['log', 'info', 'warn', 'error']
 
 function formatTime(ts: number): string {
   const d = new Date(ts)
-  const h = String(d.getHours()).padStart(2, '0')
+  const hh = String(d.getHours()).padStart(2, '0')
   const m = String(d.getMinutes()).padStart(2, '0')
   const s = String(d.getSeconds()).padStart(2, '0')
   const ms = String(d.getMilliseconds()).padStart(3, '0')
-  return `${h}:${m}:${s}.${ms}`
+  return `${hh}:${m}:${s}.${ms}`
 }
 
 const containerStyle: Record<string, string> = {
@@ -68,6 +69,18 @@ const clearBtnStyle: Record<string, string> = {
   flexShrink: '0',
 }
 
+const copyTabBtnStyle: Record<string, string> = {
+  padding: '2px 8px',
+  borderRadius: '4px',
+  border: `1px solid ${COLORS.panelBorder}`,
+  backgroundColor: 'none',
+  color: COLORS.textMuted,
+  cursor: 'pointer',
+  fontSize: '10px',
+  fontFamily: 'inherit',
+  flexShrink: '0',
+}
+
 const listStyle: Record<string, string> = {
   flex: '1',
   overflowY: 'auto',
@@ -85,6 +98,7 @@ const entryStyle: Record<string, string> = {
   fontSize: '11px',
   fontFamily: 'monospace',
   wordBreak: 'break-all',
+  position: 'relative',
 }
 
 const entryHeaderStyle: Record<string, string> = {
@@ -148,6 +162,7 @@ export function ConsoleViewer() {
   const [activeFilters, setActiveFilters] = useState<
     ReadonlySet<ConsoleLevel>
   >(new Set(ALL_LEVELS))
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null)
 
   // Subscribe to buffer changes
   useEffect(() => {
@@ -202,6 +217,18 @@ export function ConsoleViewer() {
       h(
         'button',
         {
+          style: copyTabBtnStyle,
+          onClick: () =>
+            navigator.clipboard
+              .writeText(formatConsoleTab(filtered as ConsoleEntry[]))
+              .catch(() => {}),
+          title: 'Copy all console entries',
+        },
+        'Copy Console'
+      ),
+      h(
+        'button',
+        {
           style: clearBtnStyle,
           onClick: handleClear,
           title: 'Clear console entries',
@@ -215,7 +242,7 @@ export function ConsoleViewer() {
       : h(
           'div',
           { style: listStyle },
-          filtered.map((entry) =>
+          filtered.map((entry, i) =>
             h(
               'div',
               {
@@ -224,6 +251,8 @@ export function ConsoleViewer() {
                   ...entryStyle,
                   backgroundColor: LEVEL_BG[entry.level],
                 },
+                onMouseEnter: () => setHoveredRow(i),
+                onMouseLeave: () => setHoveredRow(null),
               },
               h(
                 'div',
@@ -239,7 +268,26 @@ export function ConsoleViewer() {
                   },
                   entry.level
                 ),
-                h('span', { style: timestampStyle }, formatTime(entry.timestamp))
+                h('span', { style: timestampStyle }, formatTime(entry.timestamp)),
+                h('button', {
+                  style: {
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: 'auto',
+                    flexShrink: 0,
+                    color: COLORS.textMuted,
+                    fontSize: 12,
+                    opacity: hoveredRow === i ? 1 : 0,
+                    transition: 'opacity .1s',
+                    padding: '0 4px',
+                  },
+                  onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(formatConsoleRow(entry)).catch(() => {})
+                  },
+                  title: 'Copy row',
+                }, '\u29C7')
               ),
               h('div', { style: argsStyle }, entry.args.join(' '))
             )
