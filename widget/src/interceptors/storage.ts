@@ -8,15 +8,21 @@ let snapshot: StorageSnapshot = { localStorage: {}, sessionStorage: {}, cookies:
 
 export function captureStorage(): StorageSnapshot {
   const ls: Record<string, string> = {}
-  for (let i = 0; i < window.localStorage.length; i++) {
-    const k = window.localStorage.key(i)!
-    ls[k] = window.localStorage.getItem(k) ?? ''
-  }
+  try {
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i)!
+      ls[k] = window.localStorage.getItem(k) ?? ''
+    }
+  } catch { /* sandboxed iframe */ }
+
   const ss: Record<string, string> = {}
-  for (let i = 0; i < window.sessionStorage.length; i++) {
-    const k = window.sessionStorage.key(i)!
-    ss[k] = window.sessionStorage.getItem(k) ?? ''
-  }
+  try {
+    for (let i = 0; i < window.sessionStorage.length; i++) {
+      const k = window.sessionStorage.key(i)!
+      ss[k] = window.sessionStorage.getItem(k) ?? ''
+    }
+  } catch { /* sandboxed iframe */ }
+
   snapshot = { localStorage: ls, sessionStorage: ss, cookies: document.cookie }
   return snapshot
 }

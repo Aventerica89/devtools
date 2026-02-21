@@ -7,6 +7,7 @@ export interface HealthIssue {
 
 const issues: HealthIssue[] = []
 const listeners: Array<() => void> = []
+let installed = false
 
 function push(issue: HealthIssue) {
   issues.push(issue)
@@ -17,10 +18,16 @@ export function getHealthIssues(): HealthIssue[] { return [...issues] }
 export function getHealthIssueCount(): number { return issues.length }
 export function subscribeHealth(fn: () => void): () => void {
   listeners.push(fn)
-  return () => listeners.splice(listeners.indexOf(fn), 1)
+  return () => {
+    const idx = listeners.indexOf(fn)
+    if (idx !== -1) listeners.splice(idx, 1)
+  }
 }
 
 export function installHealthInterceptor() {
+  if (installed) return
+  installed = true
+
   // Broken images already in DOM
   document.querySelectorAll('img').forEach((img) => {
     if (img.complete && img.naturalWidth === 0 && img.src) {
@@ -35,9 +42,10 @@ export function installHealthInterceptor() {
   }
 
   // Mixed content
-  document.addEventListener('securitypolicyviolation', (e) => {
+  const spvHandler = (e: SecurityPolicyViolationEvent) => {
     push({ severity: 'error', category: 'mixed-content', message: 'Mixed content blocked', detail: e.blockedURI })
-  })
+  }
+  document.addEventListener('securitypolicyviolation', spvHandler)
 
   // Slow resources (>2s) via PerformanceObserver
   try {
