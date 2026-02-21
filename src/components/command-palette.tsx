@@ -29,7 +29,10 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (open) {
-      fetch('/api/hub/kb').then((r) => r.json()).then((d) => { if (Array.isArray(d)) setEntries(d) }).catch(() => {})
+      fetch('/api/hub/kb')
+        .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.json() })
+        .then((d) => { if (Array.isArray(d)) setEntries(d) })
+        .catch(() => {})
       setTimeout(() => inputRef.current?.focus(), 50)
     } else {
       setQuery('')
@@ -38,9 +41,10 @@ export function CommandPalette() {
   }, [open])
 
   function copySnippet(entry: KbEntry) {
-    navigator.clipboard.writeText(entry.snippet ?? entry.title)
-    setCopied(entry.id)
-    setTimeout(() => setCopied(null), 1500)
+    navigator.clipboard.writeText(entry.snippet ?? entry.title).then(() => {
+      setCopied(entry.id)
+      setTimeout(() => setCopied(null), 1500)
+    }).catch(() => {})
   }
 
   const filtered = entries.filter((e) => {

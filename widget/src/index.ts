@@ -79,6 +79,9 @@ function App({ projectId, pinHash, apiBase, apiClient }: AppProps) {
 }
 
 function init() {
+  // Prevent double initialization (e.g., script loaded twice)
+  if (document.getElementById('devtools-widget')) return
+
   const projectId = SCRIPT_EL?.getAttribute('data-project') || 'default'
   const pinHash = SCRIPT_EL?.getAttribute('data-pin') || ''
   const apiBase = SCRIPT_EL?.src.replace('/widget.js', '') || ''
