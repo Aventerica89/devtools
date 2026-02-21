@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { RefreshCw, X } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-interface KbEntry { id: string; title: string; type: string; description?: string; snippet?: string }
+interface KbEntry { id: string; title: string; type: string; description?: string; snippet?: string; lastEdited?: string }
 
 const TYPE_COLORS: Record<string, string> = {
   Standards: 'bg-blue-500/15 text-blue-400',
@@ -39,7 +40,7 @@ export function NotionPanel() {
   )
 
   return (
-    <div className="border border-border rounded-md flex flex-col relative" style={{ minHeight: 400 }}>
+    <div className="border border-border rounded-md flex flex-col" style={{ minHeight: 400 }}>
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <h2 className="text-sm font-semibold">Knowledge Base</h2>
         <Button variant="ghost" size="icon" className="h-6 w-6"
@@ -61,6 +62,7 @@ export function NotionPanel() {
             onClick={() => setSelected(entry)}>
             <div className="flex flex-col gap-1 min-w-0">
               <span className="text-sm font-medium truncate">{entry.title}</span>
+              {entry.lastEdited && <span className="text-xs text-muted-foreground truncate">{new Date(entry.lastEdited).toLocaleDateString()}</span>}
               {entry.description && <span className="text-xs text-muted-foreground truncate">{entry.description}</span>}
             </div>
             <Badge className={cn('text-xs shrink-0 ml-2', TYPE_COLORS[entry.type] ?? '')} variant="outline">
@@ -69,18 +71,17 @@ export function NotionPanel() {
           </div>
         ))}
       </div>
-      {selected && (
-        <div className="absolute inset-0 bg-background/95 z-10 flex flex-col p-6 overflow-auto rounded-md">
-          <div className="flex items-start justify-between mb-4">
-            <h3 className="text-base font-semibold">{selected.title}</h3>
-            <button onClick={() => setSelected(null)}><X className="h-4 w-4" /></button>
-          </div>
-          {selected.description && <p className="text-sm text-muted-foreground mb-4">{selected.description}</p>}
-          {selected.snippet && (
+      <Dialog open={!!selected} onOpenChange={(open) => { if (!open) setSelected(null) }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>{selected?.title}</DialogTitle>
+          </DialogHeader>
+          {selected?.description && <p className="text-sm text-muted-foreground">{selected.description}</p>}
+          {selected?.snippet && (
             <pre className="text-xs bg-muted p-4 rounded font-mono whitespace-pre-wrap">{selected.snippet}</pre>
           )}
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
