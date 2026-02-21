@@ -1,6 +1,7 @@
 import { render, h } from 'preact'
 import { Toolbar } from './toolbar/FloatingButton'
 import { initInterceptors } from './interceptors'
+import { installHealthInterceptor } from './interceptors/health'
 import { createApiClient } from './api/client'
 import { ErrorToast } from './tools/ErrorToast'
 import { BugReporter } from './tools/BugReporter'
@@ -108,6 +109,7 @@ function init() {
 
   // Start interceptors
   initInterceptors(projectId, pinHash, apiBase)
+  installHealthInterceptor()
 
   let cmdPaletteMount: HTMLElement | null = null
 
