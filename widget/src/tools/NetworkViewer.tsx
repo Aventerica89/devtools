@@ -112,7 +112,7 @@ const copyTabBtnStyle: Record<string, string> = {
   padding: '2px 8px',
   borderRadius: '4px',
   border: `1px solid ${COLORS.panelBorder}`,
-  backgroundColor: 'none',
+  backgroundColor: 'transparent',
   color: COLORS.textMuted,
   cursor: 'pointer',
   fontSize: '10px',
