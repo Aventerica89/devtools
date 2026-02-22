@@ -76,3 +76,37 @@ export async function GET() {
     return NextResponse.json({ available: false, hasHtml })
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const { userId } = await auth()
+    if (!userId) return apiError(401, 'Unauthorized')
+
+    const formData = await request.formData()
+    const file = formData.get('file')
+    if (!file || typeof file === 'string') return apiError(400, 'No file provided')
+
+    const html = await (file as File).text()
+    if (!html.trim()) return apiError(400, 'File is empty')
+
+    const fetchedAt = new Date().toISOString()
+
+    // Store raw HTML
+    const [existingHtml] = await db.select({ id: hubCache.id }).from(hubCache)
+      .where(and(eq(hubCache.source, 'plans'), eq(hubCache.cacheKey, 'html')))
+    if (existingHtml) {
+      await db.update(hubCache).set({ content: html, fetchedAt }).where(eq(hubCache.id, existingHtml.id))
+    } else {
+      await db.insert(hubCache).values({ source: 'plans', cacheKey: 'html', content: html, fetchedAt })
+    }
+
+    // Parse and cache plans list
+    const plans = parsePlansHtml(html)
+    await updateCache(plans).catch(() => {})
+
+    return NextResponse.json({ ok: true, plans, hasHtml: true })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return apiError(500, `Upload failed: ${message}`)
+  }
+}

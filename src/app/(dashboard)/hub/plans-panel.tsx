@@ -24,6 +24,7 @@ export function PlansPanel() {
   const [hasHtml, setHasHtml] = useState(false)
   const [viewOpen, setViewOpen] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -39,19 +40,21 @@ export function PlansPanel() {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    setUploadError(null)
     try {
       const body = new FormData()
       body.append('file', file)
-      const res = await fetch('/api/hub/plans/upload', { method: 'POST', body })
+      const res = await fetch('/api/hub/plans', { method: 'POST', body })
+      const data = await res.json()
       if (res.ok) {
+        setAvailable(true)
         setHasHtml(true)
-        // Also refresh the list
-        const data = await fetch('/api/hub/plans').then((r) => r.json())
-        setAvailable(data.available)
-        setSource(data.source ?? null)
-        setHasHtml(data.hasHtml ?? true)
-        if (data.available) setPlans(data.plans ?? [])
+        if (data.plans) setPlans(data.plans)
+      } else {
+        setUploadError(data.error ?? 'Upload failed')
       }
+    } catch {
+      setUploadError('Upload failed')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -77,6 +80,7 @@ export function PlansPanel() {
       </div>
 
       <div className="flex-1 overflow-auto">
+        {uploadError && <p className="px-4 py-2 text-xs text-destructive border-b border-border">{uploadError}</p>}
         {available === null && <p className="p-4 text-sm text-muted-foreground">Loading...</p>}
         {available === false && (
           <p className="p-4 text-sm text-muted-foreground">
