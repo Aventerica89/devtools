@@ -39,9 +39,21 @@ async function updateCache(plans: Plan[]) {
   }
 }
 
+async function checkHasHtml(): Promise<boolean> {
+  try {
+    const [row] = await db.select({ id: hubCache.id }).from(hubCache)
+      .where(and(eq(hubCache.source, 'plans'), eq(hubCache.cacheKey, 'html')))
+    return !!row
+  } catch {
+    return false
+  }
+}
+
 export async function GET() {
   const { userId } = await auth()
   if (!userId) return apiError(401, 'Unauthorized')
+
+  const hasHtml = await checkHasHtml()
 
   // Try reading from local file first (dev) — caches to Turso for production use
   try {
@@ -49,18 +61,18 @@ export async function GET() {
     const html = await fs.readFile(filePath, 'utf-8')
     const plans = parsePlansHtml(html)
     await updateCache(plans).catch(() => {}) // fire-and-forget cache update
-    return NextResponse.json({ available: true, plans, source: 'local' })
+    return NextResponse.json({ available: true, plans, source: 'local', hasHtml })
   } catch {
     // Fall back to cached data (available in production)
     try {
       const [cached] = await db.select().from(hubCache)
         .where(and(eq(hubCache.source, 'plans'), eq(hubCache.cacheKey, 'all')))
       if (cached) {
-        return NextResponse.json({ available: true, plans: JSON.parse(cached.content), source: 'cache' })
+        return NextResponse.json({ available: true, plans: JSON.parse(cached.content), source: 'cache', hasHtml })
       }
     } catch {
       // DB unavailable
     }
-    return NextResponse.json({ available: false })
+    return NextResponse.json({ available: false, hasHtml })
   }
 }
