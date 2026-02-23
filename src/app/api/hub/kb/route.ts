@@ -25,14 +25,15 @@ async function fetchFromDb(dbId: string, token: string) {
 
 function pageToEntry(page: Record<string, unknown>) {
   const props = page.properties as Record<string, Record<string, unknown>>
-  const titleProp = props?.Name ?? props?.Title ?? {}
+  const titleProp = Object.values(props ?? {}).find((p) => p.type === 'title') ?? {}
   const titleArr = (titleProp.title as Array<{ plain_text: string }>) ?? []
   const title = titleArr.map((t) => t.plain_text).join('') || 'Untitled'
   const type = (props?.Type?.select as { name?: string } | null)?.name ?? ''
   const snippet = ((props?.Snippet?.rich_text as Array<{ plain_text: string }>) ?? [])
     .map((t) => t.plain_text).join('')
-  const description = ((props?.Description?.rich_text as Array<{ plain_text: string }>) ?? [])
-    .map((t) => t.plain_text).join('')
+  const description = (
+    ((props?.Description ?? props?.Notes)?.rich_text as Array<{ plain_text: string }>) ?? []
+  ).map((t) => t.plain_text).join('')
   return {
     id: page.id as string,
     title,
