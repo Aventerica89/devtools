@@ -13,6 +13,10 @@ export interface ApiClient {
   readonly sendEvents: (
     events: unknown[]
   ) => Promise<unknown>
+  readonly listIdeas: (projectId: string) => Promise<unknown>
+  readonly createIdea: (data: Record<string, unknown>) => Promise<unknown>
+  readonly updateIdea: (id: number, data: Record<string, unknown>) => Promise<unknown>
+  readonly deleteIdea: (id: number) => Promise<unknown>
 }
 
 export function createApiClient(
@@ -52,5 +56,23 @@ export function createApiClient(
         method: 'POST',
         body: JSON.stringify({ events }),
       }),
+
+    listIdeas: (projectId: string) =>
+      request(`/api/ideas?projectId=${encodeURIComponent(projectId)}`),
+
+    createIdea: (data: Record<string, unknown>) =>
+      request('/api/ideas', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+
+    updateIdea: (id: number, data: Record<string, unknown>) =>
+      request(`/api/ideas/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
+
+    deleteIdea: (id: number) =>
+      request(`/api/ideas/${id}`, { method: 'DELETE' }),
   }
 }
