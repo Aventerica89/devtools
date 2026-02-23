@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, Play, ChevronDown, ChevronRight, Copy } from 'lucide-react'
+import { Plus, Trash2, Play, ChevronDown, ChevronRight, Copy, CopyPlus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Checklist { id: number; projectId: string; name: string; description?: string | null; sortOrder: number }
@@ -18,14 +18,17 @@ const TYPE_COLORS: Record<string, string> = {
   workflow: 'bg-purple-500/15 text-purple-400',
 }
 
-interface Props { checklist: Checklist; onUpdate: (c: Checklist) => void }
+interface Project { id: string; name: string }
+interface Props { checklist: Checklist; onUpdate: (c: Checklist) => void; projects?: Project[] }
 
-export function ChecklistEditor({ checklist }: Props) {
+export function ChecklistEditor({ checklist, projects = [] }: Props) {
   const [activeTab, setActiveTab] = useState<'items' | 'history'>('items')
   const [items, setItems] = useState<Item[]>([])
   const [runs, setRuns] = useState<Run[]>([])
   const [expandedRun, setExpandedRun] = useState<number | null>(null)
   const [expandedRunData, setExpandedRunData] = useState<Record<number, Run>>({})
+  const [showCopyMenu, setShowCopyMenu] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<string | null>(null)
 
   useEffect(() => {
     fetch(`/api/routines/${checklist.id}/items`).then((r) => r.json()).then(setItems)
@@ -86,11 +89,56 @@ export function ChecklistEditor({ checklist }: Props) {
     }))
   }
 
+  async function copyToProject(targetProjectId: string) {
+    setShowCopyMenu(false)
+    const res = await fetch(`/api/routines/${checklist.id}/copy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetProjectId }),
+    })
+    if (res.ok) {
+      const target = projects.find((p) => p.id === targetProjectId)
+      setCopyStatus(target?.name ?? targetProjectId)
+      setTimeout(() => setCopyStatus(null), 2000)
+    }
+  }
+
+  const otherProjects = projects.filter((p) => p.id !== checklist.projectId)
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{checklist.name}</h2>
-        <Button size="sm" onClick={startRun}><Play className="h-3 w-3 mr-1" /> Start Run</Button>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowCopyMenu((prev) => !prev)}
+              disabled={otherProjects.length === 0}
+            >
+              {copyStatus ? (
+                <><Check className="h-3 w-3 mr-1" /> Copied to {copyStatus}</>
+              ) : (
+                <><CopyPlus className="h-3 w-3 mr-1" /> Copy to...</>
+              )}
+            </Button>
+            {showCopyMenu && (
+              <div className="absolute right-0 top-full mt-1 z-10 min-w-48 border border-border rounded-md bg-popover shadow-md py-1">
+                {otherProjects.map((p) => (
+                  <button
+                    key={p.id}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-accent"
+                    onClick={() => copyToProject(p.id)}
+                  >
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <Button size="sm" onClick={startRun}><Play className="h-3 w-3 mr-1" /> Start Run</Button>
+        </div>
       </div>
 
       <div className="flex gap-1 border-b border-border">

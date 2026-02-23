@@ -94,7 +94,7 @@ export function RoutinesClient() {
       </div>
       <div className="flex-1 overflow-auto p-4">
         {selectedChecklist ? (
-          <ChecklistEditor checklist={selectedChecklist} onUpdate={(c) => {
+          <ChecklistEditor checklist={selectedChecklist} projects={projects} onUpdate={(c) => {
             setChecklists((prev) => prev.map((x) => x.id === c.id ? c : x))
             setSelectedChecklist(c)
           }} />
