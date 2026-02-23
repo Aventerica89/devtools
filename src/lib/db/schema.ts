@@ -36,6 +36,22 @@ export const bugs = sqliteTable('bugs', {
   index('bugs_project_id_idx').on(t.projectId),
 ])
 
+/** Ideas captured via the widget or dashboard for a project. */
+export const ideas = sqliteTable('ideas', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: text('project_id').notNull().references(() => projects.id),
+  title: text('title').notNull(),
+  body: text('body'),
+  /** Enum: 'idea' | 'in-progress' | 'done' */
+  status: text('status').notNull().default('idea'),
+  /** JSON array of tag strings */
+  tags: text('tags'),
+  createdAt: text('created_at').default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+}, (t) => [
+  index('ideas_project_id_idx').on(t.projectId),
+])
+
 /**
  * Developer log entries — covers console output, network requests, errors,
  * performance metrics, and manual notes added from the dashboard.
