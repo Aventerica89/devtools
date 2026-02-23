@@ -5,11 +5,12 @@ import { hubCache } from '@/lib/db/schema'
 import { and, eq } from 'drizzle-orm'
 import { apiError } from '@/lib/api'
 
-const NOTION_DB_ID = 'b7c13809-35cc-42a2-a6ed-3231ab7e73ae'
+const NOTION_KB_DB_ID = 'b7c13809-35cc-42a2-a6ed-3231ab7e73ae'
+const NOTION_STANDARDS_DB_ID = '885cd9c275bd45bb93e17fe0f156d1b1'
 const TTL_MS = 60 * 60 * 1000 // 1 hour
 
-async function fetchNotionPages(token: string) {
-  const res = await fetch(`https://api.notion.com/v1/databases/${NOTION_DB_ID}/query`, {
+async function fetchFromDb(dbId: string, token: string) {
+  const res = await fetch(`https://api.notion.com/v1/databases/${dbId}/query`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -63,8 +64,11 @@ export async function GET(request: Request) {
       }
     }
 
-    const pages = await fetchNotionPages(token)
-    const entries = pages.map(pageToEntry)
+    const [kbPages, standardsPages] = await Promise.all([
+      fetchFromDb(NOTION_KB_DB_ID, token),
+      fetchFromDb(NOTION_STANDARDS_DB_ID, token),
+    ])
+    const entries = [...kbPages.map(pageToEntry), ...standardsPages.map(pageToEntry)]
     const content = JSON.stringify(entries)
     const fetchedAt = new Date().toISOString()
 
