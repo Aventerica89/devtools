@@ -26,6 +26,7 @@ import { DebugSnapshot } from '../tools/DebugSnapshot'
 import { StorageViewer } from '../tools/StorageViewer'
 import { HealthViewer } from '../tools/HealthViewer'
 import { RoutinesTab } from '../tools/RoutinesTab'
+import { IdeasTab } from '../tools/IdeasTab'
 import type { ApiClient } from '../api/client'
 import type { ErrorEntry } from '../interceptors/errors'
 import { buildCopyForClaudeBundle } from '../lib/copy'
@@ -50,6 +51,7 @@ const TABS: readonly Omit<TabDef, 'badge'>[] = [
   { id: 'dom', label: 'DOM', icon: '\u2B21' },
   { id: 'health', label: 'Health', icon: '\u2665' },
   { id: 'routines', label: 'Routines', icon: '\u2713' },
+  { id: 'ideas', label: 'Ideas', icon: '\u2606' },
   { id: 'ai', label: 'AI', icon: '\u2726' },
   { id: 'bugs', label: 'Bugs', icon: '\u2316' },
   { id: 'snapshot', label: 'Snapshot', icon: '\u25CE' },
@@ -100,6 +102,22 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
     const timer = setInterval(update, 2000)
     return () => clearInterval(timer)
   }, [])
+
+  // Ideas badge: poll open idea count
+  const [ideaCount, setIdeaCount] = useState(0)
+  useEffect(() => {
+    function fetchCount() {
+      apiClient.listIdeas(projectId)
+        .then((data) => {
+          const all = (data as Array<{ status: string }>) ?? []
+          setIdeaCount(all.filter((i) => i.status !== 'done').length)
+        })
+        .catch(() => {})
+    }
+    fetchCount()
+    const timer = setInterval(fetchCount, 10000)
+    return () => clearInterval(timer)
+  }, [projectId, apiClient])
 
   const handleHeaderPointerDown = useCallback((e: PointerEvent) => {
     if ((e.target as Element).closest('button')) return
@@ -162,6 +180,8 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
         return h(HealthViewer, null)
       case 'routines':
         return h(RoutinesTab, { apiBase, pinHash, projectId })
+      case 'ideas':
+        return h(IdeasTab, { apiClient, projectId })
       case 'ai':
         return h(AIChat, { apiBase, pinHash })
       case 'snapshot':
@@ -271,8 +291,9 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
       { style: tabBarStyle },
       TABS.map((tab) => {
         const isActive = activeTab === tab.id
-        const badgeCount = tab.id === 'errors' ? badges.errors : tab.id === 'console' ? badges.console : 0
+        const badgeCount = tab.id === 'errors' ? badges.errors : tab.id === 'console' ? badges.console : tab.id === 'ideas' ? ideaCount : 0
         const isWarnBadge = tab.id === 'console'
+        const isIdeaBadge = tab.id === 'ideas'
 
         return h(
           'button',
@@ -297,7 +318,9 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
             ? h(
                 'span',
                 {
-                  style: isWarnBadge
+                  style: isIdeaBadge
+                    ? { ...tabBadgeStyle, background: '#6366f1' }
+                    : isWarnBadge
                     ? { ...tabBadgeStyle, background: '#d97706' }
                     : tabBadgeStyle,
                 },
