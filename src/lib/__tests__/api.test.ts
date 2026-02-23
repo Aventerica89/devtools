@@ -1,5 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { apiError, parseBody, ProjectSchema, BugSchema, WidgetEventSchema } from '../api'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import {
+  apiError, parseBody, ProjectSchema, BugSchema, WidgetEventSchema,
+  IdeaSchema, IdeaUpdateSchema, verifyApiKey,
+} from '../api'
 import { z } from 'zod'
 
 // verifyWidgetPin calls the DB — keep it out of pure-logic tests
@@ -113,5 +116,123 @@ describe('WidgetEventSchema', () => {
 
   it('rejects title over 512 chars', () => {
     expect(WidgetEventSchema.safeParse({ ...valid, title: 'x'.repeat(513) }).success).toBe(false)
+  })
+})
+
+describe('IdeaSchema', () => {
+  it('accepts valid idea with required fields only', () => {
+    const result = parseBody(IdeaSchema, { projectId: 'p1', title: 'My idea' })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts idea with all fields', () => {
+    const result = parseBody(IdeaSchema, {
+      projectId: 'p1',
+      title: 'My idea',
+      body: 'Details here',
+      status: 'in-progress',
+      tags: ['ux', 'mobile'],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects missing title', () => {
+    const result = parseBody(IdeaSchema, { projectId: 'p1' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects missing projectId', () => {
+    const result = parseBody(IdeaSchema, { title: 'x' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects invalid status', () => {
+    const result = parseBody(IdeaSchema, {
+      projectId: 'p1',
+      title: 'x',
+      status: 'unknown',
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('defaults status to idea', () => {
+    const result = parseBody(IdeaSchema, { projectId: 'p1', title: 'x' })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.status).toBe('idea')
+    }
+  })
+
+  it('rejects tags with too many items', () => {
+    const result = parseBody(IdeaSchema, {
+      projectId: 'p1',
+      title: 'x',
+      tags: Array(11).fill('tag'),
+    })
+    expect(result.success).toBe(false)
+  })
+})
+
+describe('IdeaUpdateSchema', () => {
+  it('accepts partial update with status only', () => {
+    const result = parseBody(IdeaUpdateSchema, { status: 'done' })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts partial update with title only', () => {
+    const result = parseBody(IdeaUpdateSchema, { title: 'Updated title' })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects invalid status', () => {
+    const result = parseBody(IdeaUpdateSchema, { status: 'invalid' })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts empty object (no-op update)', () => {
+    const result = parseBody(IdeaUpdateSchema, {})
+    expect(result.success).toBe(true)
+  })
+})
+
+describe('verifyApiKey', () => {
+  const originalEnv = process.env.DEVTOOLS_API_KEY
+
+  beforeEach(() => {
+    process.env.DEVTOOLS_API_KEY = 'test-key-abc'
+  })
+
+  afterEach(() => {
+    process.env.DEVTOOLS_API_KEY = originalEnv
+  })
+
+  it('returns null for correct key', () => {
+    const req = new Request('http://localhost/', {
+      headers: { 'x-devtools-api-key': 'test-key-abc' },
+    })
+    expect(verifyApiKey(req)).toBeNull()
+  })
+
+  it('returns 401 for wrong key', () => {
+    const req = new Request('http://localhost/', {
+      headers: { 'x-devtools-api-key': 'wrong' },
+    })
+    const res = verifyApiKey(req)
+    expect(res?.status).toBe(401)
+  })
+
+  it('returns 401 when header missing', () => {
+    const req = new Request('http://localhost/')
+    const res = verifyApiKey(req)
+    expect(res?.status).toBe(401)
+  })
+
+  it('returns 401 when env var not set', () => {
+    delete process.env.DEVTOOLS_API_KEY
+    const req = new Request('http://localhost/', {
+      headers: { 'x-devtools-api-key': 'test-key-abc' },
+    })
+    const res = verifyApiKey(req)
+    expect(res?.status).toBe(401)
   })
 })

@@ -161,6 +161,35 @@ export const HubKbQuerySchema = z.object({
   refresh: z.enum(['true', 'false']).optional(),
 })
 
+export const IdeaSchema = z.object({
+  projectId: z.string().min(1).max(128),
+  title: z.string().min(1).max(512),
+  body: z.string().max(10000).optional().nullable(),
+  status: z.enum(['idea', 'in-progress', 'done']).default('idea'),
+  tags: z.array(z.string().max(64)).max(10).optional(),
+})
+
+export const IdeaUpdateSchema = z.object({
+  title: z.string().min(1).max(512).optional(),
+  body: z.string().max(10000).optional().nullable(),
+  status: z.enum(['idea', 'in-progress', 'done']).optional(),
+  tags: z.array(z.string().max(64)).max(10).optional(),
+})
+
+/**
+ * Verify the X-DevTools-Api-Key header against the DEVTOOLS_API_KEY env var.
+ * Used by CLI and settings panel calls (not widget — those use PIN).
+ * Returns an error response if verification fails, or null if it passes.
+ */
+export function verifyApiKey(request: Request): NextResponse | null {
+  const key = request.headers.get('x-devtools-api-key')
+  const expected = process.env.DEVTOOLS_API_KEY
+  if (!key || !expected || key !== expected) {
+    return apiError(401, 'Invalid or missing API key')
+  }
+  return null
+}
+
 /**
  * Verify that the request origin is allowed for the widget.
  * @param origin - The Origin header from the request
