@@ -11,7 +11,7 @@ import {
   Send, Braces, Regex, Palette, KeyRound,
   GitBranch, ScrollText, Settings, FolderKanban,
   BookOpen, Smartphone, LayoutDashboard, History,
-  Library, ListChecks
+  Library, ListChecks, Lightbulb
 } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -52,6 +52,7 @@ const sections: NavSection[] = [
     label: 'Debug',
     items: [
       { href: '/bugs', label: 'Bug Tracker', icon: Bug, roles: ALL_ROLES },
+      { href: '/ideas', label: 'Ideas', icon: Lightbulb, roles: ALL_ROLES },
       { href: '/console', label: 'Console Log', icon: Terminal, roles: OWNER_DEV },
       { href: '/network', label: 'Network Log', icon: Globe, roles: OWNER_DEV },
       { href: '/errors', label: 'Error Log', icon: AlertTriangle, roles: OWNER_DEV },
@@ -104,7 +105,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { user } = useUser()
   const role = getRole(user?.publicMetadata as Record<string, unknown> | undefined)
-  const [counts, setCounts] = useState({ bugs: 0, errors: 0 })
+  const [counts, setCounts] = useState({ bugs: 0, errors: 0, ideas: 0 })
   useEffect(() => {
     fetch('/api/bugs?status=open&limit=500')
       .then((r) => r.json())
@@ -113,6 +114,10 @@ export function Sidebar() {
     fetch('/api/devlog?type=error&days=1&limit=500')
       .then((r) => r.json())
       .then((d) => setCounts((prev) => ({ ...prev, errors: Array.isArray(d) ? d.length : 0 })))
+      .catch(() => {})
+    fetch('/api/ideas?status=idea&limit=500')
+      .then((r) => r.json())
+      .then((d) => setCounts((prev) => ({ ...prev, ideas: Array.isArray(d) ? d.length : 0 })))
       .catch(() => {})
   }, [])
 
@@ -166,6 +171,11 @@ export function Sidebar() {
                     {item.href === '/errors' && counts.errors > 0 && (
                       <span className="ml-auto text-xs bg-destructive/20 text-destructive px-1.5 py-0.5 rounded-full leading-none">
                         {counts.errors}
+                      </span>
+                    )}
+                    {item.href === '/ideas' && counts.ideas > 0 && (
+                      <span className="ml-auto text-xs bg-indigo-500/20 text-indigo-400 px-1.5 py-0.5 rounded-full leading-none">
+                        {counts.ideas}
                       </span>
                     )}
                   </Link>
