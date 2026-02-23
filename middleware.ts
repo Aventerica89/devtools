@@ -5,6 +5,7 @@ const isWidgetRoute = createRouteMatcher([
   '/api/widget/(.*)',
   '/api/bugs(.*)',
   '/api/devlog(.*)',
+  '/api/ideas(.*)',
   '/api/ai/(.*)',
 ])
 
@@ -39,6 +40,11 @@ function getAllowedOrigin(request: Request): string {
 }
 
 export default clerkMiddleware(async (auth, req) => {
+  // Allow API key-authenticated requests (CLI, external tools)
+  if (isWidgetRoute(req) && req.headers.get('x-devtools-api-key')) {
+    return NextResponse.next()
+  }
+
   // Allow widget routes with PIN header (cross-origin)
   if (isWidgetRoute(req) && req.headers.get('x-devtools-pin')) {
     const allowedOrigin = getAllowedOrigin(req)
@@ -64,7 +70,7 @@ export default clerkMiddleware(async (auth, req) => {
       headers: {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-DevTools-Pin',
+        'Access-Control-Allow-Headers': 'Content-Type, X-DevTools-Pin, X-DevTools-Api-Key',
         'Access-Control-Max-Age': '86400',
         ...(allowedOrigin !== '*' && { 'Access-Control-Allow-Credentials': 'true' }),
       },
