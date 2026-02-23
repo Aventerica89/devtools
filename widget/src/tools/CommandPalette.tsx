@@ -69,9 +69,9 @@ export function CommandPalette({ apiBase, pinHash, onClose }: Props) {
               h('div', { style: { display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 } },
                 h('span', { style: { fontSize: 12, color: COLORS.text, fontWeight: 500 } }, entry.title),
                 entry.description && h('span', { style: { fontSize: 10, color: COLORS.textMuted } }, entry.description),
-                entry.snippet && h('code', { style: { fontSize: 10, background: '#0a0f1a', color: '#94a3b8', padding: '2px 6px', borderRadius: 4, fontFamily: 'monospace', maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, entry.snippet)
+                entry.snippet && window.innerWidth >= 768 && h('code', { style: { fontSize: 10, background: '#0a0f1a', color: '#94a3b8', padding: '2px 6px', borderRadius: 4, fontFamily: 'monospace', maxWidth: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, entry.snippet)
               ),
-              entry.snippet && h('button', {
+              entry.snippet && window.innerWidth >= 768 && h('button', {
                 style: { background: 'none', border: 'none', cursor: 'pointer', color: copied === entry.id ? '#34d399' : COLORS.textMuted, fontSize: 14, marginLeft: 8, flexShrink: 0 },
                 onClick: () => copy(entry) }, '\u29c9')
             )

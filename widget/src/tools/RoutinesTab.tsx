@@ -86,7 +86,7 @@ export function RoutinesTab({ apiBase, pinHash, projectId }: Props) {
                 onChange: (e: Event) => checkItem(runItem.itemId, (e.target as HTMLInputElement).checked) }),
               h('span', { style: { fontSize: 11, color: runItem.checked ? COLORS.textMuted : COLORS.text, textDecoration: runItem.checked ? 'line-through' : 'none' } }, def?.name ?? `Item ${runItem.itemId}`)
             ),
-            def?.snippet && h('div', { style: { display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 22 } },
+            def?.snippet && window.innerWidth >= 768 && h('div', { style: { display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, marginLeft: 22 } },
               h('code', { style: { fontSize: 10, color: '#94a3b8', background: '#0a0f1a', padding: '2px 6px', borderRadius: 3, fontFamily: 'monospace', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, def.snippet),
               h('button', {
                 style: { background: 'none', border: 'none', color: COLORS.textMuted, cursor: 'pointer', fontSize: 12 },
