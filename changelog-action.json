@@ -1,0 +1,148 @@
+{ "v": "0.0.0", "ts": "2026-02-14T00:01:39-07:00", "msg": "add DevTools design document", "hash": "e7c11ee" }
+{ "v": "0.0.0", "ts": "2026-02-14T00:05:08-07:00", "msg": "add implementation plan (28 tasks, 7 phases)", "hash": "391966d" }
+{ "v": "0.0.0", "ts": "2026-02-14T00:49:08-07:00", "msg": "scaffold Next.js project with Tailwind/shadcn/Drizzle", "hash": "1845fc5" }
+{ "v": "0.0.0", "ts": "2026-02-14T00:52:17-07:00", "msg": "add database schema with Drizzle + Turso (5 tables)", "hash": "eac2eb0" }
+{ "v": "0.0.0", "ts": "2026-02-14T00:57:10-07:00", "msg": "add PIN auth with middleware and session tokens", "hash": "e17d7c9" }
+{ "v": "0.0.0", "ts": "2026-02-14T01:03:09-07:00", "msg": "add project CRUD API and dashboard shell", "hash": "325a4ab" }
+{ "v": "0.0.0", "ts": "2026-02-14T01:09:58-07:00", "msg": "add bug tracker API and dashboard page", "hash": "00b2841" }
+{ "v": "0.0.0", "ts": "2026-02-14T01:14:19-07:00", "msg": "add dev log API and dashboard timeline page", "hash": "fd3f883" }
+{ "v": "0.0.0", "ts": "2026-02-14T12:54:41-07:00", "msg": "set up Vite + Preact widget build pipeline", "hash": "74dc7a5" }
+{ "v": "0.0.0", "ts": "2026-02-14T12:58:22-07:00", "msg": "add floating button and tool panel to widget", "hash": "035b803" }
+{ "v": "0.0.0", "ts": "2026-02-14T13:02:43-07:00", "msg": "add console interceptor and viewer to widget", "hash": "cf8d869" }
+{ "v": "0.0.0", "ts": "2026-02-14T13:06:56-07:00", "msg": "add network interceptor and viewer to widget", "hash": "f98a91c" }
+{ "v": "0.0.0", "ts": "2026-02-14T13:15:10-07:00", "msg": "add error interceptor, overlay, bug reporter", "hash": "e1bf066" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:00:12-07:00", "msg": "add API tester dashboard tool", "hash": "413b578" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:04:34-07:00", "msg": "add JSON viewer dashboard tool", "hash": "4e45746" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:09:16-07:00", "msg": "add regex tester dashboard tool", "hash": "c2a0afa" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:14:36-07:00", "msg": "add color and CSS tools dashboard page", "hash": "c57f190" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:21:08-07:00", "msg": "add env var manager dashboard tool", "hash": "955bfe2" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:33:49-07:00", "msg": "add AI analysis and error explanation endpoints", "hash": "9f163aa" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:37:05-07:00", "msg": "add App Tracker integration with deployments", "hash": "dc53d20" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:44:53-07:00", "msg": "add widget event ingestion and perf interceptor", "hash": "948aec8" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:50:06-07:00", "msg": "add performance dashboard with web vitals", "hash": "1d8c3af" }
+{ "v": "0.0.0", "ts": "2026-02-14T18:58:13-07:00", "msg": "add settings pages for projects, AI, widget", "hash": "6670c0f" }
+{ "v": "0.0.0", "ts": "2026-02-14T19:03:01-07:00", "msg": "add style guide page", "hash": "22ecf89" }
+{ "v": "0.0.0", "ts": "2026-02-14T19:05:35-07:00", "msg": "add mobile app companion mockup page", "hash": "7ec9c33" }
+{ "v": "0.0.0", "ts": "2026-02-14T19:09:46-07:00", "msg": "add dev button and dashboard overview", "hash": "523d771" }
+{ "v": "0.0.0", "ts": "2026-02-14T19:16:56-07:00", "msg": "add Turso database configuration", "hash": "c7b7f38" }
+{ "v": "0.0.0", "ts": "2026-02-14T20:05:30-07:00", "msg": "add GitHub Actions CI workflow", "hash": "8edaf67" }
+{ "v": "0.0.0", "ts": "2026-02-14T20:23:12-07:00", "msg": "resolve all ESLint errors for CI", "hash": "29e16df" }
+{ "v": "0.0.0", "ts": "2026-02-14T21:15:59-07:00", "msg": "add console, network, and error log pages", "hash": "6e30ec0" }
+{ "v": "0.0.0", "ts": "2026-02-14T21:19:51-07:00", "msg": "add dark class to html for shadcn dark theme", "hash": "c27ad0d" }
+{ "v": "0.0.0", "ts": "2026-02-14T23:16:16-07:00", "msg": "replace 650+ hardcoded slate colors with tokens", "hash": "b501cfa" }
+{ "v": "0.0.0", "ts": "2026-02-14T23:23:46-07:00", "msg": "make AI API key input editable with DB persist", "hash": "0f1b6f1" }
+{ "v": "0.0.0", "ts": "2026-02-14T23:38:06-07:00", "msg": "restore slate-blue tinted dark theme in CSS vars", "hash": "3456db0" }
+{ "v": "0.0.0", "ts": "2026-02-15T00:21:45-07:00", "msg": "stream console/network from widget to dashboard", "hash": "2ce7cd8" }
+{ "v": "0.0.0", "ts": "2026-02-15T00:44:27-07:00", "msg": "add CHANGELOG.md with full project history", "hash": "7952006" }
+{ "v": "0.0.0", "ts": "2026-02-15T00:55:21-07:00", "msg": "add CORS support for widget cross-origin", "hash": "0a61aab" }
+{ "v": "0.0.0", "ts": "2026-02-15T01:10:11-07:00", "msg": "capture currentScript at module top-level", "hash": "ed2547d" }
+{ "v": "0.0.0", "ts": "2026-02-15T02:05:42-07:00", "msg": "add CORS support for widget AI endpoint", "hash": "69f1897" }
+{ "v": "0.0.0", "ts": "2026-02-15T02:09:44-07:00", "msg": "send all console levels from widget to backend", "hash": "5302904" }
+{ "v": "0.0.0", "ts": "2026-02-15T02:17:44-07:00", "msg": "prevent widget event flood with buffer cap", "hash": "6fe2146" }
+{ "v": "0.0.0", "ts": "2026-02-17T07:44:17+00:00", "msg": "add improvement plan for security/reliability", "hash": "c958bec" }
+{ "v": "0.0.0", "ts": "2026-02-17T07:49:21+00:00", "msg": "phase 1 security hardening, validation, auth", "hash": "7377b75" }
+{ "v": "0.0.0", "ts": "2026-02-17T07:53:32+00:00", "msg": "phase 2 encryption, reliability, DB indexes", "hash": "d8912a5" }
+{ "v": "0.0.0", "ts": "2026-02-17T08:03:29+00:00", "msg": "phase 3a pagination, validation, error handling", "hash": "414c006" }
+{ "v": "0.0.0", "ts": "2026-02-17T08:06:07+00:00", "msg": "phase 3b add 43 tests for crypto/api/routes", "hash": "a277dbd" }
+{ "v": "0.0.0", "ts": "2026-02-17T08:07:03+00:00", "msg": "phase 3c add field-level comments to schema", "hash": "93cad78" }
+{ "v": "0.0.0", "ts": "2026-02-18T02:39:31-07:00", "msg": "add pagination, project labels, timezone dates", "hash": "b853c84" }
+{ "v": "0.0.0", "ts": "2026-02-18T04:22:11-07:00", "msg": "add CLAUDE.md with full project context", "hash": "29a8e31" }
+{ "v": "0.0.0", "ts": "2026-02-18T15:46:28-07:00", "msg": "add Debug Snapshot tool to widget", "hash": "59ae01c" }
+{ "v": "0.0.0", "ts": "2026-02-18T16:17:09-07:00", "msg": "OAuth support + Error Log copy button", "hash": "95b2b05" }
+{ "v": "0.0.0", "ts": "2026-02-18T16:57:59-07:00", "msg": "add XHR interception to network log widget", "hash": "c7228af" }
+{ "v": "0.0.0", "ts": "2026-02-18T18:07:07-07:00", "msg": "join related tables in tracker API", "hash": "0ade0fc" }
+{ "v": "0.0.0", "ts": "2026-02-18T18:22:46-07:00", "msg": "debug snapshot saves to configured folder", "hash": "38e8ccd" }
+{ "v": "0.0.0", "ts": "2026-02-18T19:19:55-07:00", "msg": "replace PIN auth with Clerk authentication", "hash": "cea3318" }
+{ "v": "0.0.0", "ts": "2026-02-18T19:27:37-07:00", "msg": "update middleware matcher to Clerk pattern", "hash": "392b769" }
+{ "v": "0.0.0", "ts": "2026-02-18T21:59:58-07:00", "msg": "add Clerk proxy route handler for prod auth", "hash": "a3c63f2" }
+{ "v": "0.0.0", "ts": "2026-02-18T23:25:46-07:00", "msg": "add Clerk sign-in and sign-up pages", "hash": "5c6601d" }
+{ "v": "0.0.0", "ts": "2026-02-18T23:33:41-07:00", "msg": "rename middleware to proxy.ts (Next.js 16)", "hash": "980feee" }
+{ "v": "0.0.0", "ts": "2026-02-19T00:28:41-07:00", "msg": "proxy clerk oauth callback, no redirects", "hash": "6e3deaa" }
+{ "v": "0.0.0", "ts": "2026-02-19T01:02:15-07:00", "msg": "add Clerk llmstxt skill reference to CLAUDE.md", "hash": "2f02927" }
+{ "v": "0.0.0", "ts": "2026-02-19T01:19:37-07:00", "msg": "initialize changelog (three-tier standard)", "hash": "37f16c5" }
+{ "v": "0.0.0", "ts": "2026-02-19T01:27:11-07:00", "msg": "add Dashboard home link and Changelog page", "hash": "2774b2d" }
+{ "v": "0.0.0", "ts": "2026-02-19T01:52:37-07:00", "msg": "add Clerk llmstxt skill files, update gitignore", "hash": "61f6a82" }
+{ "v": "0.0.0", "ts": "2026-02-19T16:59:22-07:00", "msg": "draggable panel, WebP captures, silent downloads", "hash": "a9a567e" }
+{ "v": "0.0.0", "ts": "2026-02-19T17:49:21-07:00", "msg": "remove ANTHROPIC_API_KEY env var fallback", "hash": "b7226b5" }
+{ "v": "0.0.0", "ts": "2026-02-20T10:56:23+00:00", "msg": "implement 18 security/perf/reliability fixes", "hash": "4543b30" }
+{ "v": "0.0.0", "ts": "2026-02-21T01:25:02-07:00", "msg": "add DevTools v2 design doc", "hash": "14f64e4" }
+{ "v": "0.0.0", "ts": "2026-02-21T01:46:59-07:00", "msg": "add copy-for-claude system to v2 design", "hash": "05af3fe" }
+{ "v": "0.0.0", "ts": "2026-02-21T02:00:57-07:00", "msg": "add snapshot v2 fixes to v2 design", "hash": "5f6f812" }
+{ "v": "0.0.0", "ts": "2026-02-21T02:41:54-07:00", "msg": "add DevTools v2 implementation plan (8 phases)", "hash": "2983c16" }
+{ "v": "0.0.0", "ts": "2026-02-21T02:53:35-07:00", "msg": "add Routines + hubCache tables to schema", "hash": "7e73b5b" }
+{ "v": "0.0.0", "ts": "2026-02-21T02:56:31-07:00", "msg": "add Routines + Hub Zod schemas to api.ts", "hash": "dd459b0" }
+{ "v": "0.0.0", "ts": "2026-02-21T02:58:50-07:00", "msg": "add GET + POST /api/routines", "hash": "9d117e9" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:00:45-07:00", "msg": "add try/catch error handling to routines route", "hash": "80283e5" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:04:14-07:00", "msg": "add /api/routines/[id] CRUD + items routes", "hash": "37418f6" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:04:19-07:00", "msg": "add full Routines runs API (lifecycle)", "hash": "30786c6" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:10:47-07:00", "msg": "add /api/hub/kb and /api/hub/plans routes", "hash": "260a574" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:16:09-07:00", "msg": "add Routines page shell + Resources sidebar", "hash": "c0b6063" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:16:15-07:00", "msg": "add Routines two-panel layout", "hash": "234f4bf" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:16:19-07:00", "msg": "add ChecklistEditor with items CRUD + runs", "hash": "6904bef" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:21:00-07:00", "msg": "add Hub page shell with stats strip", "hash": "a85dd0c" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:21:04-07:00", "msg": "add NotionPanel searchable KB cards", "hash": "365c8b9" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:21:08-07:00", "msg": "add PlansPanel local plans-index.html viewer", "hash": "9092a3b" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:24:23-07:00", "msg": "NotionPanel date on cards + Dialog modal", "hash": "218a722" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:27:18-07:00", "msg": "Hub page error handling, controlled input", "hash": "d94923e" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:30:47-07:00", "msg": "add cmd+K command palette with KB search", "hash": "ab303db" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:31:40-07:00", "msg": "add cmd+shift+K Shadow DOM command palette", "hash": "2b00ae4" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:33:35-07:00", "msg": "cmd+shift+K palette closes on Escape", "hash": "d778b12" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:37:01-07:00", "msg": "command palette clipboard/HTTP/init fixes", "hash": "1d5119b" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:40:11-07:00", "msg": "add Storage tab to widget", "hash": "169cc6d" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:41:09-07:00", "msg": "add Health tab to widget", "hash": "94fc806" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:43:08-07:00", "msg": "Snapshot v2 paste-to-WebP, 1440px cap", "hash": "99f00f6" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:48:35-07:00", "msg": "fix health listener splice, idempotent install", "hash": "1863d18" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:51:38-07:00", "msg": "snapshot URL cleanup, blobToWebP error handler", "hash": "94123aa" }
+{ "v": "0.0.0", "ts": "2026-02-21T03:55:40-07:00", "msg": "add widget Routines tab with progress bar", "hash": "96b7a3f" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:01:36-07:00", "msg": "routines PIN auth, active run fetch, close run", "hash": "877154a" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:05:41-07:00", "msg": "add routines to middleware, PIN auth on runs", "hash": "0daab38" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:09:33-07:00", "msg": "abort controller, desc sort, dedup run guard", "hash": "8cbf905" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:13:36-07:00", "msg": "AI tab auto-injects page context on first msg", "hash": "933ab31" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:17:06-07:00", "msg": "remove canSend stale closure risk", "hash": "0832ded" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:20:07-07:00", "msg": "add widget copy utilities with tests", "hash": "4c85271" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:22:30-07:00", "msg": "explicit stack line guard in formatErrorRow", "hash": "e3b0d14" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:26:02-07:00", "msg": "row-level hover copy + tab-level copy buttons", "hash": "0c84d9e" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:29:29-07:00", "msg": "fix copyTabBtnStyle backgroundColor invalid CSS", "hash": "668772d" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:30:50-07:00", "msg": "add Copy for Claude button in widget header", "hash": "1962d36" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:33:07-07:00", "msg": "fix panel header flex-start for Copy button", "hash": "2859ec2" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:35:38-07:00", "msg": "tighten card padding p-6 to p-4", "hash": "bba8702" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:39:10-07:00", "msg": "tighter table rows + monospace data values", "hash": "c575070" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:43:19-07:00", "msg": "sidebar section contrast + badge counts", "hash": "d703788" }
+{ "v": "0.0.0", "ts": "2026-02-21T04:47:17-07:00", "msg": "devtools v2 routines, hub, widget, polish", "hash": "13cc56f" }
+{ "v": "0.0.0", "ts": "2026-02-21T05:02:22-07:00", "msg": "redesign panel with horizontal tabs, badges", "hash": "40c86ba" }
+{ "v": "0.0.0", "ts": "2026-02-21T05:02:50-07:00", "msg": "rebuild widget.js with horizontal tab design", "hash": "8acd1da" }
+{ "v": "0.0.0", "ts": "2026-02-21T05:14:19-07:00", "msg": "pixel-perfect CSS sweep, indigo FAB, scrollbar", "hash": "603f13a" }
+{ "v": "0.0.0", "ts": "2026-02-21T05:28:40-07:00", "msg": "correct Notion KB DB ID + plans cache fallback", "hash": "2a5b002" }
+{ "v": "0.0.0", "ts": "2026-02-21T05:59:22-07:00", "msg": "merge security improvements with routines/hub", "hash": "9632008" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:08:17-07:00", "msg": "install widget deps before vite build", "hash": "175a19d" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:12:43-07:00", "msg": "correct Notion KB DB ID in hub KB route", "hash": "105a0ce" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:27:08-07:00", "msg": "use npm install --include=dev for widget build", "hash": "9e35848" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:30:12-07:00", "msg": "trigger Vercel redeploy", "hash": "ad5c53d" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:33:58-07:00", "msg": "use webpack for prod build (middleware fix)", "hash": "3126977" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:35:34-07:00", "msg": "trigger redeploy", "hash": "790b84c" }
+{ "v": "0.0.0", "ts": "2026-02-21T06:47:53-07:00", "msg": "revert to plain next build (no-turbopack invalid)", "hash": "ffaceea" }
+{ "v": "0.0.0", "ts": "2026-02-21T13:53:52-07:00", "msg": "add postbuild for middleware.js.nft.json", "hash": "d6fb0d4" }
+{ "v": "0.0.0", "ts": "2026-02-21T13:56:35-07:00", "msg": "correct middleware NFT file format to array", "hash": "27d5254" }
+{ "v": "0.0.0", "ts": "2026-02-21T14:02:33-07:00", "msg": "force webpack for production build", "hash": "4de2ee0" }
+{ "v": "0.0.0", "ts": "2026-02-21T14:27:10-07:00", "msg": "create middleware.js stub for Turbopack compat", "hash": "3a9c573" }
+{ "v": "0.0.0", "ts": "2026-02-21T17:24:23-07:00", "msg": "load Notion page blocks in KB modal", "hash": "efa6e4a" }
+{ "v": "0.0.0", "ts": "2026-02-21T17:39:58-07:00", "msg": "plans-index.html upload + isolated HTML viewer", "hash": "9adfa40" }
+{ "v": "0.0.0", "ts": "2026-02-21T18:27:40-07:00", "msg": "consolidate plans upload, fix intermittent 405", "hash": "ff3fdb1" }
+{ "v": "0.0.0", "ts": "2026-02-21T18:42:38-07:00", "msg": "trigger Vercel redeploy", "hash": "30df49c" }
+{ "v": "0.0.0", "ts": "2026-02-21T18:46:43-07:00", "msg": "trigger redeploy after GitHub reconnect", "hash": "2e02651" }
+{ "v": "0.0.0", "ts": "2026-02-22T20:32:20-07:00", "msg": "hide widget snippets on mobile viewports", "hash": "491f41b" }
+{ "v": "0.0.0", "ts": "2026-02-23T01:08:09-07:00", "msg": "add Notion Standards DB to KB panel", "hash": "5eb25ca" }
+{ "v": "0.0.0", "ts": "2026-02-23T01:22:46-07:00", "msg": "parse title by Notion type, handle Notes", "hash": "01804eb" }
+{ "v": "0.0.0", "ts": "2026-02-23T14:31:17-07:00", "msg": "add ideas panel + cross-app plugin design", "hash": "722c4cb" }
+{ "v": "0.0.0", "ts": "2026-02-23T14:35:47-07:00", "msg": "add ideas panel implementation plan", "hash": "b91e8cd" }
+{ "v": "0.0.0", "ts": "2026-02-23T14:57:12-07:00", "msg": "add ideas table to schema", "hash": "67ed33c" }
+{ "v": "0.0.0", "ts": "2026-02-23T14:58:48-07:00", "msg": "add IdeaSchema, verifyApiKey helper", "hash": "3e82a64" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:00:52-07:00", "msg": "add GET and POST /api/ideas with multi-auth", "hash": "4ed09f7" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:05:12-07:00", "msg": "add PATCH and DELETE /api/ideas/[id]", "hash": "f25c8d2" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:05:43-07:00", "msg": "add ideas methods to widget ApiClient", "hash": "01a3d0e" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:08:36-07:00", "msg": "add IdeasTab widget component with optimistic UI", "hash": "9b563c3" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:09:57-07:00", "msg": "wire Ideas tab into widget ToolPanel", "hash": "ad72ddf" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:11:35-07:00", "msg": "add Ideas dashboard page and sidebar nav", "hash": "674a3b1" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:12:38-07:00", "msg": "add DevToolsProjectPanel shared component", "hash": "0478342" }
+{ "v": "0.0.0", "ts": "2026-02-23T15:27:00-07:00", "msg": "add DEVTOOLS_API_KEY to env template", "hash": "c09c89f" }
+{ "v": "0.0.0", "ts": "2026-02-23T16:00:32-07:00", "msg": "add copy-to-project for routine checklists", "hash": "c2460d6" }
