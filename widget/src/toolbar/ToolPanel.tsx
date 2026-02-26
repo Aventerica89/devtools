@@ -43,18 +43,18 @@ interface TabDef {
 }
 
 const TABS: readonly Omit<TabDef, 'badge'>[] = [
+  { id: 'ideas', label: 'Ideas', icon: '\u2606' },
+  { id: 'snapshot', label: 'Snapshot', icon: '\u25CE' },
+  { id: 'bugs', label: 'Bugs', icon: '\u2316' },
+  { id: 'ai', label: 'AI', icon: '\u2726' },
+  { id: 'errors', label: 'Errors', icon: '\u26A0' },
   { id: 'console', label: 'Console', icon: '>_' },
   { id: 'network', label: 'Network', icon: '\u21C4' },
-  { id: 'errors', label: 'Errors', icon: '\u26A0' },
   { id: 'perf', label: 'Perf', icon: '\u26A1' },
+  { id: 'routines', label: 'Routines', icon: '\u2713' },
+  { id: 'health', label: 'Health', icon: '\u2665' },
   { id: 'storage', label: 'Storage', icon: '\u25EB' },
   { id: 'dom', label: 'DOM', icon: '\u2B21' },
-  { id: 'health', label: 'Health', icon: '\u2665' },
-  { id: 'routines', label: 'Routines', icon: '\u2713' },
-  { id: 'ideas', label: 'Ideas', icon: '\u2606' },
-  { id: 'ai', label: 'AI', icon: '\u2726' },
-  { id: 'bugs', label: 'Bugs', icon: '\u2316' },
-  { id: 'snapshot', label: 'Snapshot', icon: '\u25CE' },
 ] as const
 
 interface ToolPanelProps {
@@ -67,7 +67,7 @@ interface ToolPanelProps {
 }
 
 export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinHash }: ToolPanelProps) {
-  const [activeTab, setActiveTab] = useState<string>('errors')
+  const [activeTab, setActiveTab] = useState<string>('ideas')
   const [isMinimized, setIsMinimized] = useState(false)
   const [hoverClose, setHoverClose] = useState(false)
   const [hoverTab, setHoverTab] = useState<string | null>(null)
@@ -76,6 +76,24 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
   const [badges, setBadges] = useState({ errors: 0, console: 0 })
 
   const domain = typeof window !== 'undefined' ? window.location.hostname : projectId
+
+  // Tab bar scroll state
+  const tabBarRef = useRef<HTMLDivElement>(null)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  // Check scroll overflow on mount and tab change
+  useEffect(() => {
+    const el = tabBarRef.current
+    if (el) setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }, [isOpen, isMinimized])
+
+  // Scroll active tab into view on tab change
+  useEffect(() => {
+    const el = tabBarRef.current
+    if (!el) return
+    const btn = el.querySelector(`[data-tab="${activeTab}"]`) as HTMLElement | null
+    if (btn) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+  }, [activeTab])
 
   // Draggable panel position — starts above the FAB (bottom-right area), user can drag header to move
   const [panelPos, setPanelPos] = useState(() => {
@@ -285,50 +303,78 @@ export function ToolPanel({ projectId, isOpen, onClose, apiClient, apiBase, pinH
         )
       )
     ),
-    // Tab bar (hidden when minimized)
+    // Tab bar with scroll fade (hidden when minimized)
     isMinimized ? null : h(
       'div',
-      { style: tabBarStyle },
-      TABS.map((tab) => {
-        const isActive = activeTab === tab.id
-        const badgeCount = tab.id === 'errors' ? badges.errors : tab.id === 'console' ? badges.console : tab.id === 'ideas' ? ideaCount : 0
-        const isWarnBadge = tab.id === 'console'
-        const isIdeaBadge = tab.id === 'ideas'
-
-        return h(
-          'button',
-          {
-            key: tab.id,
-            style: {
-              ...tabStyle,
-              ...(isActive ? activeTabStyle : {}),
-              // Ensure inactive tabs keep the 2px transparent bottom border to prevent layout shift
-              borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent',
-              // Hover color for non-active tabs (matches mockup: #94a3b8)
-              color: isActive ? '#a5b4fc' : hoverTab === tab.id ? '#94a3b8' : '#475569',
-            },
-            onClick: () => handleTabClick(tab.id),
-            onMouseEnter: () => setHoverTab(tab.id),
-            onMouseLeave: () => setHoverTab(null),
+      {
+        style: {
+          position: 'relative',
+          flexShrink: 0,
+        },
+      },
+      // Scrollable tab bar
+      h(
+        'div',
+        {
+          ref: tabBarRef,
+          style: tabBarStyle,
+          onScroll: () => {
+            const el = tabBarRef.current
+            if (el) setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
           },
-          tab.icon,
-          ' ',
-          tab.label,
-          badgeCount > 0
-            ? h(
-                'span',
-                {
-                  style: isIdeaBadge
-                    ? { ...tabBadgeStyle, background: '#6366f1' }
-                    : isWarnBadge
-                    ? { ...tabBadgeStyle, background: '#d97706' }
-                    : tabBadgeStyle,
-                },
-                badgeCount
-              )
-            : null
-        )
-      })
+        },
+        TABS.map((tab) => {
+          const isActive = activeTab === tab.id
+          const badgeCount = tab.id === 'errors' ? badges.errors : tab.id === 'console' ? badges.console : tab.id === 'ideas' ? ideaCount : 0
+          const isWarnBadge = tab.id === 'console'
+          const isIdeaBadge = tab.id === 'ideas'
+
+          return h(
+            'button',
+            {
+              key: tab.id,
+              'data-tab': tab.id,
+              style: {
+                ...tabStyle,
+                ...(isActive ? activeTabStyle : {}),
+                borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent',
+                color: isActive ? '#a5b4fc' : hoverTab === tab.id ? '#94a3b8' : '#475569',
+              },
+              onClick: () => handleTabClick(tab.id),
+              onMouseEnter: () => setHoverTab(tab.id),
+              onMouseLeave: () => setHoverTab(null),
+            },
+            tab.icon,
+            ' ',
+            tab.label,
+            badgeCount > 0
+              ? h(
+                  'span',
+                  {
+                    style: isIdeaBadge
+                      ? { ...tabBadgeStyle, background: '#6366f1' }
+                      : isWarnBadge
+                      ? { ...tabBadgeStyle, background: '#d97706' }
+                      : tabBadgeStyle,
+                  },
+                  badgeCount
+                )
+              : null
+          )
+        })
+      ),
+      // Right fade gradient (visible when more tabs to scroll)
+      canScrollRight ? h('div', {
+        style: {
+          position: 'absolute',
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: 32,
+          background: 'linear-gradient(to right, transparent, #0f172a)',
+          pointerEvents: 'none',
+        },
+      }) : null
     ),
     // Content area (hidden when minimized)
     isMinimized ? null : h(
