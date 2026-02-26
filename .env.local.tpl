@@ -15,3 +15,9 @@ NEXT_PUBLIC_CLERK_PROXY_URL=https://devtools.jbcloud.app/clerk-proxy
 
 # DevTools API Key (for cross-app plugin + CLI ideas sync)
 DEVTOOLS_API_KEY={{ op://App Dev/#devtools / DEVTOOLS_API_KEY/credential }}
+
+# Deployment Platform Tokens (cross-app, shared across all projects)
+VERCEL_API_TOKEN={{ op://App Dev/#cross-app / VERCEL_API_TOKEN/credential }}
+CF_API_TOKEN={{ op://App Dev/#cross-app / CLOUDFLARE_API_TOKEN/credential }}
+CF_ACCOUNT_ID=e2613c1c17024c32ab14618614e2b309
+GITHUB_TOKEN={{ op://App Dev/#cross-app / GITHUB_TOKEN/credential }}

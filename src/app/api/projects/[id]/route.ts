@@ -5,9 +5,13 @@ import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { apiError, parseBody } from '@/lib/api'
 
+const PLATFORMS = ['vercel', 'cloudflare-workers', 'cloudflare-pages', 'github'] as const
+
 const ProjectUpdateSchema = z.object({
   name: z.string().min(1).max(256).optional(),
   url: z.string().url().max(2048).optional().nullable(),
+  platform: z.enum(PLATFORMS).optional().nullable(),
+  platformId: z.string().max(256).optional().nullable(),
 })
 
 export async function GET(

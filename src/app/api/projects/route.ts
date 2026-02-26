@@ -27,6 +27,8 @@ export async function POST(request: Request) {
       id: parsed.data.id,
       name: parsed.data.name,
       url: parsed.data.url ?? null,
+      platform: parsed.data.platform ?? null,
+      platformId: parsed.data.platformId ?? null,
     }).returning()
     return NextResponse.json(result[0], { status: 201 })
   } catch (error) {

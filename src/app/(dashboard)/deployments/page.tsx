@@ -4,8 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { GitBranch, RefreshCw, AlertCircle } from 'lucide-react'
+import { GitBranch, RefreshCw, AlertCircle, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 import {
   DeploymentTable,
   DeploymentTableSkeleton,
@@ -14,9 +15,10 @@ import {
 
 const REFRESH_INTERVAL_MS = 30_000
 
-interface TrackerResponse {
+interface DeploymentsResponse {
   data: Deployment[]
   configured?: boolean
+  projectCount?: number
   message?: string
   error?: string
 }
@@ -24,6 +26,7 @@ interface TrackerResponse {
 export default function DeploymentsPage() {
   const [deployments, setDeployments] = useState<readonly Deployment[]>([])
   const [configured, setConfigured] = useState(true)
+  const [projectCount, setProjectCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [filterProject, setFilterProject] = useState('')
@@ -40,16 +43,17 @@ export default function DeploymentsPage() {
         const params = filterProject
           ? `?project=${encodeURIComponent(filterProject)}`
           : ''
-        const res = await fetch(`/api/tracker${params}`)
-        const json: TrackerResponse = await res.json()
+        const res = await fetch(`/api/deployments${params}`)
+        const json: DeploymentsResponse = await res.json()
 
         if (json.error) {
-          console.error('Tracker fetch error:', json.error)
+          console.error('Deployments fetch error:', json.error)
           return
         }
 
         setDeployments(json.data ?? [])
         setConfigured(json.configured !== false)
+        setProjectCount(json.projectCount ?? 0)
         setLastRefresh(new Date())
       } catch (err) {
         console.error('Failed to fetch deployments:', err)
@@ -102,14 +106,14 @@ export default function DeploymentsPage() {
               />
             </span>
             <span className="text-xs text-muted-foreground">
-              {configured ? 'Live' : 'Offline'}
+              {configured ? `Live (${projectCount} projects)` : 'Offline'}
             </span>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Project filter */}
-          {projectNames.length > 0 && (
+          {projectNames.length > 1 && (
             <select
               value={filterProject}
               onChange={(e) => setFilterProject(e.target.value)}
@@ -145,14 +149,22 @@ export default function DeploymentsPage() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Live deployment data from the JB Cloud App Tracker. Requires
-        APP_TRACKER_SUPABASE_URL and APP_TRACKER_SERVICE_KEY environment
-        variables to connect.
+        Live deployment data from Vercel, Cloudflare, and GitHub.
+        Configure each project&apos;s platform in{' '}
+        <Link
+          href="/settings/projects"
+          className="text-foreground hover:underline"
+        >
+          Settings &rarr; Projects
+        </Link>.
       </p>
 
       {/* Not configured state */}
-      {!configured && !loading && (
-        <NotConfiguredCard />
+      {!configured && !loading && <NotConfiguredCard />}
+
+      {/* No projects have platform set */}
+      {configured && !loading && projectCount === 0 && deployments.length === 0 && (
+        <NoPlatformsCard />
       )}
 
       {/* Deployment table */}
@@ -188,18 +200,38 @@ function NotConfiguredCard() {
         <AlertCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
         <div className="space-y-2">
           <p className="text-sm text-foreground">
-            App Tracker is not configured. Connect it to see live
-            deployment data.
+            No platform API tokens configured.
           </p>
-          <div className="text-xs text-muted-foreground space-y-1">
-            <p>Add these environment variables:</p>
-            <code className="block bg-background p-2 rounded text-muted-foreground">
-              APP_TRACKER_SUPABASE_URL=https://your-project.supabase.co
-            </code>
-            <code className="block bg-background p-2 rounded text-muted-foreground">
-              APP_TRACKER_SERVICE_KEY=your-service-role-key
-            </code>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            Add one or more: VERCEL_API_TOKEN, CF_API_TOKEN + CF_ACCOUNT_ID,
+            or GITHUB_TOKEN as environment variables.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function NoPlatformsCard() {
+  return (
+    <Card className="bg-card/50 border-border">
+      <CardContent className="flex items-start gap-4 pt-6">
+        <Settings className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+        <div className="space-y-2">
+          <p className="text-sm text-foreground">
+            No projects have a deployment platform configured.
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Go to{' '}
+            <Link
+              href="/settings/projects"
+              className="text-foreground hover:underline"
+            >
+              Settings &rarr; Projects
+            </Link>{' '}
+            and set the platform (Vercel, Cloudflare, or GitHub) for each
+            project you want to track.
+          </p>
         </div>
       </CardContent>
     </Card>

@@ -13,13 +13,32 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Plus, FolderKanban } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { ProjectRow } from '@/components/settings/project-row'
 
 type Project = {
   id: string
   name: string
   url: string | null
+  platform: string | null
+  platformId: string | null
   createdAt: string | null
+}
+
+const PLATFORMS = [
+  { value: '', label: 'None' },
+  { value: 'vercel', label: 'Vercel' },
+  { value: 'cloudflare-workers', label: 'CF Workers' },
+  { value: 'cloudflare-pages', label: 'CF Pages' },
+  { value: 'github', label: 'GitHub Actions' },
+] as const
+
+const PLATFORM_HINTS: Record<string, string> = {
+  vercel: 'Vercel project ID (e.g. prj_abc123)',
+  'cloudflare-workers': 'Worker script name (e.g. vaporforge)',
+  'cloudflare-pages': 'Pages project name (e.g. my-site)',
+  github: 'owner/repo (e.g. Aventerica89/devtools)',
 }
 
 function generateId(): string {
@@ -42,6 +61,8 @@ export default function ProjectSettingsPage() {
   const [newProject, setNewProject] = useState({
     name: '',
     url: '',
+    platform: '',
+    platformId: '',
   })
 
   const fetchProjects = useCallback(async () => {
@@ -61,36 +82,64 @@ export default function ProjectSettingsPage() {
 
     const id = generateId()
 
-    await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id,
-        name: newProject.name,
-        url: newProject.url || null,
-      }),
-    })
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          name: newProject.name,
+          url: newProject.url || null,
+          platform: newProject.platform || null,
+          platformId: newProject.platformId || null,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to create')
+      toast.success('Project created')
+    } catch {
+      toast.error('Failed to create project')
+    }
 
-    setNewProject({ name: '', url: '' })
+    setNewProject({ name: '', url: '', platform: '', platformId: '' })
     setDialogOpen(false)
     fetchProjects()
   }
 
   async function handleUpdate(
     id: string,
-    name: string,
-    url: string
+    data: {
+      name: string
+      url: string
+      platform: string | null
+      platformId: string | null
+    }
   ) {
-    await fetch(`/api/projects/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, url: url || null }),
-    })
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: data.name,
+          url: data.url || null,
+          platform: data.platform,
+          platformId: data.platformId,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      toast.success('Project updated')
+    } catch {
+      toast.error('Failed to update project')
+    }
     fetchProjects()
   }
 
   async function handleDelete(id: string) {
-    await fetch(`/api/projects/${id}`, { method: 'DELETE' })
+    try {
+      await fetch(`/api/projects/${id}`, { method: 'DELETE' })
+      toast.success('Project deleted')
+    } catch {
+      toast.error('Failed to delete project')
+    }
     fetchProjects()
   }
 
@@ -106,7 +155,7 @@ export default function ProjectSettingsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Manage your registered projects and widget installation snippets.
+          Manage projects, widget snippets, and deployment platform config.
         </p>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -142,6 +191,52 @@ export default function ProjectSettingsPage() {
                   placeholder="https://myapp.com"
                   className="bg-background border-border"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>Deploy Platform</Label>
+                  <select
+                    value={newProject.platform}
+                    onChange={(e) =>
+                      setNewProject({
+                        ...newProject,
+                        platform: e.target.value,
+                        platformId: e.target.value
+                          ? newProject.platformId
+                          : '',
+                      })
+                    }
+                    className={cn(
+                      'w-full h-9 rounded-md border border-border',
+                      'bg-background text-foreground text-sm px-3',
+                      'focus:outline-none focus:ring-2 focus:ring-ring'
+                    )}
+                  >
+                    {PLATFORMS.map((p) => (
+                      <option key={p.value} value={p.value}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Platform ID</Label>
+                  <Input
+                    value={newProject.platformId}
+                    onChange={(e) =>
+                      setNewProject({
+                        ...newProject,
+                        platformId: e.target.value,
+                      })
+                    }
+                    placeholder={
+                      PLATFORM_HINTS[newProject.platform] ??
+                      'Select a platform first'
+                    }
+                    disabled={!newProject.platform}
+                    className="bg-background border-border"
+                  />
+                </div>
               </div>
             </div>
             <DialogFooter>

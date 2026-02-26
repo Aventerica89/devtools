@@ -27,6 +27,7 @@ export interface Deployment {
 const PROVIDER_STYLES: Record<string, string> = {
   vercel: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   cloudflare: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+  github: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
 }
 
 const ENV_STYLES: Record<string, string> = {

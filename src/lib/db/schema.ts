@@ -8,6 +8,10 @@ export const projects = sqliteTable('projects', {
   name: text('name').notNull(),
   /** Optional homepage/staging URL for display purposes. */
   url: text('url'),
+  /** Deploy platform: 'vercel' | 'cloudflare-workers' | 'cloudflare-pages' | 'github' */
+  platform: text('platform'),
+  /** Platform-specific project identifier (Vercel project ID, CF script name, owner/repo). */
+  platformId: text('platform_id'),
   createdAt: text('created_at').default(sql`(datetime('now'))`),
 })
 

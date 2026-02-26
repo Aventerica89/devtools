@@ -67,10 +67,14 @@ export function parseBody<T>(
 }
 
 // Shared schemas
+const PLATFORMS = ['vercel', 'cloudflare-workers', 'cloudflare-pages', 'github'] as const
+
 export const ProjectSchema = z.object({
   id: z.string().min(1).max(128),
   name: z.string().min(1).max(256),
   url: z.string().url().optional().nullable(),
+  platform: z.enum(PLATFORMS).optional().nullable(),
+  platformId: z.string().max(256).optional().nullable(),
 })
 
 export const BugSchema = z.object({
