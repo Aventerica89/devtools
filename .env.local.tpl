@@ -11,5 +11,7 @@ NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_CLERK_PROXY_URL=https://devtools.jbcloud.app/clerk-proxy
+
 # DevTools API Key (for cross-app plugin + CLI ideas sync)
 DEVTOOLS_API_KEY={{ op://App Dev/#devtools / DEVTOOLS_API_KEY/credential }}

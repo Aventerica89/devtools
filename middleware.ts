@@ -13,6 +13,7 @@ const isPublicRoute = createRouteMatcher([
   '/unlock(.*)',
   '/sign-in(.*)',
   '/sign-up(.*)',
+  '/clerk-proxy(.*)',
 ])
 
 /**
