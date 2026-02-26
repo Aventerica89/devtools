@@ -102,7 +102,18 @@ export function DeploymentTable({ deployments }: DeploymentTableProps) {
             className="border-border hover:bg-accent/50"
           >
             <TableCell className="text-foreground font-medium">
-              {d.app_name}
+              {d.url ? (
+                <a
+                  href={d.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-400 hover:underline transition-colors"
+                >
+                  {d.app_name}
+                </a>
+              ) : (
+                d.app_name
+              )}
             </TableCell>
             <TableCell>
               <Badge

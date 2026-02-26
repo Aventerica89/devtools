@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { formatTime } from '@/lib/format-date'
 import { PaginationControls } from '@/components/pagination-controls'
@@ -165,7 +166,17 @@ export default function NetworkPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setEntries([])}
+            onClick={async () => {
+              if (!confirm('Clear all network entries? This cannot be undone.')) return
+              try {
+                const res = await fetch('/api/devlog/bulk?type=network', { method: 'DELETE' })
+                if (!res.ok) throw new Error('Failed to clear')
+                setEntries([])
+                toast.success('Network log cleared')
+              } catch {
+                toast.error('Failed to clear network log')
+              }
+            }}
           >
             <Trash2 className="h-4 w-4" />
             Clear
@@ -298,11 +309,35 @@ export default function NetworkPage() {
                   </button>
 
                   {expandedId === entry.id && (
-                    <div className="px-6 py-2 bg-card/30 border-b border-border/50">
-                      <p className="text-xs text-muted-foreground">
-                        Request details will appear here when
-                        intercepted by the widget.
-                      </p>
+                    <div className="px-6 py-3 bg-card/30 border-b border-border/50 space-y-2">
+                      <div className="grid grid-cols-[80px_1fr] gap-x-3 gap-y-1 text-xs">
+                        <span className="text-muted-foreground font-medium">URL</span>
+                        <span className="font-mono text-foreground break-all">{entry.url}</span>
+                        <span className="text-muted-foreground font-medium">Method</span>
+                        <span className={cn('font-mono font-semibold', METHOD_COLORS[entry.method] || 'text-muted-foreground')}>
+                          {entry.method}
+                        </span>
+                        <span className="text-muted-foreground font-medium">Status</span>
+                        <span className={cn('font-mono', getStatusColor(entry.status))}>
+                          {entry.status || 'pending'}
+                        </span>
+                        <span className="text-muted-foreground font-medium">Duration</span>
+                        <span className="font-mono text-muted-foreground">{formatDuration(entry.duration)}</span>
+                        <span className="text-muted-foreground font-medium">Size</span>
+                        <span className="font-mono text-muted-foreground">{formatSize(entry.size)}</span>
+                        {projectName && (
+                          <>
+                            <span className="text-muted-foreground font-medium">Project</span>
+                            <span className="text-muted-foreground">{projectName}</span>
+                          </>
+                        )}
+                        {entry.timestamp && (
+                          <>
+                            <span className="text-muted-foreground font-medium">Time</span>
+                            <span className="font-mono text-muted-foreground">{formatTime(entry.timestamp)}</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

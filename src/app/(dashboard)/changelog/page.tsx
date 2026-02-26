@@ -2,6 +2,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { currentUser } from '@clerk/nextjs/server'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ChangelogRenderer } from '@/components/changelog-renderer'
 
 function readFileSafe(filePath: string): string {
   try {
@@ -38,9 +39,7 @@ export default async function ChangelogPage() {
 
         <TabsContent value="whats-new" className="mt-4">
           {hasPublicEntries ? (
-            <pre className="text-sm font-mono bg-muted/50 rounded-lg p-4 whitespace-pre-wrap leading-relaxed">
-              {publicLog}
-            </pre>
+            <ChangelogRenderer content={publicLog} className="bg-muted/50 rounded-lg p-4" />
           ) : (
             <div className="text-muted-foreground text-sm border border-dashed rounded-lg p-8 text-center">
               No releases published yet. Run <code className="bg-muted px-1 rounded">/changelog feature &quot;description&quot;</code> after your next deploy.
@@ -51,9 +50,7 @@ export default async function ChangelogPage() {
         {isOwner && (
           <TabsContent value="dev-log" className="mt-4">
             {hasDevEntries ? (
-              <pre className="text-sm font-mono bg-muted/50 rounded-lg p-4 whitespace-pre-wrap leading-relaxed">
-                {devLog}
-              </pre>
+              <ChangelogRenderer content={devLog} className="bg-muted/50 rounded-lg p-4" />
             ) : (
               <div className="text-muted-foreground text-sm border border-dashed rounded-lg p-8 text-center">
                 No dev log entries yet. Entries are added automatically on each deploy.

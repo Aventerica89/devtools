@@ -1,6 +1,7 @@
 'use client'
 
 import { memo, useMemo } from 'react'
+import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import {
@@ -17,6 +18,7 @@ interface StatItem {
   readonly icon: LucideIcon
   readonly color: string
   readonly bgColor: string
+  readonly href: string
 }
 
 function buildStatItems(stats: DashboardStats): readonly StatItem[] {
@@ -27,6 +29,7 @@ function buildStatItems(stats: DashboardStats): readonly StatItem[] {
       icon: FolderKanban,
       color: 'text-blue-400',
       bgColor: 'bg-blue-500/10',
+      href: '/settings/projects',
     },
     {
       label: 'Open Bugs',
@@ -34,6 +37,7 @@ function buildStatItems(stats: DashboardStats): readonly StatItem[] {
       icon: Bug,
       color: 'text-red-400',
       bgColor: 'bg-red-500/10',
+      href: '/bugs',
     },
     {
       label: 'Recent Errors',
@@ -41,6 +45,7 @@ function buildStatItems(stats: DashboardStats): readonly StatItem[] {
       icon: AlertTriangle,
       color: 'text-yellow-400',
       bgColor: 'bg-yellow-500/10',
+      href: '/errors',
     },
     {
       label: 'Perf Score',
@@ -48,6 +53,7 @@ function buildStatItems(stats: DashboardStats): readonly StatItem[] {
       icon: Gauge,
       color: stats.perfScoreColor,
       bgColor: 'bg-emerald-500/10',
+      href: '/perf',
     },
   ] as const
 }
@@ -97,26 +103,28 @@ export const StatCards = memo(function StatCards({ stats, loading }: StatCardsPr
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {items.map((item) => (
-        <Card key={item.label} className="bg-card border-border">
-          <CardContent className="pt-0">
-            <div className="flex items-center gap-4">
-              <div
-                className={cn(
-                  'h-10 w-10 rounded-lg flex items-center justify-center',
-                  item.bgColor
-                )}
-              >
-                <item.icon className={cn('h-5 w-5', item.color)} />
+        <Link key={item.label} href={item.href}>
+          <Card className="bg-card border-border hover:border-ring/50 cursor-pointer transition-colors">
+            <CardContent className="pt-0">
+              <div className="flex items-center gap-4">
+                <div
+                  className={cn(
+                    'h-10 w-10 rounded-lg flex items-center justify-center',
+                    item.bgColor
+                  )}
+                >
+                  <item.icon className={cn('h-5 w-5', item.color)} />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className={cn('text-2xl font-bold', item.color)}>
+                    {item.value}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{item.label}</p>
-                <p className={cn('text-2xl font-bold', item.color)}>
-                  {item.value}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   )

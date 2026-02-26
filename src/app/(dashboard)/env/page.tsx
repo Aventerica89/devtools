@@ -20,8 +20,10 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, KeyRound } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import { EnvVarList } from '@/components/env/env-var-list'
 import { EnvCompare } from '@/components/env/env-compare'
 import { EnvImport } from '@/components/env/env-import'
@@ -84,12 +86,32 @@ export default function EnvVarsPage() {
       description: '',
     })
     setDialogOpen(false)
+    toast.success('Variable added')
     fetchEnvVars()
   }
 
   async function handleDelete(id: number) {
     await fetch(`/api/env?id=${id}`, { method: 'DELETE' })
+    toast.success('Variable deleted')
     fetchEnvVars()
+  }
+
+  async function handleUpdate(
+    id: number,
+    data: { value?: string; description?: string | null }
+  ) {
+    try {
+      const res = await fetch('/api/env', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...data }),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      toast.success('Variable updated')
+      fetchEnvVars()
+    } catch {
+      toast.error('Failed to update variable')
+    }
   }
 
   async function handleBulkImport(
@@ -111,13 +133,23 @@ export default function EnvVarsPage() {
         })
       )
     )
+    toast.success(`Imported ${vars.length} variable${vars.length !== 1 ? 's' : ''}`)
     fetchEnvVars()
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        Loading env vars...
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-5 rounded" />
+          <Skeleton className="h-7 w-28" />
+        </div>
+        <Skeleton className="h-4 w-80" />
+        <div className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     )
   }
@@ -264,6 +296,7 @@ export default function EnvVarsPage() {
             filterProjectId={filterProjectId}
             onFilterChange={(id) => setFilterProjectId(id)}
             onDelete={handleDelete}
+            onUpdate={handleUpdate}
           />
         </TabsContent>
 

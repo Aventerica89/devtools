@@ -2,20 +2,16 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from '@/components/ui/dialog'
 import { BugCard } from '@/components/bug-card'
+import { CreateBugDialog } from '@/components/create-bug-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Bug } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
+
+const SEVERITIES = ['low', 'medium', 'high', 'critical'] as const
+const STATUSES = ['open', 'in-progress', 'resolved'] as const
 
 type BugRecord = {
   id: number
@@ -39,9 +35,6 @@ type Project = {
   url: string | null
   createdAt: string | null
 }
-
-const SEVERITIES = ['low', 'medium', 'high', 'critical'] as const
-const STATUSES = ['open', 'in-progress', 'resolved'] as const
 
 const SEVERITY_FILTER_STYLES: Record<string, string> = {
   critical: 'border-red-700 text-red-300',
@@ -67,16 +60,6 @@ export default function BugsPage() {
   const [filterSeverity, setFilterSeverity] = useState<string>('')
   const [filterStatus, setFilterStatus] = useState<string>('')
 
-  // New bug form
-  const [newBug, setNewBug] = useState({
-    projectId: '',
-    title: '',
-    description: '',
-    severity: 'medium',
-    pageUrl: '',
-    stackTrace: '',
-  })
-
   const fetchBugs = useCallback(async () => {
     const params = filterProject ? `?project=${filterProject}` : ''
     const res = await fetch(`/api/bugs${params}`)
@@ -97,29 +80,21 @@ export default function BugsPage() {
   }, [fetchBugs, fetchProjects])
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  async function handleCreate() {
-    if (!newBug.projectId || !newBug.title) return
-
+  async function handleCreate(data: {
+    projectId: string
+    title: string
+    description: string | null
+    severity: string
+    pageUrl: string | null
+    stackTrace: string | null
+    metadata: string | null
+  }) {
     await fetch('/api/bugs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...newBug,
-        description: newBug.description || null,
-        pageUrl: newBug.pageUrl || null,
-        stackTrace: newBug.stackTrace || null,
-      }),
+      body: JSON.stringify(data),
     })
-
-    setNewBug({
-      projectId: '',
-      title: '',
-      description: '',
-      severity: 'medium',
-      pageUrl: '',
-      stackTrace: '',
-    })
-    setDialogOpen(false)
+    toast.success('Bug reported')
     fetchBugs()
   }
 
@@ -129,11 +104,28 @@ export default function BugsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
     })
+    toast.success(`Bug marked as ${status}`)
     fetchBugs()
+  }
+
+  async function handleUpdate(id: number, data: { title: string; description: string | null; severity: string }) {
+    try {
+      const res = await fetch(`/api/bugs/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      toast.success('Bug updated')
+      fetchBugs()
+    } catch {
+      toast.error('Failed to update bug')
+    }
   }
 
   async function handleDelete(id: number) {
     await fetch(`/api/bugs/${id}`, { method: 'DELETE' })
+    toast.success('Bug deleted')
     fetchBugs()
   }
 
@@ -145,8 +137,22 @@ export default function BugsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        Loading bugs...
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-5 rounded" />
+          <Skeleton className="h-7 w-32" />
+        </div>
+        <Skeleton className="h-4 w-64" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-6 w-16 rounded-full" />
+          ))}
+        </div>
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 w-full rounded-lg" />
+          ))}
+        </div>
       </div>
     )
   }
@@ -163,133 +169,17 @@ export default function BugsPage() {
           </Badge>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="h-4 w-4" />
-              New Bug
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-card border-border">
-            <DialogHeader>
-              <DialogTitle>Report a Bug</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Project</Label>
-                <select
-                  value={newBug.projectId}
-                  onChange={(e) =>
-                    setNewBug({ ...newBug, projectId: e.target.value })
-                  }
-                  className={cn(
-                    'w-full h-9 rounded-md border border-border',
-                    'bg-background text-foreground text-sm px-3',
-                    'focus:outline-none focus:ring-2 focus:ring-ring'
-                  )}
-                >
-                  <option value="">Select a project</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <Button size="sm" onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4" />
+          New Bug
+        </Button>
 
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  value={newBug.title}
-                  onChange={(e) =>
-                    setNewBug({ ...newBug, title: e.target.value })
-                  }
-                  placeholder="Brief description of the bug"
-                  className="bg-background border-border"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <textarea
-                  value={newBug.description}
-                  onChange={(e) =>
-                    setNewBug({ ...newBug, description: e.target.value })
-                  }
-                  placeholder="Steps to reproduce, expected vs actual behavior"
-                  rows={3}
-                  className={cn(
-                    'w-full rounded-md border border-border',
-                    'bg-background text-foreground text-sm p-3',
-                    'focus:outline-none focus:ring-2 focus:ring-ring',
-                    'resize-none'
-                  )}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Severity</Label>
-                <div className="flex gap-2">
-                  {SEVERITIES.map((s) => (
-                    <Button
-                      key={s}
-                      variant={newBug.severity === s ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setNewBug({ ...newBug, severity: s })}
-                      className="capitalize text-xs"
-                    >
-                      {s}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Page URL (optional)</Label>
-                <Input
-                  value={newBug.pageUrl}
-                  onChange={(e) =>
-                    setNewBug({ ...newBug, pageUrl: e.target.value })
-                  }
-                  placeholder="https://..."
-                  className="bg-background border-border"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Stack Trace (optional)</Label>
-                <textarea
-                  value={newBug.stackTrace}
-                  onChange={(e) =>
-                    setNewBug({ ...newBug, stackTrace: e.target.value })
-                  }
-                  placeholder="Paste stack trace here"
-                  rows={3}
-                  className={cn(
-                    'w-full rounded-md border border-border',
-                    'bg-background text-foreground text-sm p-3 font-mono',
-                    'focus:outline-none focus:ring-2 focus:ring-ring',
-                    'resize-none'
-                  )}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreate}
-                disabled={!newBug.projectId || !newBug.title}
-              >
-                Submit Bug
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <CreateBugDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          projects={projects}
+          onSubmit={handleCreate}
+        />
       </div>
 
       <p className="text-sm text-muted-foreground">
@@ -376,6 +266,7 @@ export default function BugsPage() {
               bug={bug}
               onStatusChange={handleStatusChange}
               onDelete={handleDelete}
+              onUpdate={handleUpdate}
             />
           ))}
         </div>

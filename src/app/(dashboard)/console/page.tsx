@@ -13,6 +13,7 @@ import {
   Info,
   MessageSquare,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { formatTime } from '@/lib/format-date'
 import { PaginationControls } from '@/components/pagination-controls'
@@ -152,7 +153,17 @@ export default function ConsolePage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setEntries([])}
+            onClick={async () => {
+              if (!confirm('Clear all console entries? This cannot be undone.')) return
+              try {
+                const res = await fetch('/api/devlog/bulk?type=console', { method: 'DELETE' })
+                if (!res.ok) throw new Error('Failed to clear')
+                setEntries([])
+                toast.success('Console log cleared')
+              } catch {
+                toast.error('Failed to clear console')
+              }
+            }}
           >
             <Trash2 className="h-4 w-4" />
             Clear

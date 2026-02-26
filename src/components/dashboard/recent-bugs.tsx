@@ -96,11 +96,13 @@ export function RecentBugs({ bugs, loading }: RecentBugsProps) {
         ) : (
           <div className="space-y-1">
             {bugs.map((bug) => (
-              <div
+              <Link
                 key={bug.id}
+                href="/bugs"
                 className={cn(
                   'flex items-center justify-between py-2.5',
-                  'border-b border-border/50 last:border-0'
+                  'border-b border-border/50 last:border-0',
+                  'hover:bg-accent/50 rounded-md px-1 -mx-1 transition-colors'
                 )}
               >
                 <div className="min-w-0 flex-1 mr-3">
@@ -121,7 +123,7 @@ export function RecentBugs({ bugs, loading }: RecentBugsProps) {
                 >
                   {bug.severity ?? 'unknown'}
                 </Badge>
-              </div>
+              </Link>
             ))}
           </div>
         )}

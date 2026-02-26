@@ -20,6 +20,8 @@ import {
   Gauge,
   Bug,
   Wrench,
+  Terminal,
+  Globe,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -31,15 +33,18 @@ export interface DevlogEntry {
   readonly createdAt: string | null
 }
 
-const TYPE_META: Record<string, { icon: LucideIcon; color: string }> = {
-  error: { icon: AlertTriangle, color: 'text-red-400' },
-  note: { icon: ScrollText, color: 'text-blue-400' },
-  perf: { icon: Gauge, color: 'text-emerald-400' },
-  bug: { icon: Bug, color: 'text-orange-400' },
-  fix: { icon: Wrench, color: 'text-green-400' },
+const TYPE_META: Record<string, { icon: LucideIcon; color: string; href: string }> = {
+  error: { icon: AlertTriangle, color: 'text-red-400', href: '/errors' },
+  note: { icon: ScrollText, color: 'text-blue-400', href: '/devlog' },
+  perf: { icon: Gauge, color: 'text-emerald-400', href: '/perf' },
+  bug: { icon: Bug, color: 'text-orange-400', href: '/bugs' },
+  fix: { icon: Wrench, color: 'text-green-400', href: '/devlog' },
+  console: { icon: Terminal, color: 'text-foreground', href: '/console' },
+  network: { icon: Globe, color: 'text-emerald-400', href: '/network' },
+  warning: { icon: AlertTriangle, color: 'text-yellow-400', href: '/devlog' },
 }
 
-const DEFAULT_TYPE_META = { icon: Activity, color: 'text-muted-foreground' }
+const DEFAULT_TYPE_META = { icon: Activity, color: 'text-muted-foreground', href: '/devlog' }
 
 const SOURCE_STYLES: Record<string, string> = {
   manual: 'bg-muted text-muted-foreground border-border',
@@ -120,11 +125,13 @@ export function RecentActivity({ entries, loading }: RecentActivityProps) {
               const TypeIcon = meta.icon
 
               return (
-                <div
+                <Link
                   key={entry.id}
+                  href={meta.href}
                   className={cn(
                     'flex items-center gap-3 py-2.5',
-                    'border-b border-border/50 last:border-0'
+                    'border-b border-border/50 last:border-0',
+                    'hover:bg-accent/50 rounded-md px-1 -mx-1 transition-colors'
                   )}
                 >
                   <div
@@ -155,7 +162,7 @@ export function RecentActivity({ entries, loading }: RecentActivityProps) {
                       {entry.source}
                     </Badge>
                   )}
-                </div>
+                </Link>
               )
             })}
           </div>

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { formatDate } from '@/lib/format-date'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Card,
   CardHeader,
@@ -17,9 +18,14 @@ import {
   ChevronUp,
   ExternalLink,
   Trash2,
+  Pencil,
+  X,
+  Save,
+  Link as LinkIcon,
 } from 'lucide-react'
+import { toast } from 'sonner'
 
-type Bug = {
+export type Bug = {
   id: number
   projectId: string
   title: string
@@ -34,6 +40,8 @@ type Bug = {
   createdAt: string | null
   resolvedAt: string | null
 }
+
+const SEVERITIES = ['low', 'medium', 'high', 'critical'] as const
 
 const SEVERITY_STYLES: Record<string, string> = {
   critical: 'bg-red-900/50 text-red-300 border-red-700',
@@ -58,10 +66,20 @@ type BugCardProps = {
   bug: Bug
   onStatusChange: (id: number, status: string) => void
   onDelete: (id: number) => void
+  onUpdate?: (id: number, data: { title: string; description: string | null; severity: string }) => void
 }
 
-export const BugCard = memo(function BugCard({ bug, onStatusChange, onDelete }: BugCardProps) {
+export const BugCard = memo(function BugCard({
+  bug,
+  onStatusChange,
+  onDelete,
+  onUpdate,
+}: BugCardProps) {
   const [expanded, setExpanded] = useState(false)
+  const [editing, setEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(bug.title)
+  const [editDesc, setEditDesc] = useState(bug.description || '')
+  const [editSeverity, setEditSeverity] = useState(bug.severity || 'medium')
   const severity = bug.severity || 'medium'
   const status = bug.status || 'open'
 
@@ -76,6 +94,29 @@ export const BugCard = memo(function BugCard({ bug, onStatusChange, onDelete }: 
   const handleDelete = useCallback(() => {
     onDelete(bug.id)
   }, [bug.id, onDelete])
+
+  const handleStartEdit = useCallback(() => {
+    setEditTitle(bug.title)
+    setEditDesc(bug.description || '')
+    setEditSeverity(bug.severity || 'medium')
+    setEditing(true)
+  }, [bug.title, bug.description, bug.severity])
+
+  const handleCancelEdit = useCallback(() => {
+    setEditing(false)
+  }, [])
+
+  const handleSaveEdit = useCallback(async () => {
+    if (!editTitle.trim()) return
+    if (onUpdate) {
+      onUpdate(bug.id, {
+        title: editTitle.trim(),
+        description: editDesc.trim() || null,
+        severity: editSeverity,
+      })
+    }
+    setEditing(false)
+  }, [bug.id, editTitle, editDesc, editSeverity, onUpdate])
 
   return (
     <Card className="bg-card border-border">
@@ -134,54 +175,134 @@ export const BugCard = memo(function BugCard({ bug, onStatusChange, onDelete }: 
               {bug.pageUrl}
             </a>
           )}
+          {bug.metadata && (() => {
+            try {
+              const meta = JSON.parse(bug.metadata)
+              if (meta.fromErrorId) {
+                return (
+                  <span className="flex items-center gap-1 text-blue-400">
+                    <LinkIcon className="h-3 w-3" />
+                    From error #{meta.fromErrorId}
+                  </span>
+                )
+              }
+            } catch { /* ignore */ }
+            return null
+          })()}
         </div>
 
         {expanded && (
           <div className="mt-3 space-y-3">
-            {bug.description && (
-              <p className="text-sm text-foreground">{bug.description}</p>
-            )}
+            {editing ? (
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">Title</label>
+                  <Input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    className="bg-background border-border text-sm"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">Description</label>
+                  <textarea
+                    value={editDesc}
+                    onChange={(e) => setEditDesc(e.target.value)}
+                    rows={3}
+                    className={cn(
+                      'w-full rounded-md border border-border',
+                      'bg-background text-foreground text-sm p-3',
+                      'focus:outline-none focus:ring-2 focus:ring-ring',
+                      'resize-none'
+                    )}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs text-muted-foreground">Severity</label>
+                  <div className="flex gap-2">
+                    {SEVERITIES.map((s) => (
+                      <Button
+                        key={s}
+                        variant={editSeverity === s ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setEditSeverity(s)}
+                        className="capitalize text-xs"
+                      >
+                        {s}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="ghost" size="xs" onClick={handleCancelEdit}>
+                    <X className="h-3 w-3" />
+                    Cancel
+                  </Button>
+                  <Button size="xs" onClick={handleSaveEdit} disabled={!editTitle.trim()}>
+                    <Save className="h-3 w-3" />
+                    Save
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {bug.description && (
+                  <p className="text-sm text-foreground">{bug.description}</p>
+                )}
 
-            {bug.stackTrace && (
-              <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto text-red-400 border border-border">
-                {bug.stackTrace}
-              </pre>
-            )}
+                {bug.stackTrace && (
+                  <pre className="text-xs bg-background p-3 rounded-md overflow-x-auto text-red-400 border border-border">
+                    {bug.stackTrace}
+                  </pre>
+                )}
 
-            {bug.userAgent && (
-              <p className="text-xs text-muted-foreground">
-                <span className="text-muted-foreground">UA:</span> {bug.userAgent}
-              </p>
-            )}
+                {bug.userAgent && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-muted-foreground">UA:</span> {bug.userAgent}
+                  </p>
+                )}
 
-            {bug.screenshotUrl && (
-              <a
-                href={bug.screenshotUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-blue-400 hover:underline"
-              >
-                View Screenshot
-              </a>
-            )}
+                {bug.screenshotUrl && (
+                  <a
+                    href={bug.screenshotUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-400 hover:underline"
+                  >
+                    View Screenshot
+                  </a>
+                )}
 
-            {bug.resolvedAt && (
-              <p className="text-xs text-muted-foreground">
-                Resolved: {formatDate(bug.resolvedAt)}
-              </p>
-            )}
+                {bug.resolvedAt && (
+                  <p className="text-xs text-muted-foreground">
+                    Resolved: {formatDate(bug.resolvedAt)}
+                  </p>
+                )}
 
-            <div className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="xs"
-                className="text-red-400 hover:text-red-300"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-3 w-3" />
-                Delete
-              </Button>
-            </div>
+                <div className="flex justify-end gap-1">
+                  {onUpdate && (
+                    <Button
+                      variant="ghost"
+                      size="xs"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={handleStartEdit}
+                    >
+                      <Pencil className="h-3 w-3" />
+                      Edit
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    className="text-red-400 hover:text-red-300"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                    Delete
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </CardContent>

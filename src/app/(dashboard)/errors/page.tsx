@@ -11,8 +11,11 @@ import {
   ExternalLink,
   Copy,
   Check,
+  Bug,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { CreateBugDialog } from '@/components/create-bug-dialog'
 import { formatDate } from '@/lib/format-date'
 import { PaginationControls } from '@/components/pagination-controls'
 
@@ -51,6 +54,15 @@ export default function ErrorsPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const [copiedId, setCopiedId] = useState<number | null>(null)
   const [page, setPage] = useState(1)
+  const [bugDialogOpen, setBugDialogOpen] = useState(false)
+  const [bugDefaults, setBugDefaults] = useState<{
+    projectId?: string
+    title?: string
+    description?: string
+    severity?: string
+    stackTrace?: string
+    metadata?: Record<string, unknown>
+  }>({})
 
   function buildCopyText(entry: ErrorEntry): string {
     const parts: string[] = [
@@ -77,6 +89,46 @@ export default function ErrorsPage() {
       setTimeout(() => setCopiedId(null), 1500)
     } catch {
       // ignore
+    }
+  }
+
+  function openBugFromError(entry: ErrorEntry) {
+    setBugDefaults({
+      projectId: entry.projectId,
+      title: `[Error] ${entry.message}`,
+      description: [
+        entry.source && `Source: ${entry.source}${entry.lineNumber ? `:${entry.lineNumber}` : ''}`,
+        entry.pageUrl && `Page: ${entry.pageUrl}`,
+        entry.timestamp && `Time: ${entry.timestamp}`,
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      severity: 'high',
+      stackTrace: entry.stackTrace || undefined,
+      metadata: { fromErrorId: entry.id },
+    })
+    setBugDialogOpen(true)
+  }
+
+  async function handleCreateBug(data: {
+    projectId: string
+    title: string
+    description: string | null
+    severity: string
+    pageUrl: string | null
+    stackTrace: string | null
+    metadata: string | null
+  }) {
+    try {
+      const res = await fetch('/api/bugs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error('Failed to create bug')
+      toast.success('Bug reported from error')
+    } catch {
+      toast.error('Failed to create bug')
     }
   }
 
@@ -172,7 +224,17 @@ export default function ErrorsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setEntries([])}
+            onClick={async () => {
+              if (!confirm('Clear all error entries? This cannot be undone.')) return
+              try {
+                const res = await fetch('/api/devlog/bulk?type=error', { method: 'DELETE' })
+                if (!res.ok) throw new Error('Failed to clear')
+                setEntries([])
+                toast.success('Error log cleared')
+              } catch {
+                toast.error('Failed to clear errors')
+              }
+            }}
           >
             <Trash2 className="h-4 w-4" />
             Clear
@@ -364,6 +426,21 @@ export default function ErrorsPage() {
                           </p>
                         </div>
                       )}
+
+                      <div className="flex justify-end">
+                        <Button
+                          variant="ghost"
+                          size="xs"
+                          className="text-muted-foreground hover:text-foreground"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openBugFromError(entry)
+                          }}
+                        >
+                          <Bug className="h-3 w-3" />
+                          Report as Bug
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -377,6 +454,14 @@ export default function ErrorsPage() {
           />
         </>
       )}
+
+      <CreateBugDialog
+        open={bugDialogOpen}
+        onOpenChange={setBugDialogOpen}
+        projects={projects}
+        defaultValues={bugDefaults}
+        onSubmit={handleCreateBug}
+      />
     </div>
   )
 }

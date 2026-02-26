@@ -4,8 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Lightbulb, Plus, Copy, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 type Idea = {
   id: number
@@ -70,6 +72,7 @@ export default function IdeasPage() {
       const created: Idea = await res.json()
       setIdeas((prev) => [created, ...(prev ?? [])])
       setNewTitle('')
+      toast.success('Idea added')
     } finally {
       setAdding(false)
     }
@@ -90,6 +93,7 @@ export default function IdeasPage() {
   const deleteIdea = useCallback(async (id: number) => {
     setIdeas((prev) => (prev ?? []).filter((i) => i.id !== id))
     await fetch(`/api/ideas/${id}`, { method: 'DELETE' }).catch(() => {})
+    toast.success('Idea deleted')
   }, [])
 
   const copyForClaude = useCallback(() => {
@@ -186,7 +190,11 @@ export default function IdeasPage() {
 
       <div className="space-y-2">
         {ideas === null ? (
-          <p className="text-muted-foreground text-sm">Loading\u2026</p>
+          <div className="space-y-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full rounded-lg" />
+            ))}
+          </div>
         ) : visible.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             No ideas match the filter.

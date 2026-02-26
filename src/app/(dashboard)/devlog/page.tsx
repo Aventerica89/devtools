@@ -21,10 +21,18 @@ import {
   AlertTriangle,
   Gauge,
   Globe,
+  Terminal,
   Search,
   Trash2,
+  Pencil,
+  Save,
+  X,
+  Bug,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
+import { CreateBugDialog } from '@/components/create-bug-dialog'
 import { formatDate } from '@/lib/format-date'
 import { PaginationControls } from '@/components/pagination-controls'
 
@@ -46,7 +54,7 @@ type Project = {
   createdAt: string | null
 }
 
-const LOG_TYPES = ['note', 'error', 'warning', 'perf', 'network'] as const
+const LOG_TYPES = ['note', 'error', 'warning', 'perf', 'network', 'console'] as const
 const PAGE_SIZE = 20
 
 const TYPE_CONFIG: Record<string, {
@@ -78,6 +86,11 @@ const TYPE_CONFIG: Record<string, {
     icon: Globe,
     color: 'text-emerald-400',
     filterStyle: 'border-emerald-700 text-emerald-300',
+  },
+  console: {
+    icon: Terminal,
+    color: 'text-foreground',
+    filterStyle: 'border-border text-foreground',
   },
 }
 
@@ -136,6 +149,72 @@ export default function DevLogPage() {
     setPage(1)
   }, [filterProject, filterType, filterSource, searchQuery])
 
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
+  const [bugDialogOpen, setBugDialogOpen] = useState(false)
+  const [bugDefaults, setBugDefaults] = useState<{
+    projectId?: string
+    title?: string
+    description?: string
+    severity?: string
+    stackTrace?: string
+    metadata?: Record<string, unknown>
+  }>({})
+
+  function openBugFromEntry(entry: DevLogEntry) {
+    setBugDefaults({
+      projectId: entry.projectId,
+      title: `[${entry.type}] ${entry.title}`,
+      description: entry.content || undefined,
+      severity: entry.type === 'error' ? 'high' : 'medium',
+      metadata: { fromErrorId: entry.id },
+    })
+    setBugDialogOpen(true)
+  }
+
+  async function handleCreateBug(data: {
+    projectId: string
+    title: string
+    description: string | null
+    severity: string
+    pageUrl: string | null
+    stackTrace: string | null
+    metadata: string | null
+  }) {
+    try {
+      const res = await fetch('/api/bugs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error('Failed to create bug')
+      toast.success('Bug reported from log entry')
+    } catch {
+      toast.error('Failed to create bug')
+    }
+  }
+
+  async function handleUpdate(id: number) {
+    if (!editTitle.trim()) return
+    try {
+      const res = await fetch(`/api/devlog/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: editTitle.trim(),
+          content: editContent.trim() || null,
+        }),
+      })
+      if (!res.ok) throw new Error('Failed to update')
+      toast.success('Entry updated')
+      setEditingId(null)
+      fetchEntries()
+    } catch {
+      toast.error('Failed to update entry')
+    }
+  }
+
   async function handleCreate() {
     if (!newEntry.projectId || !newEntry.title) return
 
@@ -155,13 +234,17 @@ export default function DevLogPage() {
       content: '',
     })
     setDialogOpen(false)
+    toast.success('Entry added')
     fetchEntries()
   }
 
   async function handleDelete(id: number) {
     await fetch(`/api/devlog/${id}`, { method: 'DELETE' })
+    toast.success('Entry deleted')
     fetchEntries()
   }
+
+  const projectMap = new Map(projects.map((p) => [p.id, p.name]))
 
   const filtered = (entries ?? []).filter((entry) => {
     if (filterSource && entry.source !== filterSource) return false
@@ -181,8 +264,25 @@ export default function DevLogPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground">
-        Loading dev log...
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-5 w-5 rounded" />
+          <Skeleton className="h-7 w-28" />
+        </div>
+        <Skeleton className="h-4 w-72" />
+        <div className="flex gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-6 w-16 rounded-full" />
+          ))}
+        </div>
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex gap-4 pl-0">
+              <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+              <Skeleton className="h-20 flex-1 rounded-lg" />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
@@ -460,24 +560,80 @@ export default function DevLogPage() {
                           <p className="text-xs font-mono text-muted-foreground">
                             {formatDate(entry.createdAt)}
                             {' | '}
-                            {entry.projectId}
+                            {projectMap.get(entry.projectId) || entry.projectId}
                           </p>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon-xs"
-                          className="text-muted-foreground hover:text-red-400 shrink-0"
-                          onClick={() => handleDelete(entry.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          {(entry.type === 'error' || entry.type === 'warning') && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              className="text-muted-foreground hover:text-foreground"
+                              onClick={() => openBugFromEntry(entry)}
+                              title="Report as Bug"
+                            >
+                              <Bug className="h-3 w-3" />
+                            </Button>
+                          )}
+                          {entry.source === 'manual' && editingId !== entry.id && (
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
+                              className="text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                setEditingId(entry.id)
+                                setEditTitle(entry.title)
+                                setEditContent(entry.content || '')
+                              }}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className="text-muted-foreground hover:text-red-400"
+                            onClick={() => handleDelete(entry.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
 
-                      {entry.content && (
+                      {editingId === entry.id ? (
+                        <div className="mt-2 space-y-2">
+                          <Input
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            className="bg-background border-border text-sm"
+                          />
+                          <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            rows={3}
+                            className={cn(
+                              'w-full rounded-md border border-border',
+                              'bg-background text-foreground text-sm p-3',
+                              'focus:outline-none focus:ring-2 focus:ring-ring',
+                              'resize-none'
+                            )}
+                          />
+                          <div className="flex justify-end gap-2">
+                            <Button variant="ghost" size="xs" onClick={() => setEditingId(null)}>
+                              <X className="h-3 w-3" />
+                              Cancel
+                            </Button>
+                            <Button size="xs" onClick={() => handleUpdate(entry.id)} disabled={!editTitle.trim()}>
+                              <Save className="h-3 w-3" />
+                              Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : entry.content ? (
                         <p className="mt-2 text-xs text-muted-foreground whitespace-pre-wrap">
                           {entry.content}
                         </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 )
@@ -491,6 +647,14 @@ export default function DevLogPage() {
           />
         </>
       )}
+
+      <CreateBugDialog
+        open={bugDialogOpen}
+        onOpenChange={setBugDialogOpen}
+        projects={projects}
+        defaultValues={bugDefaults}
+        onSubmit={handleCreateBug}
+      />
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import {
   Card,
   CardContent,
@@ -24,8 +25,12 @@ import {
   Check,
   Trash2,
   Lock,
+  Pencil,
+  Save,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 import type { EnvVar, Project } from './types'
 
 type Props = {
@@ -34,6 +39,7 @@ type Props = {
   filterProjectId: string
   onFilterChange: (projectId: string) => void
   onDelete: (id: number) => void
+  onUpdate?: (id: number, data: { value?: string; description?: string | null }) => void
 }
 
 export function EnvVarList({
@@ -42,10 +48,14 @@ export function EnvVarList({
   filterProjectId,
   onFilterChange,
   onDelete,
+  onUpdate,
 }: Props) {
   const [revealedIds, setRevealedIds] = useState<Set<number>>(new Set())
   const [copiedId, setCopiedId] = useState<number | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editValue, setEditValue] = useState('')
+  const [editDesc, setEditDesc] = useState('')
 
   const projectMap = new Map(projects.map((p) => [p.id, p.name]))
 
@@ -69,6 +79,7 @@ export function EnvVarList({
   async function handleCopy(id: number, value: string) {
     await navigator.clipboard.writeText(value)
     setCopiedId(id)
+    toast.success('Copied to clipboard')
     setTimeout(() => setCopiedId(null), 2000)
   }
 
@@ -80,6 +91,26 @@ export function EnvVarList({
       setConfirmDeleteId(id)
       setTimeout(() => setConfirmDeleteId(null), 3000)
     }
+  }
+
+  function startEdit(envVar: EnvVar) {
+    setEditingId(envVar.id)
+    setEditValue(envVar.value)
+    setEditDesc(envVar.description || '')
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+  }
+
+  function saveEdit(id: number) {
+    if (onUpdate) {
+      onUpdate(id, {
+        value: editValue,
+        description: editDesc.trim() || null,
+      })
+    }
+    setEditingId(null)
   }
 
   function maskValue(value: string): string {
@@ -142,7 +173,7 @@ export function EnvVarList({
                     <TableHead className="text-muted-foreground w-[200px]">
                       Description
                     </TableHead>
-                    <TableHead className="text-muted-foreground w-[100px]">
+                    <TableHead className="text-muted-foreground w-[120px]">
                       Actions
                     </TableHead>
                   </TableRow>
@@ -167,57 +198,107 @@ export function EnvVarList({
                         </div>
                       </TableCell>
                       <TableCell className="font-mono text-sm">
-                        <span className="text-muted-foreground">
-                          {envVar.sensitive && !revealedIds.has(envVar.id)
-                            ? maskValue(envVar.value)
-                            : envVar.value}
-                        </span>
+                        {editingId === envVar.id ? (
+                          <Input
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            className="bg-background border-border text-sm font-mono h-7"
+                          />
+                        ) : (
+                          <span className="text-muted-foreground">
+                            {envVar.sensitive && !revealedIds.has(envVar.id)
+                              ? maskValue(envVar.value)
+                              : envVar.value}
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {envVar.description || '-'}
+                        {editingId === envVar.id ? (
+                          <Input
+                            value={editDesc}
+                            onChange={(e) => setEditDesc(e.target.value)}
+                            placeholder="Description"
+                            className="bg-background border-border text-xs h-7"
+                          />
+                        ) : (
+                          envVar.description || '-'
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          {envVar.sensitive && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => toggleReveal(envVar.id)}
-                            >
-                              {revealedIds.has(envVar.id) ? (
-                                <EyeOff className="h-3.5 w-3.5" />
-                              ) : (
-                                <Eye className="h-3.5 w-3.5" />
+                          {editingId === envVar.id ? (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() => saveEdit(envVar.id)}
+                              >
+                                <Save className="h-3.5 w-3.5 text-green-400" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={cancelEdit}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              {envVar.sensitive && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => toggleReveal(envVar.id)}
+                                >
+                                  {revealedIds.has(envVar.id) ? (
+                                    <EyeOff className="h-3.5 w-3.5" />
+                                  ) : (
+                                    <Eye className="h-3.5 w-3.5" />
+                                  )}
+                                </Button>
                               )}
-                            </Button>
+                              {onUpdate && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => startEdit(envVar)}
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                                onClick={() =>
+                                  handleCopy(envVar.id, envVar.value)
+                                }
+                              >
+                                {copiedId === envVar.id ? (
+                                  <Check className="h-3.5 w-3.5 text-green-400" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className={cn(
+                                  'h-7 w-7',
+                                  confirmDeleteId === envVar.id &&
+                                    'text-red-400'
+                                )}
+                                onClick={() => handleDelete(envVar.id)}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() =>
-                              handleCopy(envVar.id, envVar.value)
-                            }
-                          >
-                            {copiedId === envVar.id ? (
-                              <Check className="h-3.5 w-3.5 text-green-400" />
-                            ) : (
-                              <Copy className="h-3.5 w-3.5" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                              'h-7 w-7',
-                              confirmDeleteId === envVar.id &&
-                                'text-red-400'
-                            )}
-                            onClick={() => handleDelete(envVar.id)}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

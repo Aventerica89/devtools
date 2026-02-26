@@ -77,14 +77,14 @@ export default function JsonViewerPage() {
   }, [rawInput])
 
   const handleFormat = useCallback(() => {
-    if (parsed !== null && parsed !== undefined) {
+    if (parsed != null) {
       setRawInput(JSON.stringify(parsed, null, 2))
       setMode('formatted')
     }
   }, [parsed])
 
   const handleMinify = useCallback(() => {
-    if (parsed !== null && parsed !== undefined) {
+    if (parsed != null) {
       setRawInput(JSON.stringify(parsed))
       setMode('minified')
     }
@@ -99,7 +99,7 @@ export default function JsonViewerPage() {
   }, [])
 
   const handleCopyOutput = useCallback(() => {
-    if (parsed === null && parsed === undefined) return
+    if (parsed == null) return
     const text = mode === 'minified'
       ? JSON.stringify(parsed)
       : JSON.stringify(parsed, null, 2)
@@ -122,7 +122,7 @@ export default function JsonViewerPage() {
     }
   }, [])
 
-  const formattedOutput = parsed !== null && parsed !== undefined
+  const formattedOutput = parsed != null
     ? (mode === 'minified'
       ? JSON.stringify(parsed)
       : JSON.stringify(parsed, null, 2))
@@ -139,7 +139,7 @@ export default function JsonViewerPage() {
         <div className="flex items-center gap-2">
           <Braces className="h-5 w-5 text-muted-foreground" />
           <h1 className="text-xl font-bold">JSON Viewer</h1>
-          {parsed !== null && parsed !== undefined && (
+          {parsed != null && (
             <Badge variant="secondary" className="text-xs">
               {lineCount} lines
             </Badge>
@@ -226,7 +226,7 @@ export default function JsonViewerPage() {
             variant="outline"
             size="sm"
             onClick={handleFormat}
-            disabled={parsed === null && parsed === undefined}
+            disabled={parsed == null}
             className={cn(
               'text-xs',
               mode === 'formatted' && 'border-blue-700 text-blue-300'
@@ -239,7 +239,7 @@ export default function JsonViewerPage() {
             variant="outline"
             size="sm"
             onClick={handleMinify}
-            disabled={parsed === null && parsed === undefined}
+            disabled={parsed == null}
             className={cn(
               'text-xs',
               mode === 'minified' && 'border-blue-700 text-blue-300'
@@ -255,7 +255,7 @@ export default function JsonViewerPage() {
             variant="outline"
             size="sm"
             onClick={handleCopyOutput}
-            disabled={parsed === null && parsed === undefined}
+            disabled={parsed == null}
             className="text-xs"
           >
             {copiedOutput ? (
@@ -274,7 +274,7 @@ export default function JsonViewerPage() {
       </div>
 
       {/* Output area (only shown when parsed) */}
-      {parsed !== null && parsed !== undefined && (
+      {parsed != null && (
         <>
           {/* Search + controls */}
           <div className="flex items-center gap-3">
