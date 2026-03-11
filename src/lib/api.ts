@@ -188,7 +188,16 @@ export const IdeaUpdateSchema = z.object({
 export function verifyApiKey(request: Request): NextResponse | null {
   const key = request.headers.get('x-devtools-api-key')
   const expected = process.env.DEVTOOLS_API_KEY
-  if (!key || !expected || key !== expected) {
+  if (!key || !expected) {
+    return apiError(401, 'Invalid or missing API key')
+  }
+  try {
+    const keyBuf = Buffer.from(key)
+    const expectedBuf = Buffer.from(expected)
+    if (keyBuf.length !== expectedBuf.length || !timingSafeEqual(keyBuf, expectedBuf)) {
+      return apiError(401, 'Invalid or missing API key')
+    }
+  } catch {
     return apiError(401, 'Invalid or missing API key')
   }
   return null

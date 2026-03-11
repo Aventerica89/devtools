@@ -41,8 +41,13 @@ function getAllowedOrigin(request: Request): string {
 }
 
 export default clerkMiddleware(async (auth, req) => {
-  // Allow API key-authenticated requests (CLI, external tools)
+  // Allow API key-authenticated requests (CLI, external tools) — validate key value
   if (isWidgetRoute(req) && req.headers.get('x-devtools-api-key')) {
+    const key = req.headers.get('x-devtools-api-key')
+    const expected = process.env.DEVTOOLS_API_KEY
+    if (!key || !expected || key !== expected) {
+      return NextResponse.json({ error: 'Invalid API key' }, { status: 401 })
+    }
     return NextResponse.next()
   }
 
