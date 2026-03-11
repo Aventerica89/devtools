@@ -49,7 +49,10 @@ describe('crypto', () => {
     it('throws on tampered auth tag', () => {
       const ct = encrypt('secret')
       const parts = ct.split(':')
-      parts[1] = parts[1].slice(0, -2) + 'aa' // corrupt auth tag
+      // Flip last two hex chars to guarantee the tag actually changes
+      const lastTwo = parts[1].slice(-2)
+      const flipped = lastTwo === 'aa' ? 'bb' : 'aa'
+      parts[1] = parts[1].slice(0, -2) + flipped // corrupt auth tag
       expect(() => decrypt(parts.join(':'))).toThrow()
     })
 
