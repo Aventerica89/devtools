@@ -15,7 +15,11 @@ export async function GET(request: Request) {
     }
 
     const all = await query.all()
-    return NextResponse.json(all)
+    return NextResponse.json(all, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return apiError(500, `Failed to fetch saved requests: ${message}`)

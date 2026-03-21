@@ -13,8 +13,6 @@ import {
   type Deployment,
 } from '@/components/deployment-table'
 
-const REFRESH_INTERVAL_MS = 30_000
-
 interface DeploymentsResponse {
   data: Deployment[]
   configured?: boolean
@@ -65,13 +63,9 @@ export default function DeploymentsPage() {
     [filterProject]
   )
 
-  // Initial fetch + auto-refresh
+  // Initial fetch
   useEffect(() => {
     fetchDeployments()
-    const interval = setInterval(() => {
-      fetchDeployments({ silent: true })
-    }, REFRESH_INTERVAL_MS)
-    return () => clearInterval(interval)
   }, [fetchDeployments])
 
   // Derive unique project names for filter dropdown
@@ -89,24 +83,16 @@ export default function DeploymentsPage() {
           <Badge variant="secondary" className="text-xs">
             {deployments.length}
           </Badge>
-          {/* Auto-refresh indicator */}
+          {/* Status indicator */}
           <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2 w-2">
-              <span
-                className={cn(
-                  'absolute inline-flex h-full w-full rounded-full opacity-75',
-                  configured ? 'bg-green-400 animate-ping' : 'bg-muted-foreground'
-                )}
-              />
-              <span
-                className={cn(
-                  'relative inline-flex h-2 w-2 rounded-full',
-                  configured ? 'bg-green-500' : 'bg-muted-foreground'
-                )}
-              />
-            </span>
+            <span
+              className={cn(
+                'inline-flex h-2 w-2 rounded-full',
+                configured ? 'bg-green-500' : 'bg-muted-foreground'
+              )}
+            />
             <span className="text-xs text-muted-foreground">
-              {configured ? `Live (${projectCount} projects)` : 'Offline'}
+              {configured ? `${projectCount} projects` : 'Offline'}
             </span>
           </div>
         </div>

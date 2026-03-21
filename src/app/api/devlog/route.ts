@@ -38,7 +38,11 @@ export async function GET(request: Request) {
     }
 
     const all = await query.all()
-    return NextResponse.json(all)
+    return NextResponse.json(all, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+      },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return apiError(500, `Failed to fetch devlog: ${message}`)

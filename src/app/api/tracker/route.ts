@@ -99,7 +99,11 @@ export async function GET(request: Request) {
 
     const raw: RawDeployment[] = await res.json()
     const data = raw.map(mapDeployment)
-    return NextResponse.json({ data, configured: true })
+    return NextResponse.json({ data, configured: true }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    })
   } catch {
     return NextResponse.json(
       { error: 'Failed to fetch from App Tracker' },

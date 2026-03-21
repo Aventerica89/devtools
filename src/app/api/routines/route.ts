@@ -18,7 +18,11 @@ export async function GET(request: Request) {
     const rows = projectId
       ? await query.where(eq(routineChecklists.projectId, projectId))
       : await query
-    return NextResponse.json(rows)
+    return NextResponse.json(rows, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+      },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return apiError(500, `Failed to fetch checklists: ${message}`)

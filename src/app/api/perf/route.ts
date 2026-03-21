@@ -34,7 +34,11 @@ export async function GET(request: Request) {
       .limit(limit)
       .offset(offset)
 
-    return NextResponse.json(entries)
+    return NextResponse.json(entries, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return apiError(500, `Failed to fetch perf entries: ${message}`)

@@ -55,6 +55,10 @@ export async function GET(request: Request) {
       data,
       configured: true,
       projectCount: configured.length,
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
