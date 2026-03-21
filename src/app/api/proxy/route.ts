@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { isPrivateUrl } from '@/lib/sanitize'
 
 export async function POST(request: Request) {
   const config = await request.json()
@@ -13,6 +14,13 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: 'URL is required' },
       { status: 400 }
+    )
+  }
+
+  if (isPrivateUrl(url)) {
+    return NextResponse.json(
+      { error: 'Requests to private/internal addresses are not allowed' },
+      { status: 403 }
     )
   }
 
