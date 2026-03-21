@@ -148,6 +148,8 @@ widget/                        # Embeddable Preact widget (separate package)
 - **Zod validation**: All POST/PUT bodies validated via `parseBody()` helper with typed Zod schemas in `api.ts`.
 - **Edge middleware auth**: `auth.edge.ts` uses Web Crypto API for session verification (compatible with Vercel Edge Runtime). `auth.ts` uses Node crypto for token creation.
 - **Project labels**: Sidebar sections are Debug (bugs, console, network, errors), Tools (API tester, JSON, regex, colors), Ops (deployments, env, devlog, perf), Dev (style guide, mobile app), Settings (projects, AI, widget).
+- **SSRF protection**: `isPrivateUrl()` in `src/lib/sanitize.ts` blocks private IPs, localhost, cloud metadata (169.254.x). Used in `/api/proxy`. Use for any new server-side URL fetching.
+- **API Cache-Control**: All GET API routes use `s-maxage` headers for Vercel edge caching. Mutable routes (bugs, devlog, ideas, routines) use 30s. Read-heavy routes (perf, env, requests, deployments, tracker) use 60s. New GET routes MUST include Cache-Control headers.
 
 ## Environment Variables
 
