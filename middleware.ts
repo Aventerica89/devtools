@@ -40,7 +40,17 @@ function getAllowedOrigin(request: Request): string {
   return allowedOrigins[0] || 'null'
 }
 
-export default clerkMiddleware(async (auth, req) => {
+// MAINTENANCE MODE: Return 503 for all requests to stop Vercel invocation costs.
+// Remove this block and uncomment the clerkMiddleware export to re-enable.
+export default function middleware() {
+  return new NextResponse(
+    JSON.stringify({ status: 'offline', message: 'DevTools is temporarily offline' }),
+    { status: 503, headers: { 'Content-Type': 'application/json', 'Retry-After': '86400' } }
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _clerkMiddleware = clerkMiddleware(async (auth, req) => {
   // Allow API key-authenticated requests (CLI, external tools) — validate key value
   if (isWidgetRoute(req) && req.headers.get('x-devtools-api-key')) {
     const key = req.headers.get('x-devtools-api-key')
